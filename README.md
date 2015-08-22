@@ -8,6 +8,7 @@ Application to assist with bi-weekly budget planning and execution
     sudo pip install Flask-PyMongo
     sudo pip install Flask-Social
     sudo pip install pylint
+    sudo pip install coverage
     
     
     
