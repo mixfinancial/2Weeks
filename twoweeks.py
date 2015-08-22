@@ -1,3 +1,5 @@
+__author__ = 'davidlarrimore'
+import logging
 from flask import Flask, render_template, request
 from flask.ext.pymongo import PyMongo
 from bson import json_util, ObjectId
@@ -8,6 +10,7 @@ app.config['MONGO_DBNAME'] = 'test'
 mongo = PyMongo(app)
 
 
+logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
 
 @app.route('/')
