@@ -34,16 +34,20 @@ class Users(Resource):
 
 api.add_resource(Users, '/api/users')
 
-
 #USERS
 class User(Resource):
     def get(self, user_id):
         user = mongo.db.users.find_one_or_404({'_id': ObjectId(user_id)})
+        app.logger.info("looking for user:" + user_id)
         return json.loads(json_util.dumps(user))
 
     def put(self, user_id):
-        user = mongo.db.users.find_one_or_404({'_id': ObjectId(user_id)})
-        return json.loads(json_util.dumps(user))
+        user = json.loads(request.form['data'])
+        app.logger.info(user)
+        app.logger.info({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"})
+        user_id = mongo.db.users.insert(user)
+        #user_id = mongo.db.users.insert({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}).inserted_id
+        return {"status":"success", "New ID": json.loads(json_util.dumps(user_id))["$oid"]}
 
 api.add_resource(User, '/api/user/<string:user_id>')
 
