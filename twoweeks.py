@@ -42,10 +42,9 @@ class User(Resource):
         return json.loads(json_util.dumps(user))
 
     def put(self, user_id):
-        user = json.loads(request.form['data'])
-        app.logger.info(user)
-        app.logger.info({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"})
-        user_id = mongo.db.users.insert(user)
+        data=json.loads(request.form['data'])
+        app.logger.info("Creating User for: " + request.form['data'])
+        user_id = mongo.db.users.insert(data)
         #user_id = mongo.db.users.insert({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}).inserted_id
         return {"status":"success", "New ID": json.loads(json_util.dumps(user_id))["$oid"]}
 
