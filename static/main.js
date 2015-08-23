@@ -3,7 +3,7 @@
     var app = angular.module("myApp", []);
 
     app.controller("UsersCtrl", function($scope, $http) {
-      $http.get('/users').
+      $http.get('/api/users').
         success(function(data, status, headers, config) {
           $scope.users = data;
         }).

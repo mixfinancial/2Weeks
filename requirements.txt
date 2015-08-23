@@ -1,0 +1,9 @@
+# Python Requirements.txt file to install all required python modules for the 2Weeks Application
+# sudo pip install -r requirements.txt
+
+flask
+Flask-PyMongo
+Flask-Social
+pylint
+coverage
+Flask-RESTful

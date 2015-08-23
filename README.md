@@ -3,12 +3,9 @@ Application to assist with bi-weekly budget planning and execution
 
 
 ### Installation
+All required Python libraries can be installed by leveraging the included requirements.txt file.
 
-    sudo pip install flask
-    sudo pip install Flask-PyMongo
-    sudo pip install Flask-Social
-    sudo pip install pylint
-    sudo pip install coverage
+    sudo pip install -r requirements.txt
     
     
     
