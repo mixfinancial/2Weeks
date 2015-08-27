@@ -1,7 +1,7 @@
 ############################################################
 # Dockerfile to build 2weeks App
 # Based on Ubuntu
-##
+##d
 ############################################################
 
 # Set the base image to Ubuntu
@@ -23,10 +23,13 @@ RUN apt-get install -y tar git curl nano wget dialog net-tools build-essential
 RUN apt-get install -y python python-dev python-distribute python-pip
 
 # Copy the application folder inside the container
-RUN git clone https://github.com/mixfinancial/app.git
+RUN git clone https://github.com/mixfinancial/2Weeks.git
 
 # Get pip to download and install requirements:
 RUN pip install -r /app/requirements.txt
+
+#Run the setup script from Dave
+RUN /scripts/bootstrap.sh
 
 # Expose ports
 EXPOSE 80
