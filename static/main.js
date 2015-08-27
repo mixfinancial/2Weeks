@@ -11,3 +11,11 @@
           // log error
         });
     });
+
+
+    app.controller('formCtrl', function($scope) {
+        $scope.reset = function() {
+            $scope.user = angular.copy($scope.master);
+        };
+        $scope.reset();
+    });
