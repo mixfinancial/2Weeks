@@ -26,7 +26,7 @@ RUN apt-get install -y python python-dev python-distribute python-pip
 RUN git clone https://github.com/mixfinancial/2Weeks.git
 
 # Get pip to download and install requirements:
-RUN pip install -r /app/requirements.txt
+RUN pip install -r requirements.txt
 
 #Run the setup script from Dave
 RUN /scripts/bootstrap.sh
