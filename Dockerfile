@@ -31,11 +31,15 @@ RUN pip install -r /2Weeks/requirements.txt
 #Run the setup script from Dave
 RUN chmod +x /2Weeks/scripts/bootstrap.sh
 
-#Start up MongoDB
-#RUN sudo service mongod start
+#Setuiptart up MongoDB
+#RUN mkdir -p /data/db
+
 
 # Expose ports
 EXPOSE 80
+
+# Expose port 27017 from the container to the host
+EXPOSE 27017
 
 # Set the default directory where CMD will execute
 WORKDIR /2weeks
@@ -45,3 +49,6 @@ RUN apt-get update
 # Set the default command to execute when creating a new container
 # i.e. using CherryPy to serve the application
 CMD python twoweeks.py
+
+# Set usr/bin/mongod as the dockerized entry-point application
+ENTRYPOINT ["/usr/bin/mongod"]
