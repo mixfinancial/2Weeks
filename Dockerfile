@@ -29,7 +29,7 @@ RUN git clone https://github.com/mixfinancial/2Weeks.git
 RUN pip install -r /2Weeks/requirements.txt
 
 #Run the setup script from Dave
-RUN /2Weeks/scripts/bootstrap.sh
+RUN chmod +x /2Weeks/scripts/bootstrap.sh
 
 # Expose ports
 EXPOSE 80
