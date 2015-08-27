@@ -32,7 +32,7 @@ RUN pip install -r /2Weeks/requirements.txt
 RUN chmod +x /2Weeks/scripts/bootstrap.sh
 
 #Start up MongoDB
-RUN sudo service mongod start
+#RUN sudo service mongod start
 
 # Expose ports
 EXPOSE 80
