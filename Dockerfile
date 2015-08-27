@@ -31,6 +31,9 @@ RUN pip install -r /2Weeks/requirements.txt
 #Run the setup script from Dave
 RUN chmod +x /2Weeks/scripts/bootstrap.sh
 
+#Start up MongoDB
+RUN sudo service mongod
+
 # Expose ports
 EXPOSE 80
 

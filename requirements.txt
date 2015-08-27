@@ -4,5 +4,6 @@
 flask
 Flask-PyMongo
 pylint
+werkzeug
 coverage
 Flask-RESTful
