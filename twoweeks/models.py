@@ -2,7 +2,7 @@ __author__ = 'davidlarrimore'
 
 import os
 from datetime import datetime
-from database import Base
+from twoweeks.database import Base
 from sqlalchemy import Column, Integer, String, DateTime
 
 
@@ -10,7 +10,8 @@ def dump_datetime(value):
     """Deserialize datetime object into string form for JSON processing."""
     if value is None:
         return None
-    return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
+    #return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
+    return value.strftime("%Y-%m-%d") + " " + value.strftime("%H:%M:%S")
 
 
 
