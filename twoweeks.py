@@ -12,6 +12,10 @@ import json
 
 app = Flask(__name__)
 api = Api(app)
+app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://twoweeks:twoweeks@mixfindb.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com:3306/twoweeks'
+db = SQLAlchemy(app)
+
 
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
@@ -28,15 +32,22 @@ def test():
 
 
 # USER
-class APIUsers(Resource):
+class ApiUsers(Resource):
     def get(self):
-        #users = Users.query.filter_by(username='deleteme').first()
         users = Users.query.all()
         return jsonify(results=[i.serialize for i in users])
-        #return {'hello': users.username}
-        #return json.loads(json_util.dumps(mongo.db.users.find()))
 
-api.add_resource(APIUsers, '/api/users')
+    def post(self):
+        app.logger.info("Creating User for: " + request.form['data'])
+        requestData = json.loads(request.form['data'])
+        newUser = Users(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
+        db.session.add(newUser)
+        db.session.commit()
+
+        return {"status":"success", "New ID": newUser.id}
+
+
+api.add_resource(ApiUsers, '/api/users')
 
 
 
@@ -44,11 +55,12 @@ api.add_resource(APIUsers, '/api/users')
 
 
 #USERS
-#class User(Resource):
-#    def get(self, user_id):
-#        user = mongo.db.users.find_one_or_404({'_id': ObjectId(user_id)})
-#        app.logger.info("looking for user:" + user_id)
-#        return json.loads(json_util.dumps(user))
+class ApiUser(Resource):
+    def get(self, user_id):
+        app.logger.info("looking for user:" + user_id)
+        users = Users.query.filter_by(id=user_id).first()
+        return jsonify(results=[users.serialize])
+        return json.loads(json_util.dumps(user))
 
 #    def put(self, user_id):
 #        data=json.loads(request.form['data'])
@@ -57,15 +69,7 @@ api.add_resource(APIUsers, '/api/users')
 #        #user_id = mongo.db.users.insert({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}).inserted_id
 #        return {"status":"success", "New ID": json.loads(json_util.dumps(user_id))["$oid"]}
 
-#    def post(self):
-#        data=json.loads(request.form['data'])
-#        app.logger.info("Creating User for: " + request.form['data'])
-#        user_id = mongo.db.users.insert(data)
-#        #user_id = mongo.db.users.insert({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}).inserted_id
-#        return {"status":"success", "New ID": json.loads(json_util.dumps(user_id))["$oid"]}
-
-
-#api.add_resource(User, '/api/user/', '/api/user/<string:user_id>')
+api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>')
 
 
 
