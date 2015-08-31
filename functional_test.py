@@ -23,9 +23,9 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.get('http://localhost:5000')
 
         # What does the page title of the homepage?
-        self.assertIn('MIXFIN App', self.browser.title)
+        self.assertIn('2Weeks', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('MIXFIN', header_text)
+        self.assertIn('2Weeks', header_text)
 
         # The user needs to enter a to-do item
         inputbox = self.browser.find_element_by_id('id_new_item')
