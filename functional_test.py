@@ -28,7 +28,7 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn('2Weeks', header_text)
 
         # The user needs to enter a to-do item
-        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id('user.first_name')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
             'Enter a to-do item'
