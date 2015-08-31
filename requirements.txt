@@ -4,6 +4,7 @@
 flask
 Flask-SQLAlchemy
 pylint
+selenium
 werkzeug
 coverage
 Flask-RESTful
