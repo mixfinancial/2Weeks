@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
 from json import dumps
+from datetime import datetime
 import models
 from models import Users
 
@@ -58,16 +59,26 @@ api.add_resource(ApiUsers, '/api/users')
 class ApiUser(Resource):
     def get(self, user_id):
         app.logger.info("looking for user:" + user_id)
-        users = Users.query.filter_by(id=user_id).first()
-        return jsonify(results=[users.serialize])
-        return json.loads(json_util.dumps(user))
+        user = Users.query.filter_by(id=user_id).first()
+        return jsonify(results=[user.serialize])
 
-#    def put(self, user_id):
-#        data=json.loads(request.form['data'])
-#        app.logger.info("Creating User for: " + request.form['data'])
-#        user_id = mongo.db.users.insert(data)
-#        #user_id = mongo.db.users.insert({"email_address": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}).inserted_id
-#        return {"status":"success", "New ID": json.loads(json_util.dumps(user_id))["$oid"]}
+    def put(self, user_id):
+        app.logger.info("Updating User for: " + request.form['data'])
+        requestData = json.loads(request.form['data'])
+        user = Users.query.filter_by(id=user_id).first()
+
+        user.username = requestData['username']
+        user.email = requestData['email']
+        user.first_name = requestData['first_name']
+        user.last_name = requestData['first_name']
+        user.last_updated = datetime.utcnow()
+        db.session.commit()
+
+        return {"status":"success", "Updated ID": user.id}
+
+
+
+
 
 api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>')
 
