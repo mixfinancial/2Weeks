@@ -1,16 +1,10 @@
 __author__ = 'davidlarrimore'
-import logging
-from flask import Flask, render_template, request, jsonify
-from flask.ext.sqlalchemy import SQLAlchemy
+
+from twoweeks import db
+import os
 from datetime import datetime
-from json import dumps
-from sqlalchemy.orm import class_mapper
 
-import json
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://twoweeks:twoweeks@mixfindb.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com:3306/twoweeks'
-db = SQLAlchemy(app)
 
 
 def dump_datetime(value):
@@ -23,6 +17,9 @@ def dump_datetime(value):
 
 # USER MODEL
 class Users(db.Model):
+
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(45))

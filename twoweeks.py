@@ -1,24 +1,47 @@
 __author__ = 'davidlarrimore'
+
 import logging
+import json
+
 from flask import Flask, render_template, request, jsonify
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
-from json import dumps
+import os
 from datetime import datetime
-import models
-from models import Users
 
 
-import json
+
+
+
+
+#################
+# configuration #
+#################
 
 app = Flask(__name__)
-api = Api(app)
-app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://twoweeks:twoweeks@mixfindb.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com:3306/twoweeks'
+app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
 
+# Importing Models
+from models import *
+
+
+api = Api(app)
+
+
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
+
+
+
+
+
+
+
+
+##########
+# routes #
+##########
 
 
 @app.route('/')
@@ -77,10 +100,19 @@ class ApiUser(Resource):
         return {"status":"success", "Updated ID": user.id}
 
 
+    def delete(self, user_id):
+        app.logger.info("Deleting User #: " + user_id)
+        user = Users.query.filter_by(id=user_id).first()
+        db.session.delete(user)
+        db.session.commit()
+
+        return {"status":"success", "Deleted #": user_id}
 
 
 
 api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>')
+
+
 
 
 

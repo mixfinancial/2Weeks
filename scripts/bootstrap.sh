@@ -11,4 +11,6 @@ user2='{"email": "blarrimore5@gmail.com", "first_name": "Barbara", "last_name": 
 
 user2='{"email": "blarrimore6@gmail.com", "first_name": "Ronald", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}'
 
-curl http://localhost:5000/api/user/1 -d "data= $user2" -X PUT
+#curl http://localhost:5000/api/user/1 -d "data= $user2" -X PUT
+
+curl http://localhost:5000/api/user/1 -X DELETE
