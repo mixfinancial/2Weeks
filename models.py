@@ -46,7 +46,7 @@ class Users(db.Model):
             last_name = "None"
         self.last_name = last_name
 
-        self.last_updated = datetime.utcnow()
+        self.date_created = datetime.utcnow()
 
         self.last_updated = datetime.utcnow()
 
