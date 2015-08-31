@@ -32,27 +32,11 @@ class APIUsers(Resource):
     def get(self):
         #users = Users.query.filter_by(username='deleteme').first()
         users = Users.query.all()
-        return jsonify(json_list=[i.serialize for i in users])
+        return jsonify(results=[i.serialize for i in users])
         #return {'hello': users.username}
         #return json.loads(json_util.dumps(mongo.db.users.find()))
 
 api.add_resource(APIUsers, '/api/users')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
