@@ -1,10 +1,9 @@
 __author__ = 'davidlarrimore'
 
-from twoweeks import db
 import os
 from datetime import datetime
-
-
+from database import Base
+from sqlalchemy import Column, Integer, String, DateTime
 
 
 def dump_datetime(value):
@@ -16,18 +15,18 @@ def dump_datetime(value):
 
 
 # USER MODEL
-class Users(db.Model):
+class Users(Base):
 
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(45))
-    email = db.Column(db.String(120), unique=True)
-    first_name = db.Column(db.String(120), unique=True)
-    last_name = db.Column(db.String(120), unique=True)
-    date_created = db.Column(db.DateTime(120), unique=True)
-    last_updated = db.Column(db.DateTime(120), unique=True)
+    id = Column(Integer, primary_key=True)
+    username = Column(String(80), unique=True)
+    password = Column(String(45))
+    email = Column(String(120), unique=True)
+    first_name = Column(String(120), unique=True)
+    last_name = Column(String(120), unique=True)
+    date_created = Column(DateTime(120), unique=True)
+    last_updated = Column(DateTime(120), unique=True)
 
     def __init__(self, username, email, first_name=None, last_name=None):
         self.username = username

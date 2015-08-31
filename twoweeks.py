@@ -5,13 +5,9 @@ import json
 
 from flask import Flask, render_template, request, jsonify
 from flask_restful import Resource, Api
-from flask.ext.sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
-
-
-
-
+from database import db_session
 
 
 #################
@@ -19,12 +15,15 @@ from datetime import datetime
 #################
 
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
-db = SQLAlchemy(app)
-
 
 # Importing Models
-from models import *
+from database import init_db
+init_db()
+
+from database import db_session
+from models import Users
+
+
 
 
 api = Api(app)
@@ -65,8 +64,8 @@ class ApiUsers(Resource):
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
         newUser = Users(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
-        db.session.add(newUser)
-        db.session.commit()
+        db_session.add(newUser)
+        db_session.commit()
 
         return {"status":"success", "New ID": newUser.id}
 
@@ -75,15 +74,16 @@ api.add_resource(ApiUsers, '/api/users')
 
 
 
-
-
-
 #USERS
 class ApiUser(Resource):
     def get(self, user_id):
         app.logger.info("looking for user:" + user_id)
         user = Users.query.filter_by(id=user_id).first()
-        return jsonify(results=[user.serialize])
+
+        if user is None:
+            return {"status":"success", "message": "No results returned for user id #"+ user_id, "results":""}
+        else:
+            return jsonify(results=[user.serialize])
 
     def put(self, user_id):
         app.logger.info("Updating User for: " + request.form['data'])
@@ -95,7 +95,7 @@ class ApiUser(Resource):
         user.first_name = requestData['first_name']
         user.last_name = requestData['first_name']
         user.last_updated = datetime.utcnow()
-        db.session.commit()
+        db_session.commit()
 
         return {"status":"success", "Updated ID": user.id}
 
@@ -103,8 +103,8 @@ class ApiUser(Resource):
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
         user = Users.query.filter_by(id=user_id).first()
-        db.session.delete(user)
-        db.session.commit()
+        db_session.delete(user)
+        db_session.commit()
 
         return {"status":"success", "Deleted #": user_id}
 
