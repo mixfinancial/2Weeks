@@ -2,7 +2,7 @@
 # sudo pip install -r requirements.txt
 
 flask
-Flask-PyMongo
+Flask-SQLAlchemy
 pylint
 werkzeug
 coverage
