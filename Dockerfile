@@ -39,7 +39,7 @@ RUN chmod +x /2Weeks/scripts/bootstrap.sh
 EXPOSE 80
 
 # Expose port 27017 from the container to the host
-EXPOSE 27017
+#EXPOSE 27017
 
 # Set the default directory where CMD will execute
 WORKDIR /2weeks
@@ -51,4 +51,4 @@ RUN apt-get update
 CMD python twoweeks.py
 
 # Set usr/bin/mongod as the dockerized entry-point application
-ENTRYPOINT ["/usr/bin/mongod"]
+#ENTRYPOINT ["/usr/bin/mongod"]
