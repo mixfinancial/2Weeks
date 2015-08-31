@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://twoweeks:twoweeks@mixfindb.c6uo
 db = SQLAlchemy(app)
 
 
-logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
+#logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
 
 @app.route('/')

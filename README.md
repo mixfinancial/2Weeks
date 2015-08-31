@@ -9,3 +9,12 @@ All required Python libraries can be installed by leveraging the included requir
     
     
     
+    
+ ## Testing
+ 
+ funtional_test.py
+ Selenium -requires 
+    https://code.google.com/p/selenium/wiki/ChromeDriver
+    Using ChromeDriver
+    -Robert
+    python functional_test.py
