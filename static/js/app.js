@@ -11,6 +11,10 @@ myApp.config(['$routeProvider', function($routeProvider) {
         templateUrl: '../static/partials/usersTable.html',
         controller: 'UserListController'
     }).
+    when('/userView', {
+        templateUrl: '../static/partials/userView.html',
+        controller: 'UserViewController'
+    }).
     otherwise({
         redirectTo: '/usersTable'
     });
