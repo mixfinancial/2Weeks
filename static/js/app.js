@@ -11,8 +11,8 @@ myApp.config(['$routeProvider', function($routeProvider) {
         templateUrl: '../static/partials/usersTable.html',
         controller: 'UserListController'
     }).
-    when('/userView', {
-        templateUrl: '../static/partials/userView.html',
+    when('/usersView/:userId', {
+        templateUrl: '../static/partials/usersView.html',
         controller: 'UserViewController'
     }).
     otherwise({
