@@ -24,35 +24,10 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                  <div ng-controller="UsersCtrl">
-                      <table id="main_tbl" class="table table-striped table-bordered table-hover table-condensed">
-                          <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>username</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email Address</th>
-                                <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr ng-repeat="user in users">
-                                {% raw %}
-                                <td>{{user.id}}</td>
-                                <td>{{user.username}}</td>
-                                <td>{{user.first_name}}</td>
-                                <td>{{user.last_name}}</td>
-                                <td>{{user.email}}</td>
-                                <td>&nbsp;</td>
-                                {% endraw %}
-                            </tr>
-                          </tbody>
-                      </table>
-                  </div>
+                  <div ng-view class="view-frame"></div>
             </div>
         </div>
-        <div class="row">
+        <!--<div class="row">
             <div class="col-md-12">
                 <form novalidate class="form" ng-submit="submit()" ng-controller="formCtrl">
                     First Name:<br>
@@ -63,10 +38,10 @@
                     <input class="btn btn-info" type="submit" id="submit" value="Submit" />
                   </form>
             </div>
-        </div>
+        </div>-->
     </div>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></link>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
     <!-- Latest compiled and minified JavaScript for Bootstrap -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -74,11 +49,13 @@
     <!-- Latest compiled and minified JavaScript for AngularJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
 
     <!-- D3.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
 
   </body>
 </html>

@@ -58,9 +58,6 @@ class ApiUsers(Resource):
         users = [i.serialize for i in Users.query.all()]
         return {"meta":buildMeta(), "error":"none", "data":[i.serialize for i in Users.query.all()]}
 
-
-
-
     def post(self):
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
@@ -76,14 +73,18 @@ api.add_resource(ApiUsers, '/api/users')
 
 #USERS
 class ApiUser(Resource):
-    def get(self, user_id):
-        app.logger.info("looking for user:" + user_id)
-        user = Users.query.filter_by(id=user_id).first()
+    def get(self, user_id=None):
 
-        if user is None:
-            return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "results":""}
+        if user_id is not None:
+            app.logger.info("looking for user:" + user_id)
+            user = Users.query.filter_by(id=user_id).first()
+            if user is None:
+                return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "results":""}
+            else:
+                return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
-            return jsonify(meta=buildMeta(), results=[user.serialize])
+            users = [i.serialize for i in Users.query.all()]
+            return {"meta":buildMeta(), "error":"none", "data":[i.serialize for i in Users.query.all()]}
 
     def put(self, user_id):
         app.logger.info("Updating User for: " + request.form['data'])
@@ -100,6 +101,15 @@ class ApiUser(Resource):
         return {"meta":buildMeta(), "error":"none", "data": "Updated Record with ID " + user.id}
 
 
+    def post(self, user_id=None):
+        app.logger.info("Creating User for: " + request.form['data'])
+        requestData = json.loads(request.form['data'])
+        newUser = Users(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
+        db_session.add(newUser)
+        db_session.commit()
+        return {"meta":buildMeta(), "error":"none", "data": newUser.id}
+
+
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
         user = Users.query.filter_by(id=user_id).first()
@@ -110,7 +120,6 @@ class ApiUser(Resource):
 
 
 api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>')
-
 
 
 def buildMeta():
