@@ -1,5 +1,6 @@
 <section class="usersTablePage">
     <h3>Users List:</h3>
+    <div><a class="btn btn-primary" href="#/usersForm">Create New User</a></div>
     <div class="list-group active">
         <a id="test" class="list-group-item" ng-repeat="user in users" href="#/usersView/{{user.id}}"><span class="badge">{{user.id}}</span>{{user.username}}</a>
     </div>

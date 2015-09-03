@@ -4,8 +4,7 @@ import json
 from datetime import datetime
 
 from flask import Flask, render_template, request, jsonify
-from flask_restful import Resource, Api
-
+from flask_restful import Resource, Api, reqparse
 
 
 #################
@@ -13,6 +12,8 @@ from flask_restful import Resource, Api
 #################
 
 app = Flask(__name__)
+app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+
 
 # Importing Models
 from twoweeks.database import init_db
@@ -96,13 +97,13 @@ class ApiUser(Resource):
 
 
     def post(self, user_id=None):
+        print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
         newUser = Users(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
         db_session.add(newUser)
         db_session.commit()
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
-
 
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
@@ -128,4 +129,5 @@ def shutdown_session(exception=None):
 
 
 if __name__ == "__main__":
+    app.config['TRAP_BAD_REQUEST_ERRORS'] = True
     app.run(debug=True)

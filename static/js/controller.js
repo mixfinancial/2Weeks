@@ -24,30 +24,20 @@
     }]);
 
 
-    angular.module('myApp').factory('dataFactory', ['$http', function($http) {
-
-        var urlBase = '/api/user';
-        var dataFactory = {};
-
-        dataFactory.getUsers = function () {
-            return $http.get(urlBase);
+    userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', function($scope, $http, transformRequestAsFormPost ) {
+        $scope.submit = function() {
+            $scope.user.username = $scope.user.email;
+            var data= $scope.user;
+            console.log(data);
+            $http({
+              url: "/api/user/",
+              method: "POST",
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              data: $.param({"data":JSON.stringify(data)})
+            }).success(function(data) {
+              console.log(data)
+            });
         };
-
-        dataFactory.getUser = function (id) {
-            return $http.get(urlBase + '/' + id);
-        };
-
-        dataFactory.insertUser = function (user) {
-            return $http.post(urlBase, user);
-        };
-
-        dataFactory.updateUser = function (user) {
-            return $http.put(urlBase + '/' + user.ID, cust)
-        };
-
-        dataFactory.deleteUser = function (id) {
-            return $http.delete(urlBase + '/' + id);
-        };
-
-       return dataFactory;
     }]);
+
+
