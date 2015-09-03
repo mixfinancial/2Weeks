@@ -6,8 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 engine = create_engine('mysql://twoweeks:twoweeks@mixfindb.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com:3306/twoweeks', convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
+db_session = scoped_session(sessionmaker(autocommit=True,
+                                         autoflush=True,
                                          bind=engine))
 
 Base = declarative_base()
