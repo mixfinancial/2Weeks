@@ -8,3 +8,4 @@ selenium
 werkzeug
 coverage
 Flask-RESTful
+MySQL-Python

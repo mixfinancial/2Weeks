@@ -1,6 +1,6 @@
 <section class="usersTablePage">
     <h3>Users List:</h3>
-    <ul>
-        <li ng-repeat="user in users"><a href="#/usersView/{{user.id}}">{{user.username}}</a></li>
-    </ul>
+    <div class="list-group active">
+        <a class="list-group-item" ng-repeat="user in users" href="#/usersView/{{user.id}}"><span class="badge">{{user.id}}</span>{{user.username}}</a>
+    </div>
 </section>
