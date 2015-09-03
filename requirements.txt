@@ -1,8 +1,6 @@
 # Python Requirements.txt file to install all required python modules for the 2Weeks Application
 # sudo pip install -r requirements.txt
 
-libmysqlclient-dev
-python-dev
 flask
 Flask-SQLAlchemy
 MySQL-Python

@@ -30,7 +30,7 @@ ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 # Install Python and Basic Python Tools
-RUN apt-get install -y python python-dev python-distribute python-pip
+RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
 
 # Copy the application folder inside the container
 RUN git clone https://github.com/mixfinancial/2Weeks.git
