@@ -14,14 +14,17 @@
       <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
   <body>
-    <div class="container">
-        <div class="row">&nbsp;</div>
+    <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">
+        2Weeks
+      </a>
     </div>
+  </div>
+</nav>
     <div class="container theme-showcase" role="main">
-        <div class="jumbotron">
-            <h1>2Weeks</h1>
-            <p>Simplify your bills</p>
-        </div>
+
         <div class="row">
             <div class="col-md-12" ng-app="myApp">
                   <div ng-view class="view-frame"></div>

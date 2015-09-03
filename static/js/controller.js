@@ -24,7 +24,7 @@
     }]);
 
 
-    userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', function($scope, $http, transformRequestAsFormPost ) {
+    userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, transformRequestAsFormPost, $location ) {
         $scope.submit = function() {
             $scope.user.username = $scope.user.email;
             var data= $scope.user;
@@ -36,6 +36,7 @@
               data: $.param({"data":JSON.stringify(data)})
             }).success(function(data) {
               console.log(data)
+              $location.path( "/usersTable");
             });
         };
     }]);
