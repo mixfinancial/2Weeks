@@ -47,7 +47,7 @@ WORKDIR /2weeks
 RUN apt-get update
 
 # Expose ports
-EXPOSE 80 && 22
+EXPOSE 80 22
 
 # Set the default command to execute when creating a new container
 
