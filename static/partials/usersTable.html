@@ -12,9 +12,18 @@
     </div>
     <div class="row">
         <div class="col-sm-10">
-            <div class="list-group active">
-                <a id="test" class="list-group-item" ng-repeat="user in users" href="#/usersView/{{user.id}}"><span class="badge">{{user.id}}</span>{{user.username}}</a>
+            <div class="list-group">
+                <div class="list-group-item" ng-repeat="user in users">
+                    <h4 class="list-group-item-heading">{{user.first_name}} {{user.last_name}}</h4>
+                    <p class="list-group-item-text">
+                        <a class="btn btn-primary btn-xs" href="#/usersView/{{user.id}}">View</a>
+                        <a class="btn btn-warning btn-xs" href="#/usersEditForm/{{user.id}}">Edit</a>
+                        <a class="btn btn-danger btn-xs" href="#/userDelete/{{user.id}}">Delete</a>
+                    </p>
+                </div>
             </div>
+        </div>
+
         </div>
     </div>
 </section>

@@ -19,6 +19,14 @@ myApp.config(['$routeProvider', function($routeProvider) {
         templateUrl: '../static/partials/usersForm.html',
         controller: 'UserFormController'
     }).
+    when('/usersEditForm/:userId', {
+        templateUrl: '../static/partials/usersEditForm.html',
+        controller: 'UserEditFormController'
+    }).
+    when('/userDelete/:userId', {
+        templateUrl: '../static/partials/usersTable.html',
+        controller: 'UserDeleteController'
+    }).
     otherwise({
         redirectTo: '/usersTable'
     });

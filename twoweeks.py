@@ -74,7 +74,7 @@ class ApiUser(Resource):
             app.logger.info("looking for user:" + user_id)
             user = Users.query.filter_by(id=user_id).first()
             if user is None:
-                return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "results":""}
+                return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
@@ -82,18 +82,21 @@ class ApiUser(Resource):
             return {"meta":buildMeta(), "error":"none", "data":[i.serialize for i in Users.query.all()]}
 
     def put(self, user_id):
+        print json.loads(request.form['data'])
         app.logger.info("Updating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
+
         user = Users.query.filter_by(id=user_id).first()
-
-        user.username = requestData['username']
-        user.email = requestData['email']
-        user.first_name = requestData['first_name']
-        user.last_name = requestData['first_name']
-        user.last_updated = datetime.utcnow()
-        db_session.commit()
-
-        return {"meta":buildMeta(), "error":"none", "data": "Updated Record with ID " + user.id}
+        if user is None:
+            return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
+        else:
+            user.username = requestData['username']
+            user.email = requestData['email']
+            user.first_name = requestData['first_name']
+            user.last_name = requestData['last_name']
+            user.last_updated = datetime.utcnow()
+            db_session.commit()
+            return {"meta":buildMeta(), "error":"none", "data": "Updated Record with ID " + user_id}
 
 
     def post(self, user_id=None):
@@ -111,7 +114,7 @@ class ApiUser(Resource):
         db_session.delete(user)
         db_session.commit()
 
-        return {"meta":buildMeta(), "error":"none", "data" : "Deleted Record with ID " + user.id}
+        return {"meta":buildMeta(), "error":"none", "data" : "Deleted Record with ID " + user_id}
 
 
 api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>')
