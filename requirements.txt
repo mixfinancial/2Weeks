@@ -3,6 +3,7 @@
 
 flask
 Flask-SQLAlchemy
+MySQL-Python
 pylint
 selenium
 werkzeug
