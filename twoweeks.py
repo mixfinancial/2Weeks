@@ -37,14 +37,32 @@ api = Api(app)
 
 
 
-##########
-# routes #
-##########
-
+###############
+# base Routes #
+###############
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/home/')
+def home():
+    return render_template('home.html')
+
+@app.route('/admin/')
+def adminIndex():
+    return render_template('adminIndex.html')
+
+@app.route('/admin/home/')
+def adminHome():
+    return render_template('adminHome.html')
+
+
+
+
+##############
+# API Routes #
+##############
 
 #USERS
 class ApiUser(Resource):
@@ -159,12 +177,27 @@ def buildMeta():
 
 
 
+
+
+
+
+
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
 
 
 
+
+
+
+
+
+
+########
+# main #
+########
 if __name__ == "__main__":
     app.config['TRAP_BAD_REQUEST_ERRORS'] = True
     app.run(debug=True)

@@ -2,23 +2,17 @@
 <html>
   <head>
 
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-      <title>Welcome to 2Weeks!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Welcome to 2Weeks!</title>
+
       <!-- Latest compiled and minified CSS -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <!-- Optional theme -->
-      <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
-
-
-      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-      <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-      <![endif]-->
-
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
       <!-- GOOGLE WEBMASTER TOOLS -->
@@ -66,57 +60,56 @@
     </script>
 
 
-
-
-
-   <div class="site-wrapper">
-
-      <div class="site-wrapper-inner">
-
-        <div class="cover-container">
-
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">2Weeks</h3>
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li><a href="/home/">login</a></li>
-                  <li><a href="/home/">register</a></li>
-                </ul>
-              </nav>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    2Weeks
+                </a>
             </div>
-          </div>
-
-          <div class="inner cover">
-            <h1 class="cover-heading">2Weeks</h1>
-            <p class="lead">Simplify your Bills</p>
-            <p class="lead">
-              <a href="#" class="btn btn-lg btn-default">Register</a>
-            </p>
-          </div>
-
-          <div class="mastfoot">
-            <div class="inner">
-               <p>Mixfin LLC 2015</p>
-            </div>
-          </div>
-
+            <ul class="nav navbar-nav navbar-right">
+                <li><fb:login-button scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button></li>
+            </ul>
         </div>
-
-      </div>
-
-    </div>
+      </nav>
 
 
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-    <!-- Latest compiled and minified JavaScript for Bootstrap -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <div id="status"></div>
 
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js') }}"></script>
+
+
+      <div class="container theme-showcase" role="main">
+          <div class="row">
+              <div class="fb-like" data-share="true" data-width="450" data-show-faces="true"></div>
+          </div>
+          <div class="row">
+              <!-- ANGULAR APP -->
+              <div class="col-md-12" ng-app="myApp">
+                  <!-- ANGULAR VIEW-FRAME -->
+                  <div ng-view class="view-frame"></div>
+              </div>
+          </div>
+        </div>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+        <!-- Latest compiled and minified JavaScript for Bootstrap -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+        <!-- Latest compiled and minified JavaScript for AngularJS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+
+        <!-- 2Weeks AngularJS Files -->
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+
+        <!-- D3.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+
 
   </body>
 </html>
