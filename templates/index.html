@@ -12,53 +12,81 @@
       <!-- Optional theme -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
       <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+
+      <!-- GOOGLE WEBMASTER TOOLS -->
+      <meta name="google-site-verification" content="MwHU_cofD8jJ_ri51e1Ne9TFog2qzQA03R96duCMpx4" />
+
+      <!-- GOOGLE ANALYTICS -->
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-67201190-1', 'auto');
+        ga('send', 'pageview');
+      </script>
   </head>
   <body>
-    <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">
-        2Weeks
-      </a>
-    </div>
-  </div>
-</nav>
-    <div class="container theme-showcase" role="main">
+    <!-- FACEBOOK DEVELOPER CODE SNIPPET -->
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+              appId      : '390216701189118',
+              xfbml      : true,
+              version    : 'v2.4'
+            });
+          };
 
-        <div class="row">
-            <div class="col-md-12" ng-app="myApp">
-                  <div ng-view class="view-frame"></div>
+          (function(d, s, id){
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "//connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+           }(document, 'script', 'facebook-jssdk'));
+        </script>
+
+
+
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    2Weeks
+                </a>
             </div>
         </div>
-        <!--<div class="row">
-            <div class="col-md-12">
-                <form novalidate class="form" ng-submit="submit()" ng-controller="formCtrl">
-                    First Name:<br>
-                    <input type="text" ng-model="user.first_name"><br>
-                    Last Name:<br>
-                    <input type="text" ng-model="user.last_name">
-                    <br><br>
-                    <input class="btn btn-info" type="submit" id="submit" value="Submit" />
-                  </form>
-            </div>
-        </div>-->
-    </div>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      </nav>
+      <div class="container theme-showcase" role="main">
+          <div class="row">
+              <!-- ANGULAR APP -->
+              <div class="col-md-12" ng-app="myApp">
+                  <!-- ANGULAR VIEW-FRAME -->
+                  <div ng-view class="view-frame"></div>
+              </div>
+          </div>
+        </div>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-    <!-- Latest compiled and minified JavaScript for Bootstrap -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <!-- Latest compiled and minified JavaScript for Bootstrap -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <!-- Latest compiled and minified JavaScript for AngularJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+        <!-- Latest compiled and minified JavaScript for AngularJS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
 
-    <!-- D3.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+        <!-- 2Weeks AngularJS Files -->
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
+
+        <!-- D3.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+
 
   </body>
 </html>

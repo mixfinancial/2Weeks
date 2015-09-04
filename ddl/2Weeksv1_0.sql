@@ -24,3 +24,20 @@ CREATE TABLE `twoweeks`.`users` (
   `last_updated` DATETIME NOT NULL COMMENT '',
   `last_login` DATETIME NULL COMMENT '',
   PRIMARY KEY (`id`, `username`, `email`, `last_updated`, `date_created`)  COMMENT '');
+
+
+
+CREATE TABLE `twoweeks`.`bills` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '',
+  `user_id` INT NOT NULL COMMENT '',
+  `name` VARCHAR(45) NOT NULL COMMENT '',
+  `description` VARCHAR(255) NULL COMMENT '',
+  `recurring_flag` INT NULL COMMENT '',
+  `amount` FLOAT NULL COMMENT '',
+  `recurrance` VARCHAR(45) NULL COMMENT '',
+  `next_due_date` DATETIME NULL COMMENT '',
+  `payment_type_ind` VARCHAR(2) NULL COMMENT '',
+  `payment_method` VARCHAR(45) NULL COMMENT '',
+  `date_created` DATETIME NOT NULL COMMENT '',
+  `last_updated` VARCHAR(45) NOT NULL COMMENT '',
+  PRIMARY KEY (`id`)  COMMENT '');
