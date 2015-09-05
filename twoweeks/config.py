@@ -8,6 +8,8 @@ DEVELOPMENT = True
 
 NEW_RELIC_CONFIG_FILE = os.environ['NEW_RELIC_CONFIG_FILE']
 
+SECRET_KEY = os.environ['FLASK_AUTH_SECRET_KEY']
+
 
 ###################
 # DATABASE CONFIG #

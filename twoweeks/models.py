@@ -5,6 +5,11 @@ from datetime import datetime
 from twoweeks.database import Base
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
+from flask.ext.bcrypt import Bcrypt
+
+
+bcrypt = Bcrypt()
+
 
 def dump_datetime(value):
     """Deserialize datetime object into string form for JSON processing."""
@@ -88,6 +93,8 @@ class User(Base):
             elif key=="username":
                 self.email = value
                 self.username = value
+            elif key=="password":
+                self.password = bcrypt.generate_password_hash('password')
             elif key=="role_id":
                 role_id = value
             elif key=="active":

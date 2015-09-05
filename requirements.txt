@@ -3,6 +3,7 @@
 
 flask
 Flask-SQLAlchemy
+Flask-login
 sqlalchemy-migrate
 MySQL-Python
 pylint

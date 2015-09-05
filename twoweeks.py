@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 
 from flask import Flask, render_template, request, jsonify
+from flask.ext.login import LoginManager, UserMixin, login_required
 from flask_restful import Resource, Api
 import twoweeks.config as config
 
@@ -15,9 +16,14 @@ import twoweeks.config as config
 #################
 
 app = Flask(__name__)
+
+# BASE CONFIG
+
 api = Api(app)
-app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
 app.debug = config.DEBUG
+app.config["SECRET_KEY"] = config.SECRET_KEY
+app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
+
 
 # DATABASE CONFIG
 from twoweeks.database import init_db
@@ -27,12 +33,38 @@ from twoweeks.models import User, Bill, Role
 init_db()
 
 
+# LOGIN CONFIG
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
 
 
-#login_manager = LoginManager()
+
+
+################
+# AUTH MANAGER #
+################
+@login_manager.request_loader
+def load_user(request):
+    token = request.headers.get('Authorization')
+    if token is None:
+        token = request.args.get('token')
+
+    if token is not None:
+        username,password = token.split(":") # naive token
+        user_entry = User.get(username)
+        if (user_entry is not None):
+            user = User(user_entry[0],user_entry[1])
+            if (user.password == password):
+                return user
+    return None
+
+
+
+
 
 
 ###############
@@ -43,7 +75,9 @@ init_db()
 def index():
     return render_template('index.html')
 
+@login_required
 @app.route('/home/')
+@login_required
 def home():
     return render_template('home.html')
 
@@ -98,7 +132,7 @@ class ApiUser(Resource):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
-        newUser = User(username=requestData['username'], email=requestData['email'], first_name=requestData['first_name'], last_name=requestData['last_name'])
+        newUser = User(username=requestData['username'], password=requestData['password'], email=requestData['email'], first_name=requestData['first_name'], last_name=requestData['last_name'])
         db_session.add(newUser)
         db_session.commit()
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
@@ -197,5 +231,4 @@ def shutdown_session(exception=None):
 # main #
 ########
 if __name__ == "__main__":
-    #app.run(debug=True)
     app.run(debug=True)
