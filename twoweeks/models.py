@@ -65,8 +65,8 @@ class User(Base):
     username = Column(String(80), unique=True, nullable=False)
     password = Column(String(45))
     email = Column(String(120), unique=True, nullable=False)
-    first_name = Column(String(120), unique=True)
-    last_name = Column(String(120), unique=True)
+    first_name = Column(String(120))
+    last_name = Column(String(120))
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
 
@@ -75,18 +75,28 @@ class User(Base):
     role_id = Column(Integer, ForeignKey('role.id'))
     bill = relationship("Bill")
 
-    def __init__(self, email, password, **kwargs):
-        self.username = email
-        self.email = email
-        self.date_created = datetime.utcnow()
-        self.last_updated = datetime.utcnow()
-        self.active = True;
-        self.role_id = 1;
+    def __init__(self, **kwargs):
+        # Setting Defaults
+        active = True
+        role_id = 1;
+
         for key, value in kwargs.iteritems():
             if key=="first_name":
                 self.first_name = value
             elif key=="last_name":
                 self.last_name = value
+            elif key=="username":
+                self.email = value
+                self.username = value
+            elif key=="role_id":
+                role_id = value
+            elif key=="active":
+                active = value
+
+        self.role_id = role_id
+        self.date_created = datetime.utcnow()
+        self.last_updated = datetime.utcnow()
+        self.active = active;
 
     @property
     def serialize(self):

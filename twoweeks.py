@@ -98,7 +98,7 @@ class ApiUser(Resource):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
-        newUser = User(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
+        newUser = User(username=requestData['username'], email=requestData['email'], first_name=requestData['first_name'], last_name=requestData['last_name'])
         db_session.add(newUser)
         db_session.commit()
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
