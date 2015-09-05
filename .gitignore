@@ -32,3 +32,5 @@ node_modules
 twoweeks.log
 
 run.sh
+
+*.pyc
