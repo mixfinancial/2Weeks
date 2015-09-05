@@ -15,18 +15,17 @@ import twoweeks.config as config
 #################
 
 app = Flask(__name__)
+api = Api(app)
 app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
 app.debug = config.DEBUG
 
-# Importing Models
+# DATABASE CONFIG
 from twoweeks.database import init_db
+from twoweeks.database import db_session
+from twoweeks.models import User, Bill, Role
+
 init_db()
 
-from twoweeks.database import db_session
-from twoweeks.models import User, Bill
-
-
-api = Api(app)
 
 
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
@@ -199,4 +198,4 @@ def shutdown_session(exception=None):
 ########
 if __name__ == "__main__":
     #app.run(debug=True)
-    app.run(host= '0.0.0.0', debug=True)
+    app.run(debug=True)

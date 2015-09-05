@@ -121,7 +121,7 @@ class Bill(Base):
     __tablename__ = 'bill'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     name = Column(String(45), nullable=False)
     description = Column(String(255))
     recurring_flag = Column(Integer)
