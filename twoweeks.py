@@ -1,10 +1,13 @@
 __author__ = 'davidlarrimore'
 
-import json, decimal
+import json
 from datetime import datetime
 
 from flask import Flask, render_template, request, jsonify
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Resource, Api
+import twoweeks.config as config
+
+
 
 
 #################
@@ -12,17 +15,15 @@ from flask_restful import Resource, Api, reqparse
 #################
 
 app = Flask(__name__)
-app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-
+app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
+app.debug = config.DEBUG
 
 # Importing Models
 from twoweeks.database import init_db
 init_db()
 
 from twoweeks.database import db_session
-from twoweeks.models import Users, Bills
-
-
+from twoweeks.models import User, Bill
 
 
 api = Api(app)
@@ -32,9 +33,7 @@ api = Api(app)
 
 
 
-
-
-
+#login_manager = LoginManager()
 
 
 ###############
@@ -70,13 +69,13 @@ class ApiUser(Resource):
 
         if user_id is not None:
             app.logger.info("looking for user:" + user_id)
-            user = Users.query.filter_by(id=user_id).first()
+            user = User.query.filter_by(id=user_id).first()
             if user is None:
                 return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
-            users = [i.serialize for i in Users.query.all()]
+            users = [i.serialize for i in User.query.all()]
             return {"meta":buildMeta(), "data":users}
 
     def put(self, user_id):
@@ -84,7 +83,7 @@ class ApiUser(Resource):
         app.logger.info("Updating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
 
-        user = Users.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=user_id).first()
         if user is None:
             return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
         else:
@@ -100,14 +99,14 @@ class ApiUser(Resource):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
-        newUser = Users(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
+        newUser = User(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
         db_session.add(newUser)
         db_session.commit()
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
 
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
-        user = Users.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=user_id).first()
         db_session.delete(user)
         db_session.commit()
 
@@ -124,13 +123,13 @@ class ApiBill(Resource):
 
         if bill_id is not None:
             app.logger.info("looking for user:" + bill_id)
-            bill = Bills.query.filter_by(id=bill_id).first()
+            bill = Bill.query.filter_by(id=bill_id).first()
             if bill is None:
                 return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ bill_id, "data":""}
             else:
                 return jsonify(meta=buildMeta(), data=[bill.serialize])
         else:
-            bills = [i.serialize for i in Bills.query.all()]
+            bills = [i.serialize for i in Bill.query.all()]
             data = {"meta":buildMeta(), "data":[bills]}
             json.dumps(data)
             return data
@@ -140,7 +139,7 @@ class ApiBill(Resource):
         app.logger.info("Updating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
 
-        bill = Bills.query.filter_by(id=bill_id).first()
+        bill = Bill.query.filter_by(id=bill_id).first()
         if bill is None:
             return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ bill_id, "data":""}
         else:
@@ -156,14 +155,14 @@ class ApiBill(Resource):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
         requestData = json.loads(request.form['data'])
-        newBill = Bills(requestData['username'], requestData['email'], requestData['first_name'], requestData['last_name'])
+        newBill = Bill(requestData['user_id'], requestData['name'])
         db_session.add(newBill)
         db_session.commit()
         return {"meta":buildMeta(), "data": newBill.id}
 
     def delete(self, bill_id):
         app.logger.info("Deleting User #: " + bill_id)
-        bill = Bills.query.filter_by(id=bill_id).first()
+        bill = Bill.query.filter_by(id=bill_id).first()
         db_session.delete(bill)
         db_session.commit()
 
@@ -199,5 +198,5 @@ def shutdown_session(exception=None):
 # main #
 ########
 if __name__ == "__main__":
-    app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host= '0.0.0.0', debug=True)
