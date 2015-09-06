@@ -42,9 +42,9 @@ SQLALCHEMY_DATABASE_URI = 'mysql://'+DATABASE_USERNAME+':'+DATABASE_PASSWORD+'@'
 
 
 
-###################
-# DATABASE CONFIG #
-###################
+################
+# EMAIL CONFIG #
+################
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 587
 MAIL_USE_TLS = True
@@ -54,6 +54,8 @@ MAIL_DEFAULT_SENDER = 'admin@mixfin.com'
 
 
 
-
-
-
+##################
+# SESSION CONFIG #
+##################
+#Session Timeout in Minutes
+PERMANENT_SESSION_LIFETIME = 20

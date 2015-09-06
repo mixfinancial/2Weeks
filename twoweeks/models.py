@@ -7,7 +7,7 @@ import twoweeks.config as config
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask.ext.login import UserMixin
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 
@@ -64,7 +64,7 @@ class Role(Base):
 
 
 # USER MODEL
-class User(Base):
+class User(Base, UserMixin):
 
     __tablename__ = 'user'
 
@@ -116,6 +116,18 @@ class User(Base):
     def generate_auth_token(self, expiration = 600):
         s = Serializer(config.SECRET_KEY, expires_in = expiration)
         return s.dumps({ 'id': self.id })
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
 
     @staticmethod
     def verify_auth_token(token):

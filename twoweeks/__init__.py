@@ -3,9 +3,9 @@ __author__ = 'davidlarrimore'
 import json
 from datetime import datetime
 
-from flask import Flask, render_template, request, jsonify, abort, g
+from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect
 import twoweeks.config as config
-
+from datetime import timedelta
 
 
 
@@ -81,28 +81,91 @@ def send_email(subject, recipients, text_body, html_body):
 ##################
 # AUTHENTICATION #
 ##################
+app.permanent_session_lifetime = timedelta(minutes=config.PERMANENT_SESSION_LIFETIME)
 
-from flask.ext.httpauth import HTTPBasicAuth
-auth = HTTPBasicAuth()
+
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user, login_required
+import base64
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id = user_id).first()
+
+
+@app.route('/login')
+def login():
+    return '''
+        <form action="/login/check" method="post">
+            <p>Username: <input name="username" type="text"></p>
+            <p>Password: <input name="password" type="password"></p>
+            <input type="submit">
+        </form>
+    '''
+
+
+@app.route('/login/check', methods=['post'])
+def login_check():
+    app.logger.info('User:' + request.form['username'] + ' attempting to login')
+    # validate username and password
+    user = User.query.filter_by(username = request.form['username']).first()
+    app.logger.info(user.id);
+    if (user is not None and user.verify_password(request.form['password'])):
+        app.logger.info('Login Successful')
+        login_user(user)
+    else:
+        app.logger.info('Username or password incorrect')
+        flash('Username or password incorrect')
+
+    return redirect(url_for('home'))
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+
+@login_manager.request_loader
+def load_user_from_request(request):
+
+    # first, try to login using the api_key url arg
+    api_key = request.args.get('api_key')
+    if api_key:
+        user = User.query.filter_by(api_key=api_key).first()
+        if user:
+            return user
+
+    # next, try to login using Basic Auth
+    api_key = request.headers.get('Authorization')
+    if api_key:
+        api_key = api_key.replace('Basic ', '', 1)
+        try:
+            api_key = base64.b64decode(api_key)
+        except TypeError:
+            pass
+        user = User.query.filter_by(api_key=api_key).first()
+        if user:
+            return user
+
+    # finally, return None if both methods did not login the user
+    return None
+
+
+
+
 
 @app.route('/api/token')
-@auth.login_required
+@login_required
 def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({ 'token': token.decode('ascii') })
 
 
-@auth.verify_password
-def verify_password(username_or_token, password):
-    # first try to authenticate by token
-    user = User.verify_auth_token(username_or_token)
-    if not user:
-        # try to authenticate with username/password
-        user = User.query.filter_by(username = username_or_token).first()
-        if not user or not user.verify_password(password):
-            return False
-    g.user = user
-    return True
 
 
 
@@ -117,7 +180,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/home/')
-@auth.login_required
+@login_required
 def home():
     return render_template('home.html')
 
@@ -142,7 +205,7 @@ def adminHome():
 
 #USERS
 class ApiUser(Resource):
-    @auth.login_required
+    @login_required
     def get(self, user_id=None):
         if user_id is not None:
             app.logger.info("looking for user:" + user_id)
@@ -155,7 +218,7 @@ class ApiUser(Resource):
             users = [i.serialize for i in User.query.all()]
             return {"meta":buildMeta(), "data":users}
 
-    @auth.login_required
+    @login_required
     def put(self, user_id):
         print json.loads(request.form['data'])
         app.logger.info("Updating User for: " + request.form['data'])
@@ -173,7 +236,7 @@ class ApiUser(Resource):
             db_session.commit()
             return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id}
 
-    @auth.login_required
+    @login_required
     def post(self, user_id=None):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
@@ -193,7 +256,7 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
 
-    @auth.login_required
+    @login_required
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
         user = User.query.filter_by(id=user_id).first()
