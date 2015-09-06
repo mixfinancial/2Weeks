@@ -4,28 +4,33 @@ import json
 from datetime import datetime
 
 from flask import Flask, render_template, request, jsonify, abort, g
-from flask_restful import Resource, Api
-from flask.ext.httpauth import HTTPBasicAuth
-from flask.ext.mail import Mail
 import twoweeks.config as config
-from flask import Flask
 
-#################
-# configuration #
-#################
+
+
+
+
+######################
+# BASE CONFIGURATION #
+######################
 
 app = Flask(__name__)
 
-# BASE CONFIG
 app.debug = config.DEBUG
 app.config["SECRET_KEY"] = config.SECRET_KEY
 app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
 
 
 # API CONFIG
+from flask_restful import Resource, Api
 api = Api(app)
 
-# DATABASE CONFIG
+
+
+
+##########################
+# DATABASE CONFIGURATION #
+##########################
 from twoweeks.database import init_db
 from twoweeks.database import db_session
 from twoweeks.models import User, Bill, Role
@@ -34,11 +39,21 @@ init_db()
 
 
 # AUTH CONFIG
+from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
 
 
-# EMAIL CONFIG
+
+
+
+
+#######################
+# EMAIL CONFIGURATION #
+#######################
+from threading import Thread
+from flask.ext.mail import Mail, Message
+from .decorators import async
 
 app.config['MAIL_SERVER'] = config.MAIL_SERVER
 app.config['MAIL_PORT'] = config.MAIL_PORT
@@ -47,8 +62,22 @@ app.config['MAIL_USERNAME'] = config.MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = config.MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = config.MAIL_DEFAULT_SENDER
 
-
 mail = Mail(app)
+
+@async
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+def send_email(subject, recipients, text_body, html_body):
+    msg = Message(subject, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+
+
+
 
 
 
@@ -84,6 +113,7 @@ def verify_password(username, password):
 
 @app.route('/')
 def index():
+    #send_email('Test', ['david.larrimore@mixfin.com'], 'Test Flask Email', 'Test Flask Email')
     return render_template('index.html')
 
 @app.route('/home/')
@@ -247,5 +277,4 @@ def shutdown_session(exception=None):
 # main #
 ########
 if __name__ == "__main__":
-
     app.run(debug=True, host='0.0.0.0')
