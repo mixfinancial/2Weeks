@@ -66,7 +66,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
-    password = Column(String(45))
+    password = Column(String(255))
     email = Column(String(120), unique=True, nullable=False)
     first_name = Column(String(120))
     last_name = Column(String(120))
@@ -92,7 +92,7 @@ class User(Base):
                 self.email = value
                 self.username = value
             elif key=="password":
-                self.password = generate_password_hash(value)
+                self.password = self.hash_password(value)
             elif key=="role_id":
                 role_id = value
             elif key=="active":
@@ -104,7 +104,7 @@ class User(Base):
         self.active = active;
 
     def hash_password(self, password):
-        self.password = generate_password_hash(password)
+        return generate_password_hash(password)
 
     def verify_password(self, password):
         return check_password_hash(self.password, password)
