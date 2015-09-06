@@ -37,3 +37,23 @@ else:
     DATABASE_HOSTNAME = DEV_DATABASE_HOSTNAME
 
 SQLALCHEMY_DATABASE_URI = 'mysql://'+DATABASE_USERNAME+':'+DATABASE_PASSWORD+'@'+DATABASE_HOSTNAME+':'+DATABASE_PORT+'/'+DATABASE_DATABASE
+
+
+
+
+
+###################
+# DATABASE CONFIG #
+###################
+MAIL_SERVER = 'smtp.googlemail.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+MAIL_DEFAULT_SENDER = 'admin@mixfin.com'
+
+
+
+
+
+
