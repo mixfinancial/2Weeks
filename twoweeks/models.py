@@ -5,10 +5,8 @@ from datetime import datetime
 from twoweeks.database import Base
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
-from flask.ext.bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 
-
-bcrypt = Bcrypt()
 
 
 def dump_datetime(value):
@@ -94,7 +92,7 @@ class User(Base):
                 self.email = value
                 self.username = value
             elif key=="password":
-                self.password = bcrypt.generate_password_hash('password')
+                self.password = generate_password_hash(value)
             elif key=="role_id":
                 role_id = value
             elif key=="active":
@@ -104,6 +102,12 @@ class User(Base):
         self.date_created = datetime.utcnow()
         self.last_updated = datetime.utcnow()
         self.active = active;
+
+    def hash_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
 
     @property
     def serialize(self):

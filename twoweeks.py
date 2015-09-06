@@ -3,12 +3,10 @@ __author__ = 'davidlarrimore'
 import json
 from datetime import datetime
 
-from flask import Flask, render_template, request, jsonify
-from flask.ext.login import LoginManager, UserMixin, login_required
+from flask import Flask, render_template, request, jsonify, abort, g
 from flask_restful import Resource, Api
+from flask.ext.httpauth import HTTPBasicAuth
 import twoweeks.config as config
-
-
 
 
 #################
@@ -33,37 +31,30 @@ from twoweeks.models import User, Bill, Role
 init_db()
 
 
-# LOGIN CONFIG
-login_manager = LoginManager()
-login_manager.init_app(app)
+# AUTH CONFIG
+auth = HTTPBasicAuth()
 
 
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
 
 
+#$2a$08$AuwLE9WaFUUrpT4LPEhMHudvyaEJgQ0N8MJ7k5AMxlpfYYqcRuANS
 
-
-################
-# AUTH MANAGER #
-################
-@login_manager.request_loader
-def load_user(request):
-    token = request.headers.get('Authorization')
-    if token is None:
-        token = request.args.get('token')
-
-    if token is not None:
-        username,password = token.split(":") # naive token
-        user_entry = User.get(username)
-        if (user_entry is not None):
-            user = User(user_entry[0],user_entry[1])
-            if (user.password == password):
-                return user
-    return None
-
-
-
+#################
+# LOGIN MANAGER #
+#################
+@auth.verify_password
+def verify_password(username, password):
+    user = User.query.filter_by(username = username).first()
+    #password_hash=bcrypt.generate_password_hash(password)
+    if not user:
+        app.logger.info('Could not find User:'+username);
+    if not user or not user.verify_password(password):
+        app.logger.info('Could not find username:'+user.password+' and password:'+password);
+        return False
+    g.user = user
+    return True
 
 
 
@@ -75,9 +66,8 @@ def load_user(request):
 def index():
     return render_template('index.html')
 
-@login_required
 @app.route('/home/')
-@login_required
+@auth.login_required
 def home():
     return render_template('home.html')
 
@@ -131,10 +121,20 @@ class ApiUser(Resource):
     def post(self, user_id=None):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
+
         requestData = json.loads(request.form['data'])
+
+        if requestData['username'] is None or requestData['password'] is None:
+            abort(400) # missing arguments
+
+        if User.query.filter_by(username = requestData['username']).first() is not None:
+            abort(400) # existing user
+
         newUser = User(username=requestData['username'], password=requestData['password'], email=requestData['email'], first_name=requestData['first_name'], last_name=requestData['last_name'])
+
         db_session.add(newUser)
         db_session.commit()
+
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
 
     def delete(self, user_id):
@@ -218,10 +218,6 @@ def buildMeta():
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
-
-
-
-
 
 
 
