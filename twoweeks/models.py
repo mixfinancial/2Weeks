@@ -3,9 +3,13 @@ __author__ = 'davidlarrimore'
 import os, json, decimal
 from datetime import datetime
 from twoweeks.database import Base
+import twoweeks.config as config
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
 
 
 
@@ -108,6 +112,22 @@ class User(Base):
 
     def verify_password(self, password):
         return check_password_hash(self.password, password)
+
+    def generate_auth_token(self, expiration = 600):
+        s = Serializer(config.SECRET_KEY, expires_in = expiration)
+        return s.dumps({ 'id': self.id })
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(config.SECRET_KEY)
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None # valid token, but expired
+        except BadSignature:
+            return None # invalid token
+        user = User.query.get(data['id'])
+        return user
 
     @property
     def serialize(self):

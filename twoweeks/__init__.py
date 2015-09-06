@@ -37,14 +37,9 @@ from twoweeks.models import User, Bill, Role
 
 init_db()
 
-
-# AUTH CONFIG
-from flask.ext.httpauth import HTTPBasicAuth
-auth = HTTPBasicAuth()
-
-
-
-
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
 
 
 
@@ -78,31 +73,36 @@ def send_email(subject, recipients, text_body, html_body):
 
 
 
-
-
-
+#TODO: LOGGING
 #logging.basicConfig(filename='twoweeks.log',level=logging.DEBUG)
 
 
 
+##################
+# AUTHENTICATION #
+##################
 
-#################
-# LOGIN MANAGER #
-#################
+from flask.ext.httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
+
+@app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token()
+    return jsonify({ 'token': token.decode('ascii') })
+
+
 @auth.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(username = username).first()
-    #password_hash=bcrypt.generate_password_hash(password)
+def verify_password(username_or_token, password):
+    # first try to authenticate by token
+    user = User.verify_auth_token(username_or_token)
     if not user:
-        app.logger.info('Could not find User:'+username);
-    if not user or not user.verify_password(password):
-        app.logger.info('Could not find username:'+user.password+' and password:'+password);
-        return False
+        # try to authenticate with username/password
+        user = User.query.filter_by(username = username_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
     g.user = user
     return True
-
-
-
 
 
 
@@ -142,8 +142,8 @@ def adminHome():
 
 #USERS
 class ApiUser(Resource):
+    @auth.login_required
     def get(self, user_id=None):
-
         if user_id is not None:
             app.logger.info("looking for user:" + user_id)
             user = User.query.filter_by(id=user_id).first()
@@ -155,6 +155,7 @@ class ApiUser(Resource):
             users = [i.serialize for i in User.query.all()]
             return {"meta":buildMeta(), "data":users}
 
+    @auth.login_required
     def put(self, user_id):
         print json.loads(request.form['data'])
         app.logger.info("Updating User for: " + request.form['data'])
@@ -172,6 +173,7 @@ class ApiUser(Resource):
             db_session.commit()
             return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id}
 
+    @auth.login_required
     def post(self, user_id=None):
         print json.loads(request.form['data'])
         app.logger.info("Creating User for: " + request.form['data'])
@@ -191,6 +193,7 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta(), "error":"none", "data": newUser.id}
 
+    @auth.login_required
     def delete(self, user_id):
         app.logger.info("Deleting User #: " + user_id)
         user = User.query.filter_by(id=user_id).first()
@@ -204,70 +207,14 @@ api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>', '/api/user
 
 
 
-#BILLS
-class ApiBill(Resource):
-    def get(self, bill_id=None):
 
-        if bill_id is not None:
-            app.logger.info("looking for user:" + bill_id)
-            bill = Bill.query.filter_by(id=bill_id).first()
-            if bill is None:
-                return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ bill_id, "data":""}
-            else:
-                return jsonify(meta=buildMeta(), data=[bill.serialize])
-        else:
-            bills = [i.serialize for i in Bill.query.all()]
-            data = {"meta":buildMeta(), "data":[bills]}
-            json.dumps(data)
-            return data
 
-    def put(self, bill_id):
-        print json.loads(request.form['data'])
-        app.logger.info("Updating User for: " + request.form['data'])
-        requestData = json.loads(request.form['data'])
 
-        bill = Bill.query.filter_by(id=bill_id).first()
-        if bill is None:
-            return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ bill_id, "data":""}
-        else:
-            bill.username = requestData['username']
-            bill.email = requestData['email']
-            bill.first_name = requestData['first_name']
-            bill.last_name = requestData['last_name']
-            bill.last_updated = datetime.utcnow()
-            db_session.commit()
-            return {"meta":buildMeta(), "data": "Updated Record with ID " + bill_id}
-
-    def post(self, bill_id=None):
-        print json.loads(request.form['data'])
-        app.logger.info("Creating User for: " + request.form['data'])
-        requestData = json.loads(request.form['data'])
-        newBill = Bill(requestData['user_id'], requestData['name'])
-        db_session.add(newBill)
-        db_session.commit()
-        return {"meta":buildMeta(), "data": newBill.id}
-
-    def delete(self, bill_id):
-        app.logger.info("Deleting User #: " + bill_id)
-        bill = Bill.query.filter_by(id=bill_id).first()
-        db_session.delete(bill)
-        db_session.commit()
-
-        return {"meta":buildMeta(), "data" : "Deleted Record with ID " + bill_id}
-
-api.add_resource(ApiBill, '/api/bill/', '/api/bill/<string:user_id>', '/api/bills/', '/api/bills/<string:user_id>')
 
 
 def buildMeta():
     return [{"authors":["David Larrimore", "Robert Donovan"], "copyright": "Copyright 2015 MixFin LLC.", "version": "0.1"}]
 
-
-
-
-
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    db_session.remove()
 
 
 
