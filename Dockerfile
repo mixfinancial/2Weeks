@@ -48,7 +48,7 @@ VOLUME ["/home"]
 RUN git clone https://github.com/mixfinancial/2Weeks.git
 
 # Get pip to download and install requirements:
-RUN pip install -r 2Weeks/requirements.txt
+RUN pip install -r /requirements.txt
 
 #Run the setup script from Dave
 #RUN chmod +x /2Weeks/scripts/bootstrap.sh
