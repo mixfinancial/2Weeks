@@ -123,6 +123,21 @@ def login_check():
     return redirect(url_for('home'))
 
 
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('/'))
+
+
+@app.route('/adminLogout')
+def adminLogout():
+    logout_user()
+    return redirect(url_for('/admin/'))
+
+
+
+
 #USERS
 class ApiLogin(Resource):
     def post(self):
@@ -140,11 +155,7 @@ class ApiLogin(Resource):
             return {"meta":buildMeta(), "error":"Username or password incorrect", "data": ""}
 
         return {"meta":buildMeta(), "error":"none", "data": ""}
-
 api.add_resource(ApiLogin, '/api/login/')
-
-
-
 
 
 #APILOGOUT
@@ -152,16 +163,7 @@ class ApiLogout(Resource):
     def get(self):
         logout_user()
         return {"meta":buildMeta(), "error":"none", "data": ""}
-
 api.add_resource(ApiLogout, '/api/logout/')
-
-
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
 
 
 
