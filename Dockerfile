@@ -1,11 +1,11 @@
 ############################################################
 # Dockerfile to build 2weeks App
 # Based on Ubuntu
-##d
+# This is the Devlopement Build
 ############################################################
 
 # Set the base image to Ubuntu
-FROM ubuntu:14.04
+FROM ubuntu
 
 # File Author / Maintainer
 MAINTAINER Robert Donovan <admin@mixfin.com>
@@ -15,6 +15,12 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main universe
 
 # Update the sources list and  Install basic applications
 RUN apt-get update && apt-get install -y tar git curl nano wget dialog net-tools build-essential openssh-server
+
+# For debugging
+RUN apt-get install -y gdb strace
+
+# Set up DevUser
+RUN useradd dlkrbd -u 1000 -s /bin/bash --no-create-home
 
 # Create SSHD
 RUN mkdir /var/run/sshd
@@ -32,6 +38,12 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 # Install Python and Basic Python Tools
 RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
 
+
+#Working Dir
+WORKDIR /home/dlkrbd/
+ENV HOME /home/dlkrbd
+VOLUME ["/home"]
+
 # Copy the application folder inside the container
 RUN git clone https://github.com/mixfinancial/2Weeks.git
 
@@ -41,14 +53,12 @@ RUN pip install -r /2Weeks/requirements.txt
 #Run the setup script from Dave
 #RUN chmod +x /2Weeks/scripts/bootstrap.sh
 
-# Set the default directory where CMD will execute
-WORKDIR /2weeks
-
 RUN apt-get update
 
 # Expose ports
-EXPOSE 80 22
+EXPOSE 8080 22
 
 # Set the default command to execute when creating a new container
 
-CMD ["/usr/sbin/sshd", "-D"] && python twoweeks.py
+#CMD ["/usr/sbin/sshd", "-D"] && python twoweeks.py
+CMD python runserver.py
