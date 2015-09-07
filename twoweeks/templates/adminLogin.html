@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Welcome to 2Weeks!</title>
+
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/adminLogin.css') }}">
+
+
+      <!-- GOOGLE WEBMASTER TOOLS -->
+      <meta name="google-site-verification" content="MwHU_cofD8jJ_ri51e1Ne9TFog2qzQA03R96duCMpx4" />
+
+
+      <!-- GOOGLE ANALYTICS -->
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-67201190-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body ng-app="myApp">
+      <div class="container" role="main">
+          <div class="row vertical-center-row">
+              <!-- ANGULAR APP -->
+              <div class="col-md-offset-3 col-md-6" ng-app="myApp">
+
+                <div class="panel panel-default login-panel">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">2Weeks Administration Console</h3>
+                  </div>
+                  <div class="panel-body">
+                    <form ng-submit="submit()" ng-controller="UserLoginController" class="form-horizontal">
+                        <div class="form-group">
+                            <label for="username" class="col-sm-3 control-label">Username:&nbsp;</label>
+                            <div class="col-sm-7">
+                                <input type="username" id="username" class="form-control" ng-model="username" placeholder="Username">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="col-sm-3 control-label">Password:&nbsp;</label>
+                            <div class="col-sm-5">
+                                <input type="password" id="password" class="form-control" ng-model="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-default">Login</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+          </div>
+      </div>
+
+
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+      <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+      <!-- Latest compiled and minified JavaScript for AngularJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+
+      <!-- 2Weeks AngularJS Files -->
+      <script src="{{ url_for('static', filename='js/adminApp.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/adminController.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+
+
+  </body>
+</html>

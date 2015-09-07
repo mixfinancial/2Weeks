@@ -123,6 +123,41 @@ def login_check():
     return redirect(url_for('home'))
 
 
+#USERS
+class ApiLogin(Resource):
+    def post(self):
+        app.logger.info('User:' + request.form['username'] + ' attempting to login')
+        # validate username and password
+        user = User.query.filter_by(username = request.form['username']).first()
+        app.logger.info(user.id);
+
+        if (user is not None and user.verify_password(request.form['password'])):
+            app.logger.info('Login Successful')
+            login_user(user)
+            return {"meta":buildMeta(), "error":"none", "data": ""}
+        else:
+            app.logger.info('Username or password incorrect')
+            return {"meta":buildMeta(), "error":"Username or password incorrect", "data": ""}
+
+        return {"meta":buildMeta(), "error":"none", "data": ""}
+
+api.add_resource(ApiLogin, '/api/login/')
+
+
+
+
+
+#APILOGOUT
+class ApiLogout(Resource):
+    def get(self):
+        logout_user()
+        return {"meta":buildMeta(), "error":"none", "data": ""}
+
+api.add_resource(ApiLogout, '/api/logout/')
+
+
+
+
 @app.route('/logout')
 def logout():
     logout_user()
@@ -185,15 +220,14 @@ def home():
     return render_template('home.html')
 
 @app.route('/admin/')
-def adminIndex():
-    return render_template('adminIndex.html')
+def adminLogin():
+    return render_template('adminLogin.html')
+
 
 @app.route('/admin/home/')
+@login_required
 def adminHome():
-    return render_template('adminHome.html')
-
-
-
+    return render_template('admin.html')
 
 
 
