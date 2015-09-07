@@ -147,7 +147,13 @@ api.add_resource(ApiLogin, '/api/login/')
 
 
 
+#APILOGOUT
+class ApiLogout(Resource):
+    def get(self):
+        logout_user()
+        return {"meta":buildMeta(), "error":"none", "data": ""}
 
+api.add_resource(ApiLogout, '/api/logout/')
 
 
 

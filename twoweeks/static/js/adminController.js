@@ -2,6 +2,25 @@
 
     var userControllers = angular.module("userControllers", []);
 
+
+    userControllers.controller('adminNavBarController',['$scope', '$http', '$location', function($scope, $http, $location ) {
+     console.log('logging out');
+      $scope.logout = function($window, $location) {
+        console.log('logging out');
+            $http.get('/api/logout/').
+                success(function(data, status, headers, config) {
+                    window.location.href = '/admin/';
+                }).
+                error(function(data, status, headers, config) {
+                    console.log('could not logout');
+            });
+        };
+    }]);
+
+
+
+
+
     userControllers.controller("UserListController", ['$scope', '$http', function($scope, $http) {
       $http.get('/api/user/').
         success(function(data, status, headers, config) {
