@@ -1,35 +1,35 @@
 'use strict';
 
-var myApp = angular.module('myApp', [
+
+var loginApp = angular.module('billsApp', [
     'ngRoute',
-    'userControllers'
+    'billsAppControllers'
 ]);
 
-myApp.config(['$routeProvider', function($routeProvider) {
+
+var loginApp = angular.module('loginApp', [
+    'ngRoute',
+    'loginAppControllers'
+]);
+
+loginApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
-    when('/usersTable', {
-        templateUrl: '/static/partials/usersTable.html',
-        controller: 'UserListController'
+    when('/login', {
+        templateUrl: '/static/partials/loginAppLoginView.html',
+        controller: 'loginAppLoginController'
     }).
-    when('/usersView/:userId', {
-        templateUrl: '/static/partials/usersView.html',
-        controller: 'UserViewController'
-    }).
-    when('/usersForm', {
-        templateUrl: '/static/partials/usersForm.html',
-        controller: 'UserFormController'
-    }).
-    when('/usersEditForm/:userId', {
-        templateUrl: '/static/partials/usersEditForm.html',
-        controller: 'UserEditFormController'
-    }).
-    when('/userDelete/:userId', {
-        templateUrl: '/static/partials/usersTable.html',
-        controller: 'UserDeleteController'
+    when('/register', {
+        templateUrl: '/static/partials/loginAppRegisterView.html',
+        controller: 'loginAppRegisterController'
     }).
     otherwise({
-        redirectTo: '/usersTable'
+        templateUrl: '/static/partials/loginAppLoginView.html',
+        controller: 'loginAppLoginController'
     });
 }]);
 
 
+var menuBarApp = angular.module('menuBarApp', [
+    'ngRoute',
+    'menuBarAppController'
+]);

@@ -8,23 +8,23 @@ var myApp = angular.module('myApp', [
 myApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
     when('/usersTable', {
-        templateUrl: '/static/partials/usersTable.html',
+        templateUrl: '/static/partials/adminUsersTable.html',
         controller: 'UserListController'
     }).
     when('/usersView/:userId', {
-        templateUrl: '/static/partials/usersView.html',
+        templateUrl: '/static/partials/adminUsersView.html',
         controller: 'UserViewController'
     }).
     when('/usersForm', {
-        templateUrl: '/static/partials/usersForm.html',
+        templateUrl: '/static/partials/adminUsersForm.html',
         controller: 'UserFormController'
     }).
     when('/usersEditForm/:userId', {
-        templateUrl: '/static/partials/usersEditForm.html',
+        templateUrl: '/static/partials/adminUsersEditForm.html',
         controller: 'UserEditFormController'
     }).
     when('/userDelete/:userId', {
-        templateUrl: '/static/partials/usersTable.html',
+        templateUrl: '/static/partials/adminUsersTable.html',
         controller: 'UserDeleteController'
     }).
     otherwise({

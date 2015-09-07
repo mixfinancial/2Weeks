@@ -45,62 +45,54 @@
       </script>
   </head>
   <body>
-
-      <div class="container" role="main">
-          <div class="row vertical-center-row">
-              <!-- ANGULAR APP -->
-              <div class="col-md-offset-3 col-md-6" ng-app="myApp">
-                  <div class="cover-container">
-                      <div class="inner cover">
-                          <h1 class="cover-heading">2Weeks</h1>
-                          <p class="lead">Simplify your Bills</p>
-                          <p class="lead">
-                          <div class="panel panel-default login-panel">
-                          <div class="panel-body">
-                            <form ng-submit="submit()" ng-controller="UserLoginController" class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="username" class="col-sm-3 control-label">Username:&nbsp;</label>
-                                    <div class="col-sm-7">
-                                        <input type="username" id="username" class="form-control" ng-model="username" placeholder="Username">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="password" class="col-sm-3 control-label">Password:&nbsp;</label>
-                                    <div class="col-sm-5">
-                                        <input type="password" id="password" class="form-control" ng-model="password" placeholder="Password">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-default">Login</button> &nbsp;or&nbsp;
-                                <a href="#Register" class="btn btn-default" disabled>Register</a>
-                            </form>
-                          </div>
-                          </p>
-                      </div>
-
-                      <div class="mastfoot">
-                          <div class="inner">
-                              <p>Mixfin LLC 2015</p>
-                          </div>
+  <div class="container" role="main">
+      <div class="row vertical-center-row">
+          <!-- ANGULAR APP -->
+          <div class="col-md-offset-3 col-md-6" ng-app="loginApp">
+              <div class="cover-container">
+                  <div class="inner cover">
+                      <h1 class="cover-heading">2Weeks</h1>
+                      <p class="lead">Simplify your Bills</p>
+                      <p class="lead">
+                      <div class="panel panel-default login-panel">
+                        <div class="panel-body">
+                            <!-- ANGULAR VIEW-FRAME -->
+                            <div ng-view class="view-frame"></div>
+                        </div>
                       </div>
                   </div>
-                </div>
+                  <div class="mastfoot">
+                      <div class="inner">
+                          <p>Mixfin LLC 2015</p>
+                      </div>
+                  </div>
               </div>
           </div>
       </div>
+  </div>
 
 
 
 
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-    <!-- Latest compiled and minified JavaScript for Bootstrap -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js') }}"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js') }}"></script>
+
+      <!-- Latest compiled and minified JavaScript for AngularJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+
+      <!-- 2Weeks AngularJS Files -->
+      <script src="{{ url_for('static', filename='js/App.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/Controller.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
 
   </body>
 </html>
