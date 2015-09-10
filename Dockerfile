@@ -15,6 +15,8 @@ MAINTAINER Robert Donovan <admin@mixfin.com>
 # Update the sources list and  Install basic applications
 RUN apt-get update
 RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential
+# Install Python and Basic Python Tools
+RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
 
 #Install webserver and Web server gateway
 
@@ -27,9 +29,6 @@ RUN add-apt-repository -y ppa:nginx/stable
 
 # Set up DevUser
 RUN useradd dlkrbd -u 1000 -s /bin/bash --no-create-home
-
-# Install Python and Basic Python Tools
-RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
 
 # Copy the application folder inside the container
 RUN git clone https://github.com/mixfinancial/2Weeks.git
