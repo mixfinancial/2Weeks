@@ -6,9 +6,7 @@
 # Set the base image to Ubuntu
 FROM ubuntu:Wily
 # Add the application resources URL
-#RUN echo "deb https://apt.dockerproject.org/repo ubuntu-wily main" > /etc/apt/sources.list
-# Ubuntu Wily
-deb http://apt.dockerproject.org/repo/dists/ubuntu-wily/
+#RUN echo "deb http://apt.dockerproject.org/repo/dists/ubuntu-wily/main" > /etc/apt/sources.list
 
 # File Author / Maintainer
 MAINTAINER Robert Donovan <admin@mixfin.com>
