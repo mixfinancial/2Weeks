@@ -41,7 +41,7 @@ run ln -s /home/docker/code/nginx-app.conf /etc/nginx/sites-enabled/
 run ln -s /home/docker/code/supervisor-app.conf /etc/supervisor/conf.d/
 
 # Get pip to download and install requirements:
-RUN pip install -r /requirements.txt
+RUN pip install -r /2Weeks/requirements.txt
 
 #Run the setup script from Dave
 #RUN chmod +x /2Weeks/scripts/bootstrap.sh
