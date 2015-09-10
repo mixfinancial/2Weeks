@@ -5,13 +5,13 @@
 ############################################################
 
 # Set the base image to Ubuntu
-FROM ubuntu:precise
+FROM ubuntu:Wily
 
 # File Author / Maintainer
 MAINTAINER Robert Donovan <admin@mixfin.com>
 
 # Add the application resources URL
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ubuntu precise main universe" > /etc/apt/sources.list
+RUN echo "deb https://apt.dockerproject.org/repo ubuntu-wily main" > /etc/apt/sources.list
 
 # Update the sources list and  Install basic applications
 RUN apt-get update
