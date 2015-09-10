@@ -48,7 +48,7 @@ RUN pip install -r /2Weeks/requirements.txt
 
 
 #Rerun the Update to resolve install issues
-RUN apt-get update -f
+#RUN apt-get update -f
 
 # Expose ports
 EXPOSE 8080
