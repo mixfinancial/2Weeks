@@ -15,7 +15,6 @@ MAINTAINER Robert Donovan <admin@mixfin.com>
 # Update the sources list and  Install basic applications
 RUN apt-get update
 RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential
-RUN easy_install pip
 
 #Install webserver and Web server gateway
 
