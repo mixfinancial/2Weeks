@@ -15,8 +15,8 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ubuntu precise main universe" > /
 
 # Update the sources list and  Install basic applications
 RUN apt-get update
-RUN apt-get install -y tar git curl nano wget dialog net-tools build-essential
-RUN apt-get install -y nginx supervisor
+RUN apt-get install -y tar git curl nano wget dialog
+RUN apt-get install -y nginx supervisor net-tools build-essential
 RUN easy_install pip
 
 #Install webserver and Web server gateway
