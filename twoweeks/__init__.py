@@ -138,13 +138,12 @@ def adminLogout():
 
 
 
-#USERS
+#APILOGIN
 class ApiLogin(Resource):
     def post(self):
         app.logger.info('User:' + request.form['username'] + ' attempting to login')
         # validate username and password
         user = User.query.filter_by(username = request.form['username']).first()
-        app.logger.info(user.id);
 
         if (user is not None and user.verify_password(request.form['password'])):
             app.logger.info('Login Successful')
@@ -193,6 +192,14 @@ def load_user_from_request(request):
     return None
 
 
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    app.logger.info(request)
+    if '/admin' not in str(request):
+        return redirect('/')
+    else:
+        return redirect('/admin/')
 
 
 
@@ -243,11 +250,18 @@ def adminHome():
 class ApiUser(Resource):
     @login_required
     def get(self, user_id=None):
+        userID = None;
+
         if user_id is not None:
-            app.logger.info("looking for user:" + user_id)
-            user = User.query.filter_by(id=user_id).first()
+            userID = user_id
+        elif request.args.get('user_id') is not None:
+            userID = request.args.get('user_id')
+
+        if userID is not None:
+            app.logger.info("looking for user:" + userID)
+            user = User.query.filter_by(id=userID).first()
             if user is None:
-                return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
+                return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data":""}
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:

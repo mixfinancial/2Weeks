@@ -4,7 +4,6 @@
 
 
     userControllers.controller('adminNavBarController',['$scope', '$http', '$location', function($scope, $http, $location ) {
-     console.log('logging out');
       $scope.logout = function($window, $location) {
         console.log('logging out');
             $http.get('/api/logout/').
@@ -18,9 +17,6 @@
     }]);
 
 
-
-
-
     userControllers.controller("UserListController", ['$scope', '$http', function($scope, $http) {
       $http.get('/api/user/').
         success(function(data, status, headers, config) {
@@ -32,13 +28,10 @@
     }]);
 
 
-    userControllers.controller("UserViewController", ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
-      $http.get('/api/user/'+$routeParams.userId).
-        success(function(data, status, headers, config) {
-          $scope.users = data.data;
-        }).
-        error(function(data, status, headers, config) {
-          // log error
+    userControllers.controller("UserViewController", ['$scope', '$http', '$routeParams', 'User', function($scope, $http, $routeParams, User) {
+        $scope.users = User.get({userId: $routeParams.userId}, function(user) {
+            console.log(user.data)
+            $scope.users = user.data;
         });
     }]);
 

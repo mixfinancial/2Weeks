@@ -1,16 +1,19 @@
 'use strict';
 
 
-var loginApp = angular.module('billsApp', [
+var billsApp = angular.module('billsApp', [
     'ngRoute',
-    'billsAppControllers'
+    'billsAppControllers',
+    'ui.bootstrap'
 ]);
 
 
 var loginApp = angular.module('loginApp', [
     'ngRoute',
-    'loginAppControllers'
+    'loginAppControllers',
+    'ui.bootstrap'
 ]);
+
 
 loginApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
@@ -27,7 +30,6 @@ loginApp.config(['$routeProvider', function($routeProvider) {
         controller: 'loginAppLoginController'
     });
 }]);
-
 
 var menuBarApp = angular.module('menuBarApp', [
     'ngRoute',

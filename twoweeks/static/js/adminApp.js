@@ -2,7 +2,8 @@
 
 var myApp = angular.module('myApp', [
     'ngRoute',
-    'userControllers'
+    'userControllers',
+    'userServices'
 ]);
 
 myApp.config(['$routeProvider', function($routeProvider) {
@@ -33,3 +34,11 @@ myApp.config(['$routeProvider', function($routeProvider) {
 }]);
 
 
+var userServices = angular.module('userServices', ['ngResource']);
+
+userServices.factory('User', ['$resource',
+  function($resource){
+    return $resource('/api/user/:userId', {}, {
+      query: {method:'GET', params:{userId:'users'}, isArray:false}
+    });
+  }]);

@@ -58,4 +58,4 @@ MAIL_DEFAULT_SENDER = 'admin@mixfin.com'
 # SESSION CONFIG #
 ##################
 #Session Timeout in Minutes
-PERMANENT_SESSION_LIFETIME = 20
+PERMANENT_SESSION_LIFETIME = 200

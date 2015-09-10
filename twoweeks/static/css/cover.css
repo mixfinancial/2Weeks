@@ -24,3 +24,5 @@ body {
     -moz-opacity: 0.8; /* opacity [0-1] */
     -webkit-opacity: 0.8; /* opacity [0-1] */
 }
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
