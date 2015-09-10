@@ -14,7 +14,7 @@ MAINTAINER Robert Donovan <admin@mixfin.com>
 
 # Update the sources list and Install basic applications
 RUN apt-get update
-RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential
+RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential python-software-properties software-properties-common
 
 # Install Python and Basic Python Tools
 RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
