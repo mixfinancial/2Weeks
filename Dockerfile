@@ -4,14 +4,18 @@
 # This is the Devlopement Build
 ############################################################
 
-# Set the base image to Ubuntu
-FROM ubuntu:Wily
-
 # File Author / Maintainer
 MAINTAINER Robert Donovan <admin@mixfin.com>
 
+
+# Set the base image to Ubuntu
+FROM ubuntu:Wily
+
 # Add the application resources URL
-RUN echo "deb https://apt.dockerproject.org/repo ubuntu-wily main" > /etc/apt/sources.list
+#RUN echo "deb https://apt.dockerproject.org/repo ubuntu-wily main" > /etc/apt/sources.list
+# Ubuntu Wily
+deb https://apt.dockerproject.org/repo ubuntu-wily main
+
 
 # Update the sources list and  Install basic applications
 RUN apt-get update
