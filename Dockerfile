@@ -26,7 +26,7 @@ RUN pip install uwsgi
 # install nginx
 run apt-get install -y python-software-properties
 run apt-get update
-RUN sudo add-apt-repository ppa:nginx/stable
+RUN add-apt-repository ppa:nginx/stable
 
 # Set up DevUser
 RUN useradd dlkrbd -u 1000 -s /bin/bash --no-create-home
