@@ -18,3 +18,12 @@ All required Python libraries can be installed by leveraging the included requir
     Using ChromeDriver
     -Robert
     python functional_test.py
+
+
+
+
+## Notes for Robert since he can't remember
+Ref. https://www.digitalocean.com/community/tutorials/docker-explained-how-to-containerize-python-web-applications
+1.    
+
+2.  Setup the application to use uWSGI and talk with Nginx
