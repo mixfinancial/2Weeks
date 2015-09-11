@@ -148,13 +148,35 @@ class ApiLogin(Resource):
         if (user is not None and user.verify_password(request.form['password'])):
             app.logger.info('Login Successful')
             login_user(user)
-            return {"meta":buildMeta(), "error":"none", "data": ""}
+            return {"meta":buildMeta()}
         else:
             app.logger.info('Username or password incorrect')
-            return {"meta":buildMeta(), "error":"Username or password incorrect", "data": ""}
+            return {"meta":buildMeta(), "error":"Username or password incorrect"}
 
-        return {"meta":buildMeta(), "error":"none", "data": ""}
-api.add_resource(ApiLogin, '/api/login/')
+        return {"meta":buildMeta()}
+api.add_resource(ApiLogin, '/api/login')
+
+
+#APILOGIN
+class ApiLogin2(Resource):
+    def post(self):
+        app.logger.info('User:' + request.form['username'] + ' attempting to login')
+        # validate username and password
+        user = User.query.filter_by(username = request.form['username']).first()
+
+        if (user is not None and user.verify_password(request.form['password'])):
+            app.logger.info('Login Successful')
+            login_user(user)
+            return {"meta":buildMeta()}
+        else:
+            app.logger.info('Username or password incorrect')
+            return {"meta":buildMeta(), "error":"Username or password incorrect"}
+
+        return {"meta":buildMeta()}
+api.add_resource(ApiLogin2, '/api/login/')
+
+
+
 
 
 #APILOGOUT

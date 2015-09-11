@@ -2,7 +2,6 @@
 
     var userControllers = angular.module("userControllers", []);
 
-
     userControllers.controller('adminNavBarController',['$scope', '$http', '$location', function($scope, $http, $location ) {
       $scope.logout = function($window, $location) {
         console.log('logging out');
@@ -16,7 +15,6 @@
         };
     }]);
 
-
     userControllers.controller("UserListController", ['$scope', '$http', 'User', function($scope, $http, User) {
         User.query(function(data) {
             console.log(data);
@@ -27,7 +25,6 @@
             User.delete({userId: $routeParams.userId});
         }
     }]);
-
 
     userControllers.controller("UserViewController", ['$scope', '$http', '$routeParams', 'User', function($scope, $http, $routeParams, User) {
         $scope.users = User.get({userId: $routeParams.userId}, function(user) {
@@ -41,15 +38,13 @@
         }
     }]);
 
-
     userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', '$location', 'User', function($scope, $http, transformRequestAsFormPost, $location, User) {
         $scope.submit = function() {
             var data = $scope.user;
             User.save(JSON.stringify(data));
             $location.path( "/usersTable");
-        }
+        };
     }]);
-
 
     userControllers.controller("UserEditFormController",['$scope', '$http', '$routeParams', '$location', 'User', function($scope, $http, $routeParams, $location, User) {
         $scope.users = User.get({userId: $routeParams.userId}, function(user) {
@@ -61,20 +56,18 @@
             var data = $scope.user;
             User.save(JSON.stringify(data));
             $location.path( "/usersTable");
-        }
+        };
     }]);
 
-
-    userControllers.controller("UserLoginController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {
-        $scope.submit = function($window, $location) {
-            $http({
-              url: "/api/login/",
-              method: "POST",
-              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-               data: $.param({username: $scope.username, password: $scope.password})
-            }).success(function(data) {
-              console.log(data)
-              window.location.href = '/admin/home/';
+    userControllers.controller("UserLoginController",['$scope', '$routeParams', '$location', 'Login', function($scope, transformRequestAsFormPost, $location, Login) {
+         $scope.submit = function() {
+            Login.save($.param({username: $scope.username, password: $scope.password}), function(data){
+                console.log(data)
+                if(data.error == null){
+                    window.location.href = '/admin/home/';
+                }else{
+                    console.log(data.error);
+                }
             });
         };
     }]);
