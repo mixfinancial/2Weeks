@@ -65,29 +65,6 @@
     }]);
 
 
-     userControllers.controller("UserDeleteController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location,transformRequestAsFormPost) {
-            $http({
-              url: '/api/user/'+$routeParams.userId,
-              method: "DELETE",
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              data: "{null}"
-            }).success(function(data) {
-              console.log(data)
-              $location.path( "/usersTable");
-            });
-
-
-          $http.get('/api/user/').
-            success(function(data, status, headers, config) {
-              $scope.users = data.data;
-            }).
-            error(function(data, status, headers, config) {
-              // log error
-            });
-    }]);
-
-
-
     userControllers.controller("UserLoginController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {
         $scope.submit = function($window, $location) {
             $http({
