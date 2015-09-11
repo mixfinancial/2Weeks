@@ -39,6 +39,10 @@ var userServices = angular.module('userServices', ['ngResource']);
 userServices.factory('User', ['$resource',
   function($resource){
     return $resource('/api/user/:userId', {}, {
-      query: {method:'GET', params:{userId:'users'}, isArray:false}
+      query: {method:'GET', isArray:false},
+      get: {method:'GET', params:{userId:'users'}, isArray:false},
+      save: {method:'POST', isArray:false},
+      delete: {method:'DELETE', isArray:false},
+      put: {method:'PUT', isArray:false}
     });
   }]);

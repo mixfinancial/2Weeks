@@ -260,51 +260,128 @@ class ApiUser(Resource):
         if userID is not None:
             app.logger.info("looking for user:" + userID)
             user = User.query.filter_by(id=userID).first()
+            app.logger.info(user)
+
             if user is None:
                 return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data":""}
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
             users = [i.serialize for i in User.query.all()]
+            #TODO: DO NOT RETURN PASSWORDS
             return {"meta":buildMeta(), "data":users}
 
     @login_required
-    def put(self, user_id):
-        print json.loads(request.form['data'])
-        app.logger.info("Updating User for: " + request.form['data'])
-        requestData = json.loads(request.form['data'])
+    def put(self, user_id=None):
+        app.logger.info('Accessing User.put')
+        id = ''
+        username = ''
+        new_password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
+
+        if user_id is not None:
+            id = user_id
+        elif request.args.get('user_id') is not None:
+            id = request.args.get('user_id')
+
 
         user = User.query.filter_by(id=user_id).first()
-        if user is None:
-            return {"meta":buildMeta(), "status":"success", "error": "No results returned for user id #"+ user_id, "data":""}
+
+        if user is not None:
+            if request_wants_json():
+                app.logger.info('Creating new user based upon JSON Request')
+                print json.dumps(request.get_json())
+                data = request.get_json()
+                for key,value in data.iteritems():
+                    print key+'-'+value
+                    if key == 'new_password':
+                        new_password = value
+                    if key == 'confirm_password':
+                        confirm_password = value
+                    elif key == 'email':
+                        email = value
+                        username = value
+                        user.username = value
+                        user.email = value
+                    elif key == 'first_name':
+                        first_name = value
+                        user.first_name = value
+                    elif key == 'last_name':
+                        last_name = value
+                        user.last_name = value
+            else:
+                app.logger.info('Updating user '+username)
+                requestData = json.loads(request.form['data'])
+                user.username = requestData['email']
+                user.email = requestData['email']
+                user.last_name = requestData['last_name']
+                user.first_name = requestData['first_name']
+                confirm_password = requestData['confirm_password']
+                password = requestData['password']
         else:
-            user.username = requestData['username']
-            user.email = requestData['email']
-            user.first_name = requestData['first_name']
-            user.last_name = requestData['last_name']
-            user.last_updated = datetime.utcnow()
-            db_session.commit()
-            return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id}
+            return {"meta":buildMeta(), "error":"Could not find user id #"+id}
+
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+
+        db_session.commit()
+        return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id}
+
 
     @login_required
     def post(self, user_id=None):
-        print json.loads(request.form['data'])
-        app.logger.info("Creating User for: " + request.form['data'])
+        app.logger.info('Accessing User.post')
 
-        requestData = json.loads(request.form['data'])
+        username = ''
+        password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
 
-        if requestData['username'] is None or requestData['password'] is None:
-            abort(400) # missing arguments
+        if request_wants_json():
+            app.logger.info('Creating new user based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            for key,value in data.iteritems():
+                print key+'-'+value
+                if key == 'password':
+                    password = value
+                if key == 'confirm_password':
+                    confirm_password = value
+                elif key == 'email':
+                    username = value
+                    email = value
+                elif key == 'first_name':
+                    first_name = value
+                elif key == 'last_name':
+                    last_name = value
+        else:
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            username = requestData['email']
+            email = requestData['email']
+            last_name = requestData['last_name']
+            first_name = requestData['first_name']
+            confirm_password = requestData['confirm_password']
 
-        if User.query.filter_by(username = requestData['username']).first() is not None:
-            abort(400) # existing user
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+        if email is None or password is None:
+            return {"meta":buildMeta(), "error":"Email and Password is required"}
 
-        newUser = User(username=requestData['username'], password=requestData['password'], email=requestData['email'], first_name=requestData['first_name'], last_name=requestData['last_name'])
+        if User.query.filter_by(username = username).first() is not None:
+            return {"meta":buildMeta(), "error":"Username already exists"}
+
+        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
 
         db_session.add(newUser)
         db_session.commit()
 
-        return {"meta":buildMeta(), "error":"none", "data": newUser.id}
+        return {"meta":buildMeta()}
 
     @login_required
     def delete(self, user_id):
@@ -315,14 +392,21 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta(), "data" : "Deleted Record with ID " + user_id}
 
-api.add_resource(ApiUser, '/api/user/', '/api/user/<string:user_id>', '/api/users/', '/api/users/<string:user_id>')
+api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>', '/api/users/', '/api/users/<string:user_id>')
 
 
 
 
 
+####################
+# HELPER FUNCTIONS #
+####################
 
-
+def request_wants_json():
+    if 'application/json' in request.accept_mimetypes:
+        return True;
+    else:
+        return False
 
 
 def buildMeta():

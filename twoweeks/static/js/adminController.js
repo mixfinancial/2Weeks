@@ -17,86 +17,52 @@
     }]);
 
 
-    userControllers.controller("UserListController", ['$scope', '$http', function($scope, $http) {
-      $http.get('/api/user/').
-        success(function(data, status, headers, config) {
-          $scope.users = data.data;
-        }).
-        error(function(data, status, headers, config) {
-          // log error
-        });
+    userControllers.controller("UserListController", ['$scope', '$http', 'User', function($scope, $http, User) {
+        User.query(function(data) {
+            console.log(data);
+            $scope.users = data.data;
+         });
+
+        $scope.delete = function($window, $location) {
+            User.delete({userId: $routeParams.userId});
+        }
     }]);
 
 
     userControllers.controller("UserViewController", ['$scope', '$http', '$routeParams', 'User', function($scope, $http, $routeParams, User) {
         $scope.users = User.get({userId: $routeParams.userId}, function(user) {
-            console.log(user.data)
-            $scope.users = user.data;
+            console.log(user.data[0])
+            $scope.user = user.data[0];
         });
+
+        $scope.delete = function($window, $location) {
+            User.delete({userId: $routeParams.userId});
+            window.location.href = '/UserListController';
+        }
     }]);
 
 
-    userControllers.controller("UserLoginController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {
-        $scope.submit = function($window, $location) {
-            $http({
-              url: "/api/login/",
-              method: "POST",
-              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-               data: $.param({username: $scope.username, password: $scope.password})
-            }).success(function(data) {
-              console.log(data)
-              window.location.href = '/admin/home/';
-            });
-        };
-    }]);
-
-
-    userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, transformRequestAsFormPost, $location ) {
+    userControllers.controller("UserFormController",['$scope', '$http', '$routeParams', '$location', 'User', function($scope, $http, transformRequestAsFormPost, $location, User) {
         $scope.submit = function() {
-            $scope.user.username = $scope.user.email;
             var data = $scope.user;
-            console.log(data);
-            $http({
-              url: "/api/user/",
-              method: "POST",
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              data: $.param({"data":JSON.stringify(data)})
-            }).success(function(data) {
-              console.log(data)
-              $location.path( "/usersTable");
-            });
-        };
+            User.save(JSON.stringify(data));
+            $location.path( "/usersTable");
+        }
     }]);
 
 
-
-    userControllers.controller("UserEditFormController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location, transformRequestAsFormPost) {
-
-        $http.get('/api/user/'+$routeParams.userId).
-            success(function(data, status, headers, config) {
-              $scope.user = data.data[0];
-            }).
-            error(function(data, status, headers, config) {
-              // log error
+    userControllers.controller("UserEditFormController",['$scope', '$http', '$routeParams', '$location', 'User', function($scope, $http, $routeParams, $location, User) {
+        $scope.users = User.get({userId: $routeParams.userId}, function(user) {
+            console.log(user.data[0])
+            $scope.user = user.data[0];
         });
 
-
         $scope.submit = function() {
-            $scope.user.username = $scope.user.email;
-            var data= $scope.user;
-            console.log(data);
-            $http({
-              url: '/api/user/'+$routeParams.userId,
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              data: $.param({"data":JSON.stringify(data)})
-            }).success(function(data) {
-              console.log(data)
-              $location.path( "/usersTable");
-            });
-        };
+            var data = $scope.user;
+            User.save(JSON.stringify(data));
+            $location.path( "/usersTable");
+        }
     }]);
-
 
 
      userControllers.controller("UserDeleteController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location,transformRequestAsFormPost) {
@@ -121,3 +87,17 @@
     }]);
 
 
+
+    userControllers.controller("UserLoginController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {
+        $scope.submit = function($window, $location) {
+            $http({
+              url: "/api/login/",
+              method: "POST",
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+               data: $.param({username: $scope.username, password: $scope.password})
+            }).success(function(data) {
+              console.log(data)
+              window.location.href = '/admin/home/';
+            });
+        };
+    }]);
