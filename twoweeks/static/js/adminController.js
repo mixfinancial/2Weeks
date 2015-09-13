@@ -2,6 +2,16 @@
 
     var userControllers = angular.module("userControllers", []);
 
+
+    //DEPRECATED
+    userControllers.controller('AlertsCtrl',['$scope', 'alertsManager', function($scope, alertsManager) {
+        $scope.alerts = alertsManager.alerts;
+
+        $scope.closeAlert = function(index) {
+            alertsManager.closeAlert(index);
+        };
+    }]);
+
     userControllers.controller('adminNavBarController',['$scope', '$http', '$location', function($scope, $http, $location ) {
       $scope.logout = function($window, $location) {
         console.log('logging out');
@@ -59,13 +69,14 @@
         };
     }]);
 
-    userControllers.controller("UserLoginController",['$scope', '$routeParams', '$location', 'Login', function($scope, transformRequestAsFormPost, $location, Login) {
+    userControllers.controller("UserLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
          $scope.submit = function() {
             Login.save($.param({username: $scope.username, password: $scope.password}), function(data){
                 console.log(data)
                 if(data.error == null){
                     window.location.href = '/admin/home/';
                 }else{
+                    notificationService.error(data.error)
                     console.log(data.error);
                 }
             });

@@ -4,7 +4,9 @@ var myApp = angular.module('myApp', [
     'ngRoute',
     'userControllers',
     'userServices',
-    'loginServices'
+    'loginServices',
+    'alertServices',
+    'jlareau.pnotify'
 ]);
 
 myApp.config(['$routeProvider', function($routeProvider) {
@@ -57,3 +59,23 @@ loginServices.factory('Login', ['$resource',
       'save': {method:'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, isArray:false}
     });
   }]);
+
+
+
+//DEPRECATED
+var alertServices = angular.module('alertServices', ['ngResource']);
+
+//DEPRECATED
+alertServices.factory('alertsManager', function() {
+    return {
+        alerts : [],
+        addAlert: function(message, type) {
+            //this.alerts = [];
+            this.alerts.push({'type' : type,  'msg' : message});
+            console.log(this.alerts);
+        },
+        closeAlert: function(index) {
+            this.alerts.splice(index, 1);
+        }
+    };
+});

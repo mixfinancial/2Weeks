@@ -59,6 +59,11 @@
           <div class="row">
               <!-- ANGULAR APP -->
               <div class="col-md-12" ng-app="billsApp">
+                  <div ng-controller="AlertsCtrl">
+                      <div ng-repeat="(key,val) in alerts" class="alert {{key}}">
+                          <div ng-repeat="msg in val">{{msg}}</div>
+                      </div>
+                    </div>
                   <!-- ANGULAR VIEW-FRAME -->
                   <div ng-view class="view-frame"></div>
               </div>

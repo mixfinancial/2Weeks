@@ -27,3 +27,12 @@ Ref. https://www.digitalocean.com/community/tutorials/docker-explained-how-to-co
 1.    
 
 2.  Setup the application to use uWSGI and talk with Nginx
+
+
+
+### PNOTIFY Info
+
+
+
+1. [pNotify](http://sciactive.github.io/pnotify/)
+2. [Angular JS Wrapper](https://github.com/jacqueslareau/angular-pnotify)
