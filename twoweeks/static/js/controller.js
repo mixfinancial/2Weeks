@@ -5,27 +5,26 @@
     var menuBarAppController = angular.module("menuBarAppController", []);
 
 
-    loginAppControllers.controller("loginAppLoginController",['$scope', '$http', '$routeParams', '$location', function($scope, $http, transformRequestAsFormPost, $location ) {
-        $scope.submit = function() {
-            $http({
-              url: "/api/login/",
-              method: "POST",
-              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-               data: $.param({username: $scope.username, password: $scope.password})
-            }).success(function(data) {
-              console.log(data)
-              if(data['error'] == 'none'){
-                window.location.href = '/home/';
-              }else{
-                 $scope.errors = data.error;
-                 console.log(data.error)
-                 //console.log($scope.alerts)
-                 console.log($scope.alerts);
-                 //$location.path("/login");
-              }
-            })
-        };
+    loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
+         $scope.submit = function() {
+            if($scope.username == null || $scope.password == null){
+                 notificationService.error("Please Enter username and password")
+            }else{
+                Login.save($.param({username: $scope.username, password: $scope.password}), function(data){
+                    console.log(data)
+                    if(data.error == null){
+                        window.location.href = '/home/';
+                    }else{
+                        notificationService.error(data.error)
+                        console.log(data.error);
+                    }
+                });
+            }
+        }
     }]);
+
+
+
 
 
     loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {
@@ -41,6 +40,12 @@
             });
         };
     }]);
+
+
+
+
+
+
 
 
     menuBarAppController.controller('menuBarAppController',['$scope', '$http', '$location', function($scope, $http, $location ) {

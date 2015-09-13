@@ -111,14 +111,16 @@ def login():
 def login_check():
     app.logger.info('User:' + request.form['username'] + ' attempting to login')
     # validate username and password
-    user = User.query.filter_by(username = request.form['username']).first()
-    app.logger.info(user.id);
-    if (user is not None and user.verify_password(request.form['password'])):
-        app.logger.info('Login Successful')
-        login_user(user)
+    if (request.form['username'] is not None and request.form['password'] is not None):
+        user = User.query.filter_by(username = request.form['username']).first()
+        app.logger.info(user.id);
+        if (user is not None and user.verify_password(request.form['password'])):
+            app.logger.info('Login Successful')
+            login_user(user)
+        else:
+            app.logger.info('Username or password incorrect')
     else:
-        app.logger.info('Username or password incorrect')
-        flash('Username or password incorrect')
+        app.logger.info('Please provide a username and password')
 
     return redirect(url_for('home'))
 
@@ -143,38 +145,24 @@ class ApiLogin(Resource):
     def post(self):
         app.logger.info('User:' + request.form['username'] + ' attempting to login')
         # validate username and password
-        user = User.query.filter_by(username = request.form['username']).first()
+        if (request.form['username'] is not None and request.form['password'] is not None):
+            user = User.query.filter_by(username = request.form['username']).first()
 
-        if (user is not None and user.verify_password(request.form['password'])):
-            app.logger.info('Login Successful')
-            login_user(user)
-            return {"meta":buildMeta()}
+            if (user is not None and user.verify_password(request.form['password'])):
+                app.logger.info('Login Successful')
+                login_user(user)
+                return {"meta":buildMeta()}
+            else:
+                app.logger.info('Username or password incorrect')
+                return {"meta":buildMeta(), "error":"Username or password incorrect"}
         else:
-            app.logger.info('Username or password incorrect')
-            return {"meta":buildMeta(), "error":"Username or password incorrect"}
+            app.logger.info('Please provide a username and password')
+            return {"meta":buildMeta(), "error":"Please provide a username and password"}
+
 
         return {"meta":buildMeta()}
+
 api.add_resource(ApiLogin, '/api/login')
-
-
-#APILOGIN
-class ApiLogin2(Resource):
-    def post(self):
-        app.logger.info('User:' + request.form['username'] + ' attempting to login')
-        # validate username and password
-        user = User.query.filter_by(username = request.form['username']).first()
-
-        if (user is not None and user.verify_password(request.form['password'])):
-            app.logger.info('Login Successful')
-            login_user(user)
-            return {"meta":buildMeta()}
-        else:
-            app.logger.info('Username or password incorrect')
-            return {"meta":buildMeta(), "error":"Username or password incorrect"}
-
-        return {"meta":buildMeta()}
-api.add_resource(ApiLogin2, '/api/login/')
-
 
 
 

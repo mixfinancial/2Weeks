@@ -7,10 +7,16 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
       <title>Welcome to 2Weeks!</title>
+
       <!-- Latest compiled and minified CSS -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <!-- Optional theme -->
-      <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/pnotify.custom.min.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+
 
 
       <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -45,10 +51,10 @@
       </script>
   </head>
   <body>
-  <div class="container" role="main">
+  <div class="container" role="main" ng-app="loginApp">
       <div class="row vertical-center-row">
           <!-- ANGULAR APP -->
-          <div class="col-md-offset-3 col-md-6" ng-app="loginApp">
+          <div class="col-md-offset-3 col-md-6" >
               <div class="cover-container">
                   <div class="inner cover">
                       <h1 class="cover-heading">2Weeks</h1>
@@ -74,27 +80,30 @@
 
 
 
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-  <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+      <!-- Latest compiled and minified JavaScript for AngularJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-animate.min.js"></script>
+
+      <!-- Deprecated -->
+      <!-- <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script> -->
+
+      <!-- 2Weeks AngularJS Files -->
+      <script src="{{ url_for('static', filename='js/App.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/Controller.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
 
 
-
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js') }}"></script>
-
-  <!-- Latest compiled and minified JavaScript for AngularJS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-animate.js"></script>
-  <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.13.4.js"></script>
-
-  <!-- 2Weeks AngularJS Files -->
-  <script src="{{ url_for('static', filename='js/App.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/Controller.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+       <!-- pNotify JS File -->
+       <script src="{{ url_for('static', filename='js/pnotify.custom.min.js') }}"></script>
+       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
 
   </body>
 </html>
