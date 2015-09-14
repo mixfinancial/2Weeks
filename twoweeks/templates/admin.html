@@ -59,21 +59,31 @@
               </div>
           </div>
         </div>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-        <!-- Latest compiled and minified JavaScript for Bootstrap -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-        <!-- Latest compiled and minified JavaScript for AngularJS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
-        <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script>
+      <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-        <!-- 2Weeks AngularJS Files -->
-        <script src="{{ url_for('static', filename='js/adminApp.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/adminController.js') }}"></script>
+      <!-- Latest compiled and minified JavaScript for AngularJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-animate.min.js"></script>
+
+      <!-- Deprecated -->
+      <!-- <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script> -->
+
+      <!-- 2Weeks AngularJS Files -->
+      <script src="{{ url_for('static', filename='js/adminApp.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/adminController.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+
+
+       <!-- pNotify JS File -->
+       <script src="{{ url_for('static', filename='js/pnotify.custom.min.js') }}"></script>
+       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
 
   </body>
 </html>

@@ -3,9 +3,8 @@
 var myApp = angular.module('myApp', [
     'ngRoute',
     'userControllers',
-    'userServices',
+    'dbServices',
     'loginServices',
-    'alertServices',
     'jlareau.pnotify'
 ]);
 
@@ -37,9 +36,17 @@ myApp.config(['$routeProvider', function($routeProvider) {
 }]);
 
 
-var userServices = angular.module('userServices', ['ngResource']);
 
-userServices.factory('User', ['$resource',
+
+
+
+/*********************
+*  Database Services *
+**********************/
+
+var dbServices = angular.module('dbServices', ['ngResource']);
+
+dbServices.factory('User', ['$resource',
   function($resource){
     return $resource('/api/user/:userId', {}, {
       'query': {method:'GET', isArray:false},
@@ -51,6 +58,26 @@ userServices.factory('User', ['$resource',
   }]);
 
 
+dbServices.factory('Bill', ['$resource',
+  function($resource){
+    return $resource('/api/bill/:billId', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{userId:'bills'}, isArray:false},
+      'save': {method:'POST', isArray:false},
+      'delete': {method:'DELETE', isArray:false},
+      'put': {method:'PUT', isArray:false}
+    });
+  }]);
+
+
+
+
+
+
+/******************
+*  Login Services *
+******************/
+
 var loginServices = angular.module('loginServices', ['ngResource']);
 
 loginServices.factory('Login', ['$resource',
@@ -61,21 +88,3 @@ loginServices.factory('Login', ['$resource',
   }]);
 
 
-
-//DEPRECATED
-var alertServices = angular.module('alertServices', ['ngResource']);
-
-//DEPRECATED
-alertServices.factory('alertsManager', function() {
-    return {
-        alerts : [],
-        addAlert: function(message, type) {
-            //this.alerts = [];
-            this.alerts.push({'type' : type,  'msg' : message});
-            console.log(this.alerts);
-        },
-        closeAlert: function(index) {
-            this.alerts.splice(index, 1);
-        }
-    };
-});

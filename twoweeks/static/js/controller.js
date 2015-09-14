@@ -2,7 +2,7 @@
 
     var billsControllers = angular.module("billsControllers", []);
     var loginAppControllers = angular.module("loginAppControllers", []);
-    var menuBarAppController = angular.module("menuBarAppController", []);
+    var menuBarAppControllers = angular.module("menuBarAppController", []);
 
 
     loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
@@ -48,7 +48,7 @@
 
 
 
-    menuBarAppController.controller('menuBarAppController',['$scope', '$http', '$location', function($scope, $http, $location ) {
+    menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', function($scope, $http, $location ) {
      console.log('logging out');
       $scope.logout = function($window, $location) {
         console.log('logging out');

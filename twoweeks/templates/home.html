@@ -12,8 +12,9 @@
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <!-- Optional theme -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-      <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/pnotify.custom.min.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
       <!-- GOOGLE WEBMASTER TOOLS -->
       <meta name="google-site-verification" content="MwHU_cofD8jJ_ri51e1Ne9TFog2qzQA03R96duCMpx4" />
@@ -68,26 +69,32 @@
                   <div ng-view class="view-frame"></div>
               </div>
           </div>
-        </div>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      </div>
 
-        <!-- Latest compiled and minified JavaScript for Bootstrap -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-        <!-- Latest compiled and minified JavaScript for AngularJS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+      <!-- Latest compiled and minified JavaScript for Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-        <!-- 2Weeks AngularJS Files -->
-        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+      <!-- Latest compiled and minified JavaScript for AngularJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-resource.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-route.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.5/angular-animate.min.js"></script>
 
-        <!-- D3.js -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+      <!-- Deprecated -->
+      <!-- <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script> -->
 
+      <!-- 2Weeks AngularJS Files -->
+      <script src="{{ url_for('static', filename='js/App.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/Controller.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
+
+
+       <!-- pNotify JS File -->
+       <script src="{{ url_for('static', filename='js/pnotify.custom.min.js') }}"></script>
+       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
 
   </body>
 </html>

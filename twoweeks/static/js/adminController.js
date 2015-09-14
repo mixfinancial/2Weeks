@@ -2,16 +2,6 @@
 
     var userControllers = angular.module("userControllers", []);
 
-
-    //DEPRECATED
-    userControllers.controller('AlertsCtrl',['$scope', 'alertsManager', function($scope, alertsManager) {
-        $scope.alerts = alertsManager.alerts;
-
-        $scope.closeAlert = function(index) {
-            alertsManager.closeAlert(index);
-        };
-    }]);
-
     userControllers.controller('adminNavBarController',['$scope', '$http', '$location', function($scope, $http, $location ) {
       $scope.logout = function($window, $location) {
         console.log('logging out');

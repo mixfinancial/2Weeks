@@ -3,14 +3,16 @@
 
 var billsApp = angular.module('billsApp', [
     'ngRoute',
-    'billsAppControllers'
+    'billsAppControllers',
+    'menuBarAppControllers',
+    'jlareau.pnotify',
+    'dbServices'
 ]);
 
 
 var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
-    'dbServices',
     'loginServices',
     'jlareau.pnotify'
 ]);
