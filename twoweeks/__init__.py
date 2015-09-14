@@ -306,7 +306,7 @@ class ApiUser(Resource):
         user = User.query.filter_by(id=user_id).first()
 
         if user is not None:
-            if request_wants_json():
+            if request_is_json():
                 app.logger.info('Creating new user based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
@@ -327,7 +327,7 @@ class ApiUser(Resource):
                     elif key == 'last_name':
                         last_name = value
                         user.last_name = value
-            else:
+            elif request_is_form_urlencode():
                 app.logger.info('Updating user '+username)
                 requestData = json.loads(request.form['data'])
                 user.username = requestData['email']
@@ -336,6 +336,9 @@ class ApiUser(Resource):
                 user.first_name = requestData['first_name']
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
+            else:
+                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
 
@@ -357,7 +360,7 @@ class ApiUser(Resource):
         last_name = ''
         role_id = ''
 
-        if request_wants_json():
+        if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
             print json.dumps(request.get_json())
             data = request.get_json()
@@ -374,7 +377,7 @@ class ApiUser(Resource):
                     first_name = value
                 elif key == 'last_name':
                     last_name = value
-        else:
+        elif request_is_form_urlencode():
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             username = requestData['email']
@@ -382,6 +385,8 @@ class ApiUser(Resource):
             last_name = requestData['last_name']
             first_name = requestData['first_name']
             confirm_password = requestData['confirm_password']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -452,12 +457,12 @@ class ApiBill(Resource):
         app.logger.info('Accessing User.put')
         id = ''
         username = ''
-        new_password = ''
-        confirm_password = ''
-        email = ''
-        first_name = ''
-        last_name = ''
-        role_id = ''
+        new_password = None
+        confirm_password = None
+        email = None
+        first_name = None
+        last_name = None
+        role_id = None
 
         if bill_id is not None:
             id = bill_id
@@ -468,7 +473,7 @@ class ApiBill(Resource):
         user = User.query.filter_by(id=bill_id).first()
 
         if user is not None:
-            if request_wants_json():
+            if request_is_json():
                 app.logger.info('Creating new user based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
@@ -489,7 +494,7 @@ class ApiBill(Resource):
                     elif key == 'last_name':
                         last_name = value
                         user.last_name = value
-            else:
+            elif request_is_form_urlencode():
                 app.logger.info('Updating user '+username)
                 requestData = json.loads(request.form['data'])
                 user.username = requestData['email']
@@ -498,6 +503,9 @@ class ApiBill(Resource):
                 user.first_name = requestData['first_name']
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
+            else:
+                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id}
 
@@ -509,17 +517,20 @@ class ApiBill(Resource):
 
     @login_required
     def post(self, bill_id=None):
-        app.logger.info('Accessing User.post')
+        app.logger.info('Accessing Bill.post')
 
-        username = ''
-        password = ''
-        confirm_password = ''
-        email = ''
-        first_name = ''
-        last_name = ''
-        role_id = ''
+        user_id = None
+        name = None
+        description = None
+        recurring_flag = None
+        amount = None
+        average_amount = None
+        recurrance = None
+        next_due_date = None
+        payment_type_ind = None
+        payment_method = None
 
-        if request_wants_json():
+        if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
             print json.dumps(request.get_json())
             data = request.get_json()
@@ -536,7 +547,7 @@ class ApiBill(Resource):
                     first_name = value
                 elif key == 'last_name':
                     last_name = value
-        else:
+        elif request_is_form_urlencode():
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             username = requestData['email']
@@ -544,6 +555,8 @@ class ApiBill(Resource):
             last_name = requestData['last_name']
             first_name = requestData['first_name']
             confirm_password = requestData['confirm_password']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -601,11 +614,20 @@ api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>
 # HELPER FUNCTIONS #
 ####################
 
-def request_wants_json():
+def request_is_json():
     if 'application/json' in request.accept_mimetypes:
         return True;
     else:
         return False
+
+
+
+def request_is_form_urlencode():
+    if 'application/x-www-form-urlencoded' in request.accept_mimetypes:
+        return True;
+    else:
+        return False
+
 
 def buildMeta():
     return [{"authors":["David Larrimore", "Robert Donovan"], "copyright": "Copyright 2015 MixFin LLC.", "version": "0.1"}]

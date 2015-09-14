@@ -50,13 +50,13 @@ The 2Weeks API was built based upon the [jsonapi.org](http://jsonapi.org/) speci
 All routes start with /api/
 
 
-## API Routes
+#### API Routes
 
 Each Database object supports the following methods
 
 
 
-### GET (All)
+#### GET (All)
 
 **Method**: GET
 
@@ -67,7 +67,7 @@ Each Database object supports the following methods
 
 
 
-### GET (ONE)
+#### GET (ONE)
 
 **Method**: GET
 
@@ -78,7 +78,7 @@ Each Database object supports the following methods
 
 
 
-### CREATE (ONE)
+#### CREATE (ONE)
 
 **Method**: POST
 
@@ -88,7 +88,7 @@ Each Database object supports the following methods
 
 
 
-### UPDATE (ONE)
+#### UPDATE (ONE)
 
 **Method**: PUT
 
@@ -100,7 +100,7 @@ Each Database object supports the following methods
 
 
 
-### DELETE (ONE)
+#### DELETE (ONE)
 
 
 **Method**: DELETE
@@ -113,10 +113,10 @@ Each Database object supports the following methods
 
 
 
-## API Response Info
+### API Response Info
 
 
-### Successful Response With Data example
+#### Successful Response with data example
 
     {
         "data": [
@@ -150,7 +150,7 @@ Each Database object supports the following methods
     }
     
     
-### Successful Resonpse With no results example
+#### Successful Resonpse with no results example
     
     {
       "data": null,
@@ -168,7 +168,7 @@ Each Database object supports the following methods
     }
     
     
-### Error Resonpse
+#### Error Resonpse
    
     {
         "data": [], 
