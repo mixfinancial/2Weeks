@@ -45,6 +45,7 @@ class Role(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
+           'type'          : 'role',
            'id'            : self.id,
            'name'          : self.name,
            'description'   : self.description,
@@ -145,6 +146,7 @@ class User(Base, UserMixin):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
+           'type'        : 'users',
            'id'          : self.id,
            'username'    : self.username,
            'email'       : self.email,
@@ -191,6 +193,7 @@ class Bill(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
+           'type'               : 'bills',
            'id'                 : self.id,
            'user_id'            : self.user_id,
            'name'               : self.name,

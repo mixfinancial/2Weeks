@@ -10,7 +10,7 @@ var billsApp = angular.module('billsApp', [
 var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
-    'userServices',
+    'dbServices',
     'loginServices',
     'jlareau.pnotify'
 ]);
@@ -40,9 +40,16 @@ var menuBarApp = angular.module('menuBarApp', [
 
 
 
-var userServices = angular.module('userServices', ['ngResource']);
 
-userServices.factory('User', ['$resource',
+
+
+/*********************
+*  Database Services *
+**********************/
+
+var dbServices = angular.module('dbServices', ['ngResource']);
+
+dbServices.factory('User', ['$resource',
   function($resource){
     return $resource('/api/user/:userId', {}, {
       'query': {method:'GET', isArray:false},
@@ -53,6 +60,23 @@ userServices.factory('User', ['$resource',
     });
   }]);
 
+
+dbServices.factory('Bill', ['$resource',
+  function($resource){
+    return $resource('/api/bill/:billId', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{userId:'bills'}, isArray:false},
+      'save': {method:'POST', isArray:false},
+      'delete': {method:'DELETE', isArray:false},
+      'put': {method:'PUT', isArray:false}
+    });
+  }]);
+
+
+
+/******************
+*  Login Services *
+******************/
 
 var loginServices = angular.module('loginServices', ['ngResource']);
 

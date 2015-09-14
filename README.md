@@ -36,3 +36,135 @@ Ref. https://www.digitalocean.com/community/tutorials/docker-explained-how-to-co
 
 1. [pNotify](http://sciactive.github.io/pnotify/)
 2. [Angular JS Wrapper](https://github.com/jacqueslareau/angular-pnotify)
+
+
+
+
+
+
+
+## API REFERENCE
+
+The 2Weeks API was built based upon the [jsonapi.org](http://jsonapi.org/) specification.
+
+All routes start with /api/
+
+
+## API Routes
+Each Database object supports the following methods
+
+
+
+### GET (All)
+
+Method: GET
+Route: /api/object
+Optional URL Parameters: Provide optional Key/Value pairs for search strings
+
+
+
+
+### GET (ONE)
+
+Method: GET
+Route: /api/object/:ObjectId
+Optional URL Parameters: objectId
+
+
+
+
+### CREATE (ONE)
+
+Method: POST
+Route /api/object
+Accept either application/x-www-form-urlencoded or application/json
+
+
+
+### UPDATE (ONE)
+
+Method: PUT
+Route /api/object/:ObjectId
+Optional URL Parameters: objectId
+Accept either application/x-www-form-urlencoded or application/json
+
+
+
+### DELETE (ONE)
+
+Method: DELETE
+Route /api/object/:ObjectId
+Base URL Parameters: objectId
+Optional URL Parameters: objectId
+
+
+## API Response Info
+
+
+### Successful Response With Data example
+
+    {
+        "data": [
+            {
+                "amount": "100.0", 
+                "average_amount": "None", 
+                "date_created": null, 
+                "description": "Wachovia", 
+                "id": 1, 
+                "last_updated": null, 
+                "name": "Wachovia", 
+                "next_due_date": null, 
+                "payment_method": null, 
+                "payment_type_ind": null, 
+                "recurrance": null, 
+                "recurring_flag": null, 
+                "type": "bills", 
+                "user_id": 4
+            }
+        ], 
+        "meta": [
+            {
+                "authors": [
+                    "David Larrimore", 
+                    "Robert Donovan"
+                ], 
+                "copyright": "Copyright 2015 MixFin LLC.", 
+                "version": "0.1"
+            }
+        ]
+    }
+    
+    
+### Successful Resonpse With no results example
+    
+    {
+      "data": null,
+      "error": "Username or password incorrect",
+      "meta": [
+        {
+          "authors": [
+            "David Larrimore",
+            "Robert Donovan"
+          ],
+          "copyright": "Copyright 2015 MixFin LLC.",
+          "version": "0.1"
+        }
+      ]
+    }
+    
+    
+### Error Resonpse
+   
+    {
+        "data": [], 
+        "meta": [
+            {
+                "authors": [
+                    "David Larrimore", 
+                    "Robert Donovan"
+                ], 
+                "copyright": "Copyright 2015 MixFin LLC.", 
+                "version": "0.1"
+            }
+        ]
+    }    

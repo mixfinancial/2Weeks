@@ -151,13 +151,13 @@ class ApiLogin(Resource):
             if (user is not None and user.verify_password(request.form['password'])):
                 app.logger.info('Login Successful')
                 login_user(user)
-                return {"meta":buildMeta()}
+                return {"meta":buildMeta(), "data": None}
             else:
                 app.logger.info('Username or password incorrect')
-                return {"meta":buildMeta(), "error":"Username or password incorrect"}
+                return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}
         else:
             app.logger.info('Please provide a username and password')
-            return {"meta":buildMeta(), "error":"Please provide a username and password"}
+            return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}
 
 
         return {"meta":buildMeta()}
@@ -252,9 +252,13 @@ def adminHome():
 
 
 
-##############
-# API Routes #
-##############
+
+
+
+
+############
+# USER API #
+############
 
 #USERS
 class ApiUser(Resource):
@@ -273,7 +277,7 @@ class ApiUser(Resource):
             app.logger.info(user)
 
             if user is None:
-                return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data":""}
+                return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data": None}
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
@@ -333,16 +337,178 @@ class ApiUser(Resource):
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
         else:
+            return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
+
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+
+        db_session.commit()
+        return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id, "data": None}
+
+
+    @login_required
+    def post(self, user_id=None):
+        app.logger.info('Accessing User.post')
+
+        username = ''
+        password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
+
+        if request_wants_json():
+            app.logger.info('Creating new user based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            for key,value in data.iteritems():
+                print key+'-'+value
+                if key == 'password':
+                    password = value
+                if key == 'confirm_password':
+                    confirm_password = value
+                elif key == 'email':
+                    username = value
+                    email = value
+                elif key == 'first_name':
+                    first_name = value
+                elif key == 'last_name':
+                    last_name = value
+        else:
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            username = requestData['email']
+            email = requestData['email']
+            last_name = requestData['last_name']
+            first_name = requestData['first_name']
+            confirm_password = requestData['confirm_password']
+
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+        if email is None or password is None:
+            return {"meta":buildMeta(), "error":"Email and Password is required", "data": None}
+
+        if User.query.filter_by(username = username).first() is not None:
+            return {"meta":buildMeta(), "error":"Username already exists", "data": None}
+
+        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+
+        db_session.add(newUser)
+        db_session.commit()
+
+        return {"meta":buildMeta()}
+
+    @login_required
+    def delete(self, user_id):
+        app.logger.info("Deleting User #: " + user_id)
+        user = User.query.filter_by(id=user_id).first()
+        db_session.delete(user)
+        db_session.commit()
+
+        return {"meta":buildMeta(), "data": None}
+
+api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>', '/api/users/', '/api/users/<string:user_id>')
+
+
+
+
+
+
+
+
+
+
+
+
+############
+# BILL API #
+############
+
+class ApiBill(Resource):
+    @login_required
+    def get(self, bill_id=None):
+        billId = None;
+
+        #TODO: BIND Bill with User ID based upon session
+        if bill_id is not None:
+            billId = bill_id
+        elif request.args.get('user_id') is not None:
+            billId = request.args.get('user_id')
+
+        if billId is not None:
+            app.logger.info("looking for bill:" + billId)
+            bill = Bill.query.filter_by(id=billId).first()
+            app.logger.info(bill)
+
+            if bill is None:
+                return {"meta":buildMeta(), 'data':[]}
+            else:
+                return jsonify(meta=buildMeta(), data=[bill.serialize])
+        else:
+            bills = [i.serialize for i in Bill.query.all()]
+            return {"meta":buildMeta(), "data":bills}
+
+    @login_required
+    def put(self, bill_id=None):
+        app.logger.info('Accessing User.put')
+        id = ''
+        username = ''
+        new_password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
+
+        if bill_id is not None:
+            id = bill_id
+        elif request.args.get('user_id') is not None:
+            id = request.args.get('user_id')
+
+
+        user = User.query.filter_by(id=bill_id).first()
+
+        if user is not None:
+            if request_wants_json():
+                app.logger.info('Creating new user based upon JSON Request')
+                print json.dumps(request.get_json())
+                data = request.get_json()
+                for key,value in data.iteritems():
+                    print key+'-'+value
+                    if key == 'new_password':
+                        new_password = value
+                    if key == 'confirm_password':
+                        confirm_password = value
+                    elif key == 'email':
+                        email = value
+                        username = value
+                        user.username = value
+                        user.email = value
+                    elif key == 'first_name':
+                        first_name = value
+                        user.first_name = value
+                    elif key == 'last_name':
+                        last_name = value
+                        user.last_name = value
+            else:
+                app.logger.info('Updating user '+username)
+                requestData = json.loads(request.form['data'])
+                user.username = requestData['email']
+                user.email = requestData['email']
+                user.last_name = requestData['last_name']
+                user.first_name = requestData['first_name']
+                confirm_password = requestData['confirm_password']
+                password = requestData['password']
+        else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
 
         db_session.commit()
-        return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id}
+        return {"meta":buildMeta(), "data": "Updated Record with ID " + bill_id}
 
 
     @login_required
-    def post(self, user_id=None):
+    def post(self, bill_id=None):
         app.logger.info('Accessing User.post')
 
         username = ''
@@ -402,7 +568,30 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta(), "data" : "Deleted Record with ID " + user_id}
 
-api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>', '/api/users/', '/api/users/<string:user_id>')
+api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>', '/api/bills/', '/api/bills/<string:bill_id>')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -417,7 +606,6 @@ def request_wants_json():
         return True;
     else:
         return False
-
 
 def buildMeta():
     return [{"authors":["David Larrimore", "Robert Donovan"], "copyright": "Copyright 2015 MixFin LLC.", "version": "0.1"}]
