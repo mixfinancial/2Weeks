@@ -58,58 +58,59 @@ Each Database object supports the following methods
 
 ### GET (All)
 
-*Method*: GET
+**Method**: GET
 
-*Route*: /api/object
+**Route**: /api/object
 
-*Optional URL Parameters*: Provide optional Key/Value pairs for search strings
+**Optional URL Parameters**: Provide optional Key/Value pairs for search strings
 
 
 
 
 ### GET (ONE)
 
-*Method*: GET
+**Method**: GET
 
-*Route*: /api/object/:ObjectId
+**Route**: /api/object/:ObjectId
 
-*Optional URL Parameters*: objectId
+**Optional URL Parameters**: objectId
 
 
 
 
 ### CREATE (ONE)
 
-*Method*: POST
+**Method**: POST
 
-*Route*: /api/object
+**Route**: /api/object
 
-*Accept either* application/x-www-form-urlencoded or application/json
+**Accept either** application/x-www-form-urlencoded or application/json
 
 
 
 ### UPDATE (ONE)
 
-*Method*: PUT
+**Method**: PUT
 
-*Route*: /api/object/:ObjectId
+**Route**: /api/object/:ObjectId
 
-*Optional URL Parameters*: objectId
+**Optional URL Parameters**: objectId
 
-*Accept either* application/x-www-form-urlencoded or application/json
+**Accept either** application/x-www-form-urlencoded or application/json
 
 
 
 ### DELETE (ONE)
 
 
-*Method*: DELETE
+**Method**: DELETE
 
-*Route*: /api/object/:ObjectId
+**Route**: /api/object/:ObjectId
 
-*Base URL Parameters*: objectId
+**Base URL Parameters**: objectId
 
-*Optional URL Parameters*: objectId
+**Optional URL Parameters**: objectId
+
 
 
 ## API Response Info
