@@ -15,15 +15,18 @@
         };
     }]);
 
-    userControllers.controller("UserListController", ['$scope', '$http', 'User', function($scope, $http, User) {
+    userControllers.controller("UserListController", ['$scope', '$http', 'User', '$routeParams', 'notificationService', function($scope, $http, User, $routeParams, notificationService) {
         User.query(function(data) {
             console.log(data);
             $scope.users = data.data;
          });
 
-        $scope.delete = function($window, $location) {
-            User.delete({userId: $routeParams.userId});
+        $scope.delete = function(text, $window, $location) {
+            User.delete({userId: text});
+            notificationService.success('User #'+text+' has been successfully deleted')
+            //TODO: Check for successful $promise before sending notification
         }
+
     }]);
 
     userControllers.controller("UserViewController", ['$scope', '$http', '$routeParams', 'User', function($scope, $http, $routeParams, User) {

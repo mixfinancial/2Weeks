@@ -52,7 +52,7 @@ dbServices.factory('User', ['$resource',
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
       'save': {method:'POST', isArray:false},
-      'delete': {method:'DELETE', isArray:false},
+      'delete': {method:'DELETE', params:{userId:'users'}, isArray:false},
       'put': {method:'PUT', isArray:false}
     });
   }]);
@@ -62,9 +62,9 @@ dbServices.factory('Bill', ['$resource',
   function($resource){
     return $resource('/api/bill/:billId', {}, {
       'query': {method:'GET', isArray:false},
-      'get': {method:'GET', params:{userId:'bills'}, isArray:false},
+      'get': {method:'GET', params:{billId:'bills'}, isArray:false},
       'save': {method:'POST', isArray:false},
-      'delete': {method:'DELETE', isArray:false},
+      'delete': {method:'DELETE', params:{billId:'bills'}, isArray:false},
       'put': {method:'PUT', isArray:false}
     });
   }]);

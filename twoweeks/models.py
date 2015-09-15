@@ -30,7 +30,9 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 
-# ROLE MODEL
+########
+# ROLE #
+########
 class Role(Base):
     __tablename__ = 'role'
 
@@ -64,7 +66,9 @@ class Role(Base):
 
 
 
-# USER MODEL
+########
+# USER #
+########
 class User(Base, UserMixin):
 
     __tablename__ = 'user'
@@ -170,10 +174,15 @@ class User(Base, UserMixin):
 
 
 
-# BILL MODEL
-class Bill(Base):
 
-    __tablename__ = 'bill'
+
+
+
+
+# PAYEE MODEL
+class Payee(Base):
+
+    __tablename__ = 'payee'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
@@ -193,7 +202,7 @@ class Bill(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'               : 'bills',
+           'type'               : 'payee',
            'id'                 : self.id,
            'user_id'            : self.user_id,
            'name'               : self.name,
@@ -216,4 +225,139 @@ class Bill(Base):
        NB! Calls many2many's serialize property.
        """
        return [ item.serialize for item in self.many2many]
+
+
+
+
+########
+# BILL #
+########
+class Bill(Base):
+
+    __tablename__ = 'bill'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    payee_id = Column(Integer, ForeignKey("payee.id"), nullable=True)
+    name = Column(String(45), nullable=False)
+    description = Column(String(255))
+    due_date = Column(DateTime(120))
+    billing_period = Column(DateTime(120))
+    total_due = Column(Float(2))
+    paid_flag = Column(Boolean())
+    paid_date = Column(DateTime())
+    check_number = Column(Integer)
+    payment_type = Column(String(45))
+    date_created = Column(DateTime(120), default=datetime.utcnow)
+    last_updated = Column(DateTime(120), default=datetime.utcnow)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'type'               : 'bills',
+           'user_id'            : self.user_id,
+           'payee_id'           : self.payee_id,
+           'name'               : self.name,
+           'description'        : self.description,
+           'due_date'           : dump_datetime(self.due_date),
+           'billing_period'     : dump_datetime(self.billing_period),
+           'total_due'          : str(self.total_due),
+           'paid_flag'          : self.paid_flag,
+           'paid_date'          : dump_datetime(self.paid_date),
+           'check_number'       : self.check_number,
+           'payment_type'       : self.payment_type,
+           'date_created'       : dump_datetime(self.date_created),
+           'last_updated'       : dump_datetime(self.last_updated)
+       }
+
+    @property
+    def serialize_many2many(self):
+       """
+       Return object's relations in easily serializeable format.
+       NB! Calls many2many's serialize property.
+       """
+       return [ item.serialize for item in self.many2many]
+
+
+
+
+##################
+# FUNDS TRANSFER #
+##################
+class Funds_Transfer(Base):
+
+    __tablename__ = 'funds_transfer'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    amount = Column(Float(2))
+    transfer_date = Column(DateTime(120), default=datetime.utcnow)
+    date_created = Column(DateTime(120), default=datetime.utcnow)
+    last_updated = Column(DateTime(120), default=datetime.utcnow)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'type'               : 'funds_Transfer',
+           'user_id'            : self.user_id,
+           'amount'             : str(self.amount),
+           'transfer_date'      : dump_datetime(self.transfer_date),
+           'date_created'       : dump_datetime(self.date_created),
+           'last_updated'       : dump_datetime(self.last_updated)
+       }
+
+    @property
+    def serialize_many2many(self):
+       """
+       Return object's relations in easily serializeable format.
+       NB! Calls many2many's serialize property.
+       """
+       return [ item.serialize for item in self.many2many]
+
+
+
+
+#####################
+# BILL FUNDING ITEM #
+#####################
+
+class Bill_Funding_Item(Base):
+
+    __tablename__ = 'bill_funding_item'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    bill_id = Column(Integer, ForeignKey("bill.id"), nullable=False)
+    funds_transfer_id = Column(Integer, ForeignKey("funds_transfer.id"), nullable=True)
+    amount = Column(Float(2))
+
+    date_created = Column(DateTime(120), default=datetime.utcnow)
+    last_updated = Column(DateTime(120), default=datetime.utcnow)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'type'               : 'bill_funding_item',
+           'user_id'            : self.user_id,
+           'bill_id'            : self.bill_id,
+           'funds_transfer_id'  : self.funds_transfer_id,
+           'amount'             : str(self.amount),
+           'date_created'       : dump_datetime(self.date_created),
+           'last_updated'       : dump_datetime(self.last_updated)
+       }
+
+    @property
+    def serialize_many2many(self):
+       """
+       Return object's relations in easily serializeable format.
+       NB! Calls many2many's serialize property.
+       """
+       return [ item.serialize for item in self.many2many]
+
+
+
+
 

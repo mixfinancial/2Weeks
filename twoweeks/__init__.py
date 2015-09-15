@@ -225,7 +225,7 @@ def get_auth_token():
 
 
 ###############
-# base Routes #
+# Base Routes #
 ###############
 
 @app.route('/')
