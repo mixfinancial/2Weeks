@@ -5,7 +5,7 @@ __author__ = 'game'
 # from app import application
 # Example:
 
-from app import app
+from twoweeks import app
 
 # Import CherryPy
 import cherrypy
