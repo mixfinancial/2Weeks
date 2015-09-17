@@ -453,15 +453,22 @@ class ApiBill(Resource):
     def get(self, bill_id=None):
         billId = None;
 
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+
+
         #TODO: BIND Bill with User ID based upon session
         if bill_id is not None:
             billId = bill_id
-        elif request.args.get('user_id') is not None:
-            billId = request.args.get('user_id')
+        elif request.args.get('bill_id') is not None:
+            billId = request.args.get('bill_id')
 
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
-            bill = Bill.query.filter_by(id=billId).first()
+            bill = Bill.query.filter_by(id=billId, user_id=user.id).first()
             app.logger.info(bill)
 
             if bill is None:
@@ -469,7 +476,7 @@ class ApiBill(Resource):
             else:
                 return jsonify(meta=buildMeta(), data=[bill.serialize])
         else:
-            bills = [i.serialize for i in Bill.query.all()]
+            bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
             return {"meta":buildMeta(), "data":bills}
 
     @login_required
