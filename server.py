@@ -7,35 +7,12 @@ __author__ = 'game'
 
 from twoweeks import app
 
-# Import CherryPy
-import cherrypy
+from flask import Flask
+application = Flask(__name__)
 
-if __name__ == '__main__':
+@application.route("/")
+def hello():
+    return "<h1 style='color:blue'>Hello There!</h1>"
 
-    # Mount the application
-    cherrypy.tree.graft(app, "/")
-
-    # Unsubscribe the default server
-    cherrypy.server.unsubscribe()
-
-    # Instantiate a new server object
-    server = cherrypy._cpserver.Server()
-
-    # Configure the server object
-    server.socket_host = "0.0.0.0"
-    server.socket_port = 80
-    server.thread_pool = 30
-
-    # For SSL Support
-    # server.ssl_module            = 'pyopenssl'
-    # server.ssl_certificate       = 'ssl/certificate.crt'
-    # server.ssl_private_key       = 'ssl/private.key'
-    # server.ssl_certificate_chain = 'ssl/bundle.crt'
-
-    # Subscribe this server
-    server.subscribe()
-
-    # Start the server engine (Option 1 *and* 2)
-
-    cherrypy.engine.start()
-    cherrypy.engine.block()
+if __name__ == "__main__":
+    application.run(host='0.0.0.0')

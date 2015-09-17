@@ -23,7 +23,8 @@ All required Python libraries can be installed by leveraging the included requir
 
 
 ## Notes for Robert since he can't remember
-Ref. https://www.digitalocean.com/community/tutorials/docker-explained-how-to-containerize-python-web-applications
+Ref. 1: https://www.digitalocean.com/community/tutorials/docker-explained-how-to-containerize-python-web-applications
+Ref. 2: https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uwsgi-and-nginx-on-ubuntu-14-04
 1.    
 
 2.  Setup the application to use uWSGI and talk with Nginx

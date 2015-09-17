@@ -3,7 +3,7 @@ __author__ = 'davidlarrimore'
 import json
 from datetime import datetime
 
-from Flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect
+from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect
 import twoweeks.config as config
 from datetime import timedelta
 

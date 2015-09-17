@@ -17,11 +17,11 @@ RUN apt-get update
 RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential python-software-properties software-properties-common
 
 # Install Python and Basic Python Tools
-RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
+RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev python2.7-dev
 
 #Install webserver and Web server gateway
 
-RUN pip install uwsgi
+RUN sudo pip install uwsgi
 
 # install nginx
 run apt-get install -y python-software-properties
