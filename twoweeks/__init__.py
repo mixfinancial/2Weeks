@@ -3,7 +3,7 @@ __author__ = 'davidlarrimore'
 import json
 from datetime import datetime
 
-from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect
+from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session
 import twoweeks.config as config
 from datetime import timedelta
 
@@ -33,7 +33,7 @@ api = Api(app)
 ##########################
 from twoweeks.database import init_db
 from twoweeks.database import db_session
-from twoweeks.models import User, Bill, Role
+from twoweeks.models import User, Bill, Role, Funds_Transfer, Bill_Funding_Item
 
 init_db()
 
@@ -143,14 +143,35 @@ def adminLogout():
 #APILOGIN
 class ApiLogin(Resource):
     def post(self):
-        app.logger.info('User:' + request.form['username'] + ' attempting to login')
-        # validate username and password
-        if (request.form['username'] is not None and request.form['password'] is not None):
-            user = User.query.filter_by(username = request.form['username']).first()
+        username = None
+        password = None
 
-            if (user is not None and user.verify_password(request.form['password'])):
+        if request_is_json():
+            app.logger.info('Attempting to login using JSON')
+            data = request.get_json()
+            app.logger.info(request.data)
+            for key,value in data.iteritems():
+                print key+'-'+value
+                if key == 'username':
+                    username = value
+                if key == 'password':
+                    password = value
+        elif request_is_form_urlencode():
+            app.logger.info('Attempting to login using x-www-form-urlencoded')
+            requestData = json.loads(request.form['data'])
+            username = requestData['email']
+            password = requestData['password']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+
+        # validate username and password
+        if (username is not None and password is not None):
+            user = User.query.filter_by(username = username).first()
+            if (user is not None and user.verify_password(password)):
                 app.logger.info('Login Successful')
                 login_user(user)
+                session['username']=username;
                 return {"meta":buildMeta(), "data": None}
             else:
                 app.logger.info('Username or password incorrect')
@@ -307,7 +328,7 @@ class ApiUser(Resource):
 
         if user is not None:
             if request_is_json():
-                app.logger.info('Creating new user based upon JSON Request')
+                app.logger.info('Updating user based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
                 for key,value in data.iteritems():
@@ -328,6 +349,7 @@ class ApiUser(Resource):
                         last_name = value
                         user.last_name = value
             elif request_is_form_urlencode():
+                # TODO: Handle nulls
                 app.logger.info('Updating user '+username)
                 requestData = json.loads(request.form['data'])
                 user.username = requestData['email']
@@ -422,8 +444,6 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 
 
 
-
-
 ############
 # BILL API #
 ############
@@ -454,15 +474,27 @@ class ApiBill(Resource):
 
     @login_required
     def put(self, bill_id=None):
-        app.logger.info('Accessing User.put')
-        id = ''
-        username = ''
-        new_password = None
-        confirm_password = None
-        email = None
-        first_name = None
-        last_name = None
-        role_id = None
+        app.logger.info('Accessing Bill.put')
+
+        #TODO: Handle update
+        user_id = None
+        payee_id = None
+        name = None
+        description = None
+        due_date = None
+        billing_period = None
+        total_due = None
+        paid_flag = None
+        paid_date = None
+        check_number = None
+        payment_type = None
+
+        user = None
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
 
         if bill_id is not None:
             id = bill_id
@@ -470,65 +502,85 @@ class ApiBill(Resource):
             id = request.args.get('user_id')
 
 
-        user = User.query.filter_by(id=bill_id).first()
+        bill = Bill.query.filter_by(id=bill_id).first()
+        bill.user_id = user.id
 
-        if user is not None:
+        if bill is not None:
             if request_is_json():
-                app.logger.info('Creating new user based upon JSON Request')
+                app.logger.info('Updating bill based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
                 for key,value in data.iteritems():
                     print key+'-'+value
-                    if key == 'new_password':
-                        new_password = value
-                    if key == 'confirm_password':
-                        confirm_password = value
-                    elif key == 'email':
-                        email = value
-                        username = value
-                        user.username = value
-                        user.email = value
-                    elif key == 'first_name':
-                        first_name = value
-                        user.first_name = value
-                    elif key == 'last_name':
-                        last_name = value
-                        user.last_name = value
+                    if key == 'name':
+                        bill.name = value
+                    if key == 'description':
+                        bill.description = value
+                    elif key == 'due_date':
+                        bill.due_date = value
+                    elif key == 'billing_period':
+                        bill.billing_period = value
+                    elif key == 'total_due':
+                        bill.total_due = value
+                    elif key == 'paid_flag':
+                        bill.paid_flag = value
+                    elif key == 'paid_date':
+                        bill.paid_date = value
+                    elif key == 'check_number':
+                        bill.check_number = value
+                    elif key == 'payment_type':
+                        bill.payment_type = value
             elif request_is_form_urlencode():
-                app.logger.info('Updating user '+username)
+                app.logger.info('Updating bill #'+bill_id)
                 requestData = json.loads(request.form['data'])
-                user.username = requestData['email']
-                user.email = requestData['email']
-                user.last_name = requestData['last_name']
-                user.first_name = requestData['first_name']
-                confirm_password = requestData['confirm_password']
-                password = requestData['password']
+
+                bill.name = requestData['name']
+                bill.description = requestData['description']
+                bill.due_date = requestData['due_date']
+                bill.billing_period = requestData['billing_period']
+                bill.total_due = requestData['total_due']
+                bill.paid_flag = requestData['paid_flag']
+                bill.paid_date = requestData['paid_date']
+                bill.check_number = requestData['check_number']
+                bill.payment_type = requestData['payment_type']
+
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         else:
-            return {"meta":buildMeta(), "error":"Could not find user id #"+id}
+            return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
 
         db_session.commit()
-        return {"meta":buildMeta(), "data": "Updated Record with ID " + bill_id}
-
+        return {"meta":buildMeta(), "data": bill.serialize}, 201
 
     @login_required
     def post(self, bill_id=None):
         app.logger.info('Accessing Bill.post')
 
+        user = None
+
         user_id = None
+        payee_id = None
         name = None
         description = None
-        recurring_flag = None
-        amount = None
-        average_amount = None
-        recurrance = None
-        next_due_date = None
-        payment_type_ind = None
-        payment_method = None
+        due_date = None
+        billing_period = None
+        total_due = None
+        paid_flag = None
+        paid_date = None
+        check_number = None
+        payment_type = None
+
+
+
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
 
         if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
@@ -536,41 +588,48 @@ class ApiBill(Resource):
             data = request.get_json()
             for key,value in data.iteritems():
                 print key+'-'+value
-                if key == 'password':
-                    password = value
-                if key == 'confirm_password':
-                    confirm_password = value
-                elif key == 'email':
-                    username = value
-                    email = value
-                elif key == 'first_name':
-                    first_name = value
-                elif key == 'last_name':
-                    last_name = value
+                if key == 'name':
+                    name = value
+                if key == 'description':
+                    description = value
+                elif key == 'due_date':
+                    due_date = value
+                elif key == 'billing_period':
+                    billing_period = value
+                elif key == 'total_due':
+                    total_due = value
+                elif key == 'paid_flag':
+                    paid_flag = value
+                elif key == 'paid_date':
+                    paid_date = value
+                elif key == 'check_number':
+                    check_number = value
+                elif key == 'payment_type':
+                    payment_type = value
         elif request_is_form_urlencode():
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
-            username = requestData['email']
-            email = requestData['email']
-            last_name = requestData['last_name']
-            first_name = requestData['first_name']
-            confirm_password = requestData['confirm_password']
+            name = requestData['name']
+            description = requestData['description']
+            due_date = requestData['due_date']
+            billing_period = requestData['billing_period']
+            total_due = requestData['total_due']
+            paid_flag = requestData['paid_flag']
+            paid_date = requestData['paid_date']
+            check_number = requestData['check_number']
+            payment_type = requestData['payment_type']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
-        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
-        if email is None or password is None:
-            return {"meta":buildMeta(), "error":"Email and Password is required"}
+        if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
+            return {"meta":buildMeta(), "error":"Bill already exists"}
 
-        if User.query.filter_by(username = username).first() is not None:
-            return {"meta":buildMeta(), "error":"Username already exists"}
+        newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type=payment_type, check_number=check_number)
 
-        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-
-        db_session.add(newUser)
+        db_session.add(newBill)
         db_session.commit()
 
-        return {"meta":buildMeta()}
+        return {"meta":buildMeta(), 'data':newBill.serialize}, 201
 
     @login_required
     def delete(self, user_id):
@@ -581,7 +640,7 @@ class ApiBill(Resource):
 
         return {"meta":buildMeta(), "data" : "Deleted Record with ID " + user_id}
 
-api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>', '/api/bills/', '/api/bills/<string:bill_id>')
+api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>')
 
 
 
