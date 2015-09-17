@@ -17,8 +17,7 @@ RUN apt-get update
 RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential python-software-properties software-properties-common
 
 # Install Python and Basic Python Tools
-RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
-#RUN apt-get install -y python2.7-dev
+RUN apt-get install -y -f python python-dev python-distribute python-pip libmysqlclient-dev python2.7-dev
 
 #Install webserver and Web server gateway
 
