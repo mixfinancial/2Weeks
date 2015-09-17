@@ -18,7 +18,7 @@ RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-too
 
 # Install Python and Basic Python Tools
 RUN apt-get install -y python python-dev python-distribute python-pip libmysqlclient-dev
-RUN apt-get install -y python2.7-dev
+#RUN apt-get install -y python2.7-dev
 
 #Install webserver and Web server gateway
 
