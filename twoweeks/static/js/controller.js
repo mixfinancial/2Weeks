@@ -5,7 +5,7 @@
     var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 
 
-    billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', function($scope, $http, transformRequestAsFormPost, $location, Bill) {
+    billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService) {
 
         Bill.query(function(data) {
             console.log(data);
@@ -13,15 +13,24 @@
          });
 
         $scope.submit = function() {
-            var data = $scope.bill;
-            console.log(data);
-            Bill.save(JSON.stringify(data));
-
+           var data = $scope.bill;
+           console.log(data);
            Bill.save(JSON.stringify(data), function(data) {
                 console.log(data);
                 $scope.bills.push(data.data);
+                notificationService.success("Bill Created")
            });
         };
+
+        $scope.delete = function(index, $window, $location) {
+           console.log('attempting to delete bill index #'+index);
+           var data = $scope.bills[index];
+           Bill.delete({billId: data.id}, function(data) {
+            $scope.bills.splice(index);
+            notificationService.success("Bill Deleted")
+           });
+        };
+
     }]);
 
 

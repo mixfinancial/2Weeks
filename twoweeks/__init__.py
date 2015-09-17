@@ -224,13 +224,18 @@ def load_user_from_request(request):
 
 
 
+
+# Unauthorized_handler is the action that is performed if user is not authenticated
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     app.logger.info(request)
-    if '/admin' not in str(request):
-        return redirect('/')
-    else:
+    if '/api' in str(request):
+        return {"meta":buildMeta(), "error":"User is not authenticated, please login"}, 401
+    elif '/admin' in str(request):
         return redirect('/admin/')
+    else:
+        return redirect('/')
+
 
 
 
@@ -268,8 +273,6 @@ def adminLogin():
 @login_required
 def adminHome():
     return render_template('admin.html')
-
-
 
 
 
@@ -639,13 +642,22 @@ class ApiBill(Resource):
         return {"meta":buildMeta(), 'data':newBill.serialize}, 201
 
     @login_required
-    def delete(self, user_id):
-        app.logger.info("Deleting User #: " + user_id)
-        user = User.query.filter_by(id=user_id).first()
-        db_session.delete(user)
-        db_session.commit()
+    def delete(self, bill_id):
 
-        return {"meta":buildMeta(), "data" : "Deleted Record with ID " + user_id}
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+
+        app.logger.info("Deleting Bill #: " + bill_id)
+        bill = Bill.query.filter_by(id=bill_id, user_id=user.id).first()
+        if bill is not None:
+            db_session.delete(bill)
+            db_session.commit()
+            return {"meta":buildMeta(), "data" : None}
+        else:
+            return {"meta":buildMeta(), "error":"Bill #"+bill_id+" Could not be found", "data" : None}
 
 api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>')
 
