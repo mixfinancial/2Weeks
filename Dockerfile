@@ -38,6 +38,7 @@ RUN git clone https://github.com/mixfinancial/2Weeks.git
 # Setup all the config files
 run echo "daemon off;" >> /etc/nginx/nginx.conf
 run rm /etc/nginx/sites-enabled/default
+RUN rm -v /etc/nginx/nginx.conf
 run ln -s /home/docker/code/nginx-app.conf /etc/nginx/sites-enabled/
 run ln -s /home/docker/code/supervisor-app.conf /etc/supervisor/conf.d/
 
