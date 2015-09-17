@@ -10,6 +10,24 @@ var billsApp = angular.module('billsApp', [
 ]);
 
 
+billsApp.config(['$routeProvider', function($routeProvider) {
+    $routeProvider.
+    when('/bill', {
+        templateUrl: '/static/partials/billForm.html',
+        controller: 'billFormController'
+    }).
+    otherwise({
+        templateUrl: '/static/partials/billForm.html',
+        controller: 'billFormController'
+    });
+}]);
+
+
+
+
+
+
+
 var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
@@ -33,6 +51,8 @@ loginApp.config(['$routeProvider', function($routeProvider) {
         controller: 'loginAppLoginController'
     });
 }]);
+
+
 
 
 var menuBarApp = angular.module('menuBarApp', [

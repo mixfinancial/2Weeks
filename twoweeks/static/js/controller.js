@@ -1,8 +1,33 @@
 'use strict';
 
-    var billsControllers = angular.module("billsControllers", []);
+    var billsAppControllers = angular.module("billsAppControllers", []);
     var loginAppControllers = angular.module("loginAppControllers", []);
-    var menuBarAppControllers = angular.module("menuBarAppController", []);
+    var menuBarAppControllers = angular.module("menuBarAppControllers", []);
+
+
+    billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', function($scope, $http, transformRequestAsFormPost, $location, Bill) {
+
+        Bill.query(function(data) {
+            console.log(data);
+            $scope.bills = data.data;
+         });
+
+        $scope.submit = function() {
+            var data = $scope.bill;
+            console.log(data);
+            Bill.save(JSON.stringify(data));
+
+           Bill.save(JSON.stringify(data), function(data) {
+                console.log(data);
+                $scope.bills.push(data.data);
+           });
+        };
+    }]);
+
+
+
+
+
 
 
     loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
@@ -22,9 +47,6 @@
             }
         }
     }]);
-
-
-
 
 
     loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location ) {

@@ -256,6 +256,7 @@ class Bill(Base):
        """Return object data in easily serializeable format"""
        return {
            'type'               : 'bills',
+           'id'                 : self.id,
            'user_id'            : self.user_id,
            'payee_id'           : self.payee_id,
            'name'               : self.name,
