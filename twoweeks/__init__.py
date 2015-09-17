@@ -145,7 +145,7 @@ class ApiLogin(Resource):
     def post(self):
         username = None
         password = None
-
+        app.logger.info(request.accept_mimetypes)
         if request_is_json():
             app.logger.info('Attempting to login using JSON')
             data = request.get_json()

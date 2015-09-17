@@ -28,14 +28,12 @@
 
 
 
-
-
     loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
          $scope.submit = function() {
             if($scope.username == null || $scope.password == null){
                  notificationService.error("Please Enter username and password")
             }else{
-                Login.save($.param({username: $scope.username, password: $scope.password}), function(data){
+                Login.save(JSON.stringify({username: $scope.username, password: $scope.password}), function(data){
                     console.log(data)
                     if(data.error == null){
                         window.location.href = '/home/';

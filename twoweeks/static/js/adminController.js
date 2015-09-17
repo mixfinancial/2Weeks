@@ -64,7 +64,7 @@
 
     userControllers.controller("UserLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
          $scope.submit = function() {
-            Login.save($.param({username: $scope.username, password: $scope.password}), function(data){
+            Login.save(JSON.stringify({username: $scope.username, password: $scope.password}), function(data){
                 console.log(data)
                 if(data.error == null){
                     window.location.href = '/admin/home/';

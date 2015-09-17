@@ -83,7 +83,7 @@ var loginServices = angular.module('loginServices', ['ngResource']);
 loginServices.factory('Login', ['$resource',
   function($resource){
     return $resource('/api/login/', {}, {
-      'save': {method:'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, isArray:false}
+      'save': {method:'POST', isArray:false}
     });
   }]);
 
