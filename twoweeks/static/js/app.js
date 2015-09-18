@@ -6,25 +6,22 @@ var billsApp = angular.module('billsApp', [
     'billsAppControllers',
     'menuBarAppControllers',
     'jlareau.pnotify',
-    'dbServices'
+    'dbServices',
+    'ui.bootstrap'
 ]);
 
 
 billsApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
-    when('/bill', {
-        templateUrl: '/static/partials/billForm.html',
+    when('/billPrep', {
+        templateUrl: '/static/partials/billPrep.html',
         controller: 'billFormController'
     }).
     otherwise({
-        templateUrl: '/static/partials/billForm.html',
+        templateUrl: '/static/partials/billPrep.html',
         controller: 'billFormController'
     });
 }]);
-
-
-
-
 
 
 
@@ -77,8 +74,8 @@ dbServices.factory('User', ['$resource',
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
       'save': {method:'POST', isArray:false},
-      'delete': {method:'DELETE', isArray:false},
-      'put': {method:'PUT', isArray:false}
+      'put': {method:'PUT', isArray:false},
+      'delete': {method:'DELETE', isArray:false}
     });
   }]);
 
@@ -87,10 +84,10 @@ dbServices.factory('Bill', ['$resource',
   function($resource){
     return $resource('/api/bill/:billId', {}, {
       'query': {method:'GET', isArray:false},
-      'get': {method:'GET', params:{userId:'bills'}, isArray:false},
-      'save': {method:'POST', isArray:false},
-      'delete': {method:'DELETE', isArray:false},
-      'put': {method:'PUT', isArray:false}
+      'get': {method:'GET', params:{billId:'billId'}, isArray:false},
+      'save': {method:'POST', params:{billId:'billId'}, isArray:false},
+      'put': {method:'PUT', isArray:false},
+      'delete': {method:'DELETE', isArray:false}
     });
   }]);
 

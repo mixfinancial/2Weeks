@@ -335,7 +335,7 @@ class ApiUser(Resource):
                 print json.dumps(request.get_json())
                 data = request.get_json()
                 for key,value in data.iteritems():
-                    print key+'-'+value
+                    print key+'-'+str(value)
                     if key == 'new_password':
                         new_password = value
                     if key == 'confirm_password':
@@ -390,7 +390,7 @@ class ApiUser(Resource):
             print json.dumps(request.get_json())
             data = request.get_json()
             for key,value in data.iteritems():
-                print key+'-'+value
+                print key+'-'+str(value)
                 if key == 'password':
                     password = value
                 if key == 'confirm_password':
@@ -521,7 +521,7 @@ class ApiBill(Resource):
                 print json.dumps(request.get_json())
                 data = request.get_json()
                 for key,value in data.iteritems():
-                    print key+'-'+value
+                    print key+'-'+str(value)
                     if key == 'name':
                         bill.name = value
                     if key == 'description':
@@ -553,17 +553,19 @@ class ApiBill(Resource):
                 bill.paid_date = requestData['paid_date']
                 bill.check_number = requestData['check_number']
                 bill.payment_type = requestData['payment_type']
-
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
-
         else:
             return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
 
-        db_session.commit()
-        return {"meta":buildMeta(), "data": bill.serialize}, 201
+
+        if bill.name is None or bill.name =='' or not bill.name:
+            return {"meta":buildMeta(), "error":"Name is required", "data":None}
+        else:
+            db_session.commit()
+            return {"meta":buildMeta(), "data": bill.serialize}, 201
 
     @login_required
     def post(self, bill_id=None):
@@ -597,7 +599,7 @@ class ApiBill(Resource):
             print json.dumps(request.get_json())
             data = request.get_json()
             for key,value in data.iteritems():
-                print key+'-'+value
+                print key+'-'+str(value)
                 if key == 'name':
                     name = value
                 if key == 'description':
