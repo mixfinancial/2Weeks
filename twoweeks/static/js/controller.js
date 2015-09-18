@@ -72,7 +72,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'notificationService', 'data', function ($scope, $modalInstance, Bill, notificationService, data) {
     $scope.bill = data;
     $scope.bill.newName = data.name;
-    $scope.bill.newDueDate = data.dueDate;
+    $scope.bill.newDueDate = data.due_date;
 
     var backup = data;
     console.log($scope.bill);
@@ -139,7 +139,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
     startingDay: 1
   };
 
-  $scope.format =  'yyyy/MM/dd';
+  $scope.format =  'EEE, MMM d';
 
   $scope.status = {
     opened: false

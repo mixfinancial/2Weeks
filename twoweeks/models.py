@@ -17,8 +17,18 @@ def dump_datetime(value):
     """Deserialize datetime object into string form for JSON processing."""
     if value is None:
         return None
+
     #return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
     return value.strftime("%Y-%m-%d") + " " + value.strftime("%H:%M:%S")
+
+def dump_date(value):
+    """Deserialize datetime object into string form for JSON processing."""
+    if value is None:
+        return None
+
+    #return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
+    return value.strftime("%Y-%m-%d")
+
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -261,8 +271,8 @@ class Bill(Base):
            'payee_id'           : self.payee_id,
            'name'               : self.name,
            'description'        : self.description,
-           'due_date'           : dump_datetime(self.due_date),
-           'billing_period'     : dump_datetime(self.billing_period),
+           'due_date'           : dump_date(self.due_date),
+           'billing_period'     : dump_date(self.billing_period),
            'total_due'          : str(self.total_due),
            'paid_flag'          : self.paid_flag,
            'paid_date'          : dump_datetime(self.paid_date),

@@ -15,7 +15,7 @@
                 <tr ng-repeat="bill in bills track by $index">
                     <td>{{bill.id}}</td>
                     <td>{{bill.name}}</td>
-                    <td>{{bill.due_date}}</td>
+                    <td>{{bill.due_date | date : 'EEE, MMM d'}}</td>
                     <td>
                         <p class="list-group-item-text">
                             <button class="btn btn-warning btn-xs" ng-click="openModal($index)"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
