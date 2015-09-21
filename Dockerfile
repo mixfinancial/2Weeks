@@ -13,9 +13,7 @@ MAINTAINER Robert Donovan <admin@mixfin.com>
 
 
 # Update the sources list and Install basic applications
-RUN apt-get update
-RUN apt-get upgrade
-RUN apt-get install -y -f tar git curl nano wget dialog nginx supervisor net-tools build-essential libxml2-dev libxslt1-dev python-software-properties software-properties-common
+RUN apt-get update && apt-get install -y -o Dpkg::Options::="--force-confold" tar git curl nano wget dialog nginx supervisor net-tools build-essential libxml2-dev libxslt1-dev python-software-properties software-properties-common
 
 # Install Python and Basic Python Tools
 RUN apt-get install -y -f python python-dev python-distribute python-pip libmysqlclient-dev python2.7-dev
