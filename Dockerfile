@@ -21,7 +21,9 @@ RUN apt-get install -y -f python python-dev python-distribute python-pip libmysq
 
 #Install webserver and Web server gateway
 
-RUN sudo pip install uwsgi
+# Get pip to download and install requirements:
+RUN pip install -r /2Weeks/requirements.txt
+
 
 # install nginx
 run apt-get install -y python-software-properties
@@ -41,9 +43,6 @@ run rm /etc/nginx/sites-enabled/default
 RUN rm -v /etc/nginx/nginx.conf
 run ln -s /home/docker/code/nginx-app.conf /etc/nginx/sites-enabled/
 run ln -s /home/docker/code/supervisor-app.conf /etc/supervisor/conf.d/
-
-# Get pip to download and install requirements:
-RUN pip install -r /2Weeks/requirements.txt
 
 #Run the setup script from Dave
 #RUN chmod +x /2Weeks/scripts/bootstrap.sh
