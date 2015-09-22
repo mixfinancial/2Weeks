@@ -17,18 +17,16 @@
         color: black;
     }
 
-    .nav, .pagination, .carousel, .panel-title a {
-        cursor: pointer;
-    }
-
-
     [ng-click] {
       cursor: pointer;
     }
+
     .navbar{
         background-color:#fff;
         background-image: url('../media/noisy-texture-200x200-o2-d10-c-f5f5f5-t1.png');
-
+        border-radius: 2px;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
         -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
         -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
         box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
@@ -36,6 +34,9 @@
 
     .panel{
         background-color: #fcfcfc;
+        border-radius: 2px;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
     }
 
     .centered{
