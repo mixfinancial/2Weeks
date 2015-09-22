@@ -21,7 +21,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
-              return $scope.bills[index];
+              return $scope.bills[$scope.bills.indexOf(index)];
             }
           }
         });
@@ -139,8 +139,12 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
            console.log(data);
            Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
-                    $scope.model.name = $scope.model.newName;
-                    $scope.model.dueDate = $scope.model.newdueDate;
+                    if ($scope.model.name != $scope.model.newName){
+                        $scope.model.name = $scope.model.newName;
+                    }
+                    if ($scope.model.dueDate != $scope.model.newdueDate){
+                        $scope.model.dueDate = $scope.model.newdueDate;
+                    }
                     console.log(data);
                     $modalInstance.close();
                     notificationService.success("Bill Updated");
@@ -175,76 +179,6 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
-  };
-
-
-  $scope.today = function() {
-    $scope.due_date = new Date();
-  };
-  $scope.today();
-
-  $scope.clear = function () {
-    $scope.due_date = null;
-  };
-
-  // Disable weekend selection
-  $scope.disabled = function(date, mode) {
-    return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
-  };
-
-  $scope.toggleMin = function() {
-    $scope.minDate = $scope.minDate ? null : new Date();
-  };
-
-  $scope.toggleMin();
-  $scope.maxDate = new Date(2020, 5, 22);
-
-  $scope.openDatePicker = function($event) {
-    console.log('test');
-    $scope.status.opened = true;
-  };
-
-  $scope.dateOptions = {
-    formatYear: 'yy',
-    startingDay: 1
-  };
-
-  $scope.format =  'EEE, MMM d';
-
-  $scope.status = {
-    opened: false
-  };
-
-  var tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  var afterTomorrow = new Date();
-  afterTomorrow.setDate(tomorrow.getDate() + 2);
-  $scope.events =
-    [
-      {
-        date: tomorrow,
-        status: 'full'
-      },
-      {
-        date: afterTomorrow,
-        status: 'partially'
-      }
-    ];
-
-  $scope.getDayClass = function(date, mode) {
-    if (mode === 'day') {
-      var dayToCheck = new Date(date).setHours(0,0,0,0);
-
-      for (var i=0;i<$scope.events.length;i++){
-        var currentDay = new Date($scope.events[i].date).setHours(0,0,0,0);
-
-        if (dayToCheck === currentDay) {
-          return $scope.events[i].status;
-        }
-      }
-    }
-
-    return '';
   };
 
 

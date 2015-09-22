@@ -12,14 +12,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="bill in bills track by $index">
+                <tr ng-repeat="bill in bills | orderBy: 'due_date':true track by bill.id">
                     <td>{{bill.id}}</td>
                     <td>{{bill.name}}</td>
                     <td>{{bill.due_date | date : 'EEE, MMM d, yyyy'}}</td>
                     <td>
                         <p class="list-group-item-text">
-                            <button class="btn btn-warning btn-xs" ng-click="editBill($index)"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
-                            <button class="btn btn-danger btn-xs" ng-click="deleteBill($index)"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
+                            <button class="btn btn-warning btn-xs" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                            <button class="btn btn-danger btn-xs" ng-click="deleteBill(bill)"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button>
                         </p>
                     </td>
                 </tr>
