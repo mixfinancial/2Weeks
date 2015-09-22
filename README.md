@@ -8,6 +8,10 @@ All required Python libraries can be installed by leveraging the included requir
     sudo pip install -r requirements.txt
     
     
+Run newrelic-admin run-program python runserver.py
+
+
+    
     
     
  ## Testing
@@ -30,6 +34,14 @@ Ref. 3: https://medium.com/@rodkey/deploying-a-flask-application-on-aws-a72daba6
 1.    
 
 2.  Setup the application to use uWSGI and talk with Nginx
+
+
+Rebuild the Docker image process
+
+1.  log in to docker base
+2. 
+
+
 
 
 Deploying.  
