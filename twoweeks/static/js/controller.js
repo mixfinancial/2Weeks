@@ -14,8 +14,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.animationsEnabled = true
 
     $scope.editBill = function (index) {
-        console.log(index);
-        console.log($scope.bills.indexOf(index));
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
           templateUrl: '/static/partials/form_bill.html',
@@ -151,14 +151,14 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
     var backup = data;
-    console.log($scope.model);
+    //console.log($scope.model);
 
     $scope.submitModalForm = function(data) {
         //need to convert strings to date for persistance through application;
         $scope.model.due_date = new Date($scope.model.due_date);
         var data = $scope.model;
         if(action == "edit"){
-           console.log(data);
+           //console.log(data);
            Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     data.data.due_date = new Date(data.data.due_date);

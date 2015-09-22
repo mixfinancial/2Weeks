@@ -23,8 +23,8 @@
                             <td class="hidden-xs hidden-sm hidden-md" ng-click="editBill(bill)">{{bill.due_date | date : 'EEE, MMM d, yyyy'}}</td>
                             <td style="text-align: right;" ng-click="editBill(bill)">{{differenceInDays(bill.due_date) | number:0}}</td>
                             <td style="text-align: right;" ng-click="editBill(bill)">${{bill.total_due | number:2}}</td>
-                            <td>
-                                <p class="list-group-item-text">
+                            <td class="centered">
+                                <p class="list-group-item-text centered">
                                     <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
                                     <button class="btn btn-danger btn-xs" ng-really-message="Are you sure you want to delete this bill?" ng-really-click="deleteBill(bill)"><span class="glyphicon glyphicon-trash"></span></button>
                                 </p>

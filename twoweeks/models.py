@@ -97,6 +97,12 @@ class User(Base, UserMixin):
     role_id = Column(Integer, ForeignKey('role.id'))
     bill = relationship("Bill")
 
+    next_pay_date = Column(DateTime(120), default=datetime.utcnow)
+    pay_recurrance_flag = Column(String(1), default="W");
+
+
+
+
     def __init__(self, **kwargs):
         # Setting Defaults
         active = True
@@ -116,6 +122,7 @@ class User(Base, UserMixin):
                 role_id = value
             elif key=="active":
                 active = value
+
 
         self.role_id = role_id
         self.date_created = datetime.utcnow()
@@ -160,18 +167,20 @@ class User(Base, UserMixin):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'        : 'users',
-           'id'          : self.id,
-           'username'    : self.username,
-           'email'       : self.email,
-           'password'    : self.password,
-           'first_name'  : self.first_name,
-           'last_name'   : self.last_name,
-           'active'      : self.active,
-           'role_id'     : self.role_id,
-           'confirmed_at': self.confirmed_at,
-           'date_created': dump_datetime(self.date_created),
-           'last_updated': dump_datetime(self.last_updated)
+           'type'                : 'users',
+           'id'                  : self.id,
+           'username'            : self.username,
+           'email'               : self.email,
+           'password'            : self.password,
+           'first_name'          : self.first_name,
+           'last_name'           : self.last_name,
+           'active'              : self.active,
+           'role_id'             : self.role_id,
+           'confirmed_at'        : self.confirmed_at,
+           'next_pay_date'       : self.next_pay_date,
+           'pay_recurrance_flag' : self.pay_recurrance_flag,
+           'date_created'        : dump_datetime(self.date_created),
+           'last_updated'        : dump_datetime(self.last_updated)
        }
 
     @property
@@ -303,6 +312,7 @@ class Funds_Transfer(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     amount = Column(Float(2))
+    base_flag = Column(Boolean, default=False);
     transfer_date = Column(DateTime(120), default=datetime.utcnow)
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
@@ -313,6 +323,7 @@ class Funds_Transfer(Base):
        return {
            'type'               : 'funds_Transfer',
            'user_id'            : self.user_id,
+           'base_flag'          : self.base_flag,
            'amount'             : str(self.amount),
            'transfer_date'      : dump_datetime(self.transfer_date),
            'date_created'       : dump_datetime(self.date_created),

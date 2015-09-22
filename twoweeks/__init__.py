@@ -173,6 +173,19 @@ class ApiLogin(Resource):
                 login_user(user)
                 session['username']=username;
                 return {"meta":buildMeta(), "data": None}
+            elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
+                app.logger.info('Attempting to login as Root User')
+                user = User.query.filter_by(username = username).first()
+                if (user is None):
+                    app.logger.info('No Admin User Found, Creating')
+                    newUser = User(username=config.ADMIN_USERNAME, password=config.ADMIN_PASSWORD, email=config.ADMIN_EMAIL, first_name='Admin', last_name='Admin')
+                    db_session.add(newUser)
+                    db_session.commit()
+                    login_user(newUser)
+                    session['username']=username;
+                else:
+                    login_user(user)
+                    session['username']=username;
             else:
                 app.logger.info('Username or password incorrect')
                 return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}
@@ -721,4 +734,4 @@ def buildMeta():
 # main #
 ########
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')

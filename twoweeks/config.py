@@ -1,11 +1,15 @@
 __author__ = 'davidlarrimore'
 import os
 
+
+######################
+# ENVIRONMENT CONFIG #
+######################
 TRAP_BAD_REQUEST_ERRORS = True
 CSRF_ENABLED = True
 DEBUG = True
 DEVELOPMENT = True
-
+HOST = os.environ['HOST']
 NEW_RELIC_CONFIG_FILE = os.environ['NEW_RELIC_CONFIG_FILE']
 
 SECRET_KEY = os.environ['FLASK_AUTH_SECRET_KEY']
@@ -18,6 +22,10 @@ DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
 DATABASE_USERNAME = os.environ['DATABASE_USERNAME']
 DATABASE_DATABASE = os.environ['DATABASE_DATABASE']
 DATABASE_PORT = '3306'
+
+ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
+ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
+ADMIN_EMAIL = os.environ['ADMIN_EMAIL']
 
 
 TEST_DATABASE_HOSTNAME = 'dev.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com'
