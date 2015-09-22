@@ -11,7 +11,6 @@ FROM ubuntu:wily
 # File Author / Maintainer
 MAINTAINER Robert Donovan <admin@mixfin.com>
 
-
 # Update the sources list and Install basic applications
 RUN apt-get update && apt-get install -y -o Dpkg::Options::="--force-confold" tar git curl nano wget dialog nginx supervisor net-tools build-essential libxml2-dev libxslt1-dev python-software-properties software-properties-common
 
@@ -20,7 +19,7 @@ RUN apt-get install -y -f python python-dev python-distribute python-pip libmysq
 
 #Install webserver and Web server gateway
 
-RUN sudo pip install uwsgi
+#RUN sudo pip install uwsgi
 
 # install nginx
 run apt-get install -y python-software-properties
