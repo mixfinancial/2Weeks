@@ -1,5 +1,6 @@
 <section class="usersFormPage" ng-controller="billFormController">
     <h3>Upcomming Bills</h3>
+    <h5>Todays Date: {{date | date : 'EEE, MMM d, yyyy'}}</h5>
     <div class="row">
         <div class="col-sm-6">
             <table id="main_tbl" class="table table-striped table-bordered table-hover table-condensed">
@@ -8,14 +9,16 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Due Date</th>
+                    <th>Till Due</th>
                     <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="bill in bills | orderBy: 'due_date':true track by bill.id">
+                <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id">
                     <td>{{bill.id}}</td>
                     <td>{{bill.name}}</td>
                     <td>{{bill.due_date | date : 'EEE, MMM d, yyyy'}}</td>
+                    <td>{{differenceInDays(bill.due_date) | number:0}}</td>
                     <td>
                         <p class="list-group-item-text">
                             <button class="btn btn-warning btn-xs" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>

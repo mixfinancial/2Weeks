@@ -10,7 +10,7 @@ var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 * BILL PREP CONTROLLER *
 ************************/
 billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal) {
-
+    $scope.date = new Date();
     $scope.animationsEnabled = true
 
     $scope.editBill = function (index) {
@@ -55,13 +55,13 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         });
       };
 
-
-
-
-
+    //Convert dates in the bills array
+    var log = [];
     Bill.query(function(data) {
-        console.log(data);
         $scope.bills = data.data;
+        angular.forEach($scope.bills,function(value,index){
+            $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
+        });
      });
 
     $scope.submit = function() {
@@ -90,6 +90,15 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
            }
         });
+    };
+
+
+    $scope.differenceInDays = function(first_date) {
+        var today = new Date();
+        var millisecondsPerDay = 1000 * 60 * 60 * 24;
+        var millisBetween = first_date.getTime() - today.getTime();
+        var days = millisBetween / millisecondsPerDay
+        return Math.floor(days);
     };
 
 
@@ -141,12 +150,14 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
     console.log($scope.model);
 
     $scope.submitModalForm = function(data) {
+        //need to convert strings to date for persistance through application;
+        $scope.model.due_date = new Date($scope.model.due_date);
         var data = $scope.model;
-
         if(action == "edit"){
            console.log(data);
            Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
+                    data.data.due_date = new Date(data.data.due_date);
                     $modalInstance.close(data.data);
                     notificationService.success("Bill Updated");
                 }else{
@@ -162,6 +173,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
            Bill.save(JSON.stringify(data), function(data) {
                 if(data.error == null){
                     console.log(data.data);
+                    data.data.due_date = new Date(data.data.due_date);
                     $modalInstance.close(data.data);
                     notificationService.success("Bill Added");
                 }else{
