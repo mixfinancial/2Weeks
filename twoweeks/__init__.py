@@ -460,6 +460,176 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 
 
 
+
+
+
+
+
+
+
+
+##########
+# ME API #
+##########
+
+# the ME API covers the logged in user.
+class ApiMe(Resource):
+    @login_required
+    def get(self, user_id=None):
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+        if user is None:
+            return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data": None}
+        else:
+            return jsonify(meta=buildMeta(), data=[user.serialize])
+
+
+    @login_required
+    def put(self, user_id=None):
+        app.logger.info('Accessing User.put')
+        id = ''
+        username = ''
+        new_password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
+
+        if user_id is not None:
+            id = user_id
+        elif request.args.get('user_id') is not None:
+            id = request.args.get('user_id')
+
+
+        user = User.query.filter_by(id=user_id).first()
+
+        if user is not None:
+            if request_is_json():
+                app.logger.info('Updating user based upon JSON Request')
+                print json.dumps(request.get_json())
+                data = request.get_json()
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'new_password':
+                        new_password = value
+                    if key == 'confirm_password':
+                        confirm_password = value
+                    elif key == 'email':
+                        email = value
+                        username = value
+                        user.username = value
+                        user.email = value
+                    elif key == 'first_name':
+                        first_name = value
+                        user.first_name = value
+                    elif key == 'last_name':
+                        last_name = value
+                        user.last_name = value
+            elif request_is_form_urlencode():
+                # TODO: Handle nulls
+                app.logger.info('Updating user '+username)
+                requestData = json.loads(request.form['data'])
+                user.username = requestData['email']
+                user.email = requestData['email']
+                user.last_name = requestData['last_name']
+                user.first_name = requestData['first_name']
+                confirm_password = requestData['confirm_password']
+                password = requestData['password']
+            else:
+                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+        else:
+            return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
+
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+
+        db_session.commit()
+        return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id, "data": None}
+
+
+    @login_required
+    def post(self, user_id=None):
+        app.logger.info('Accessing User.post')
+
+        username = ''
+        password = ''
+        confirm_password = ''
+        email = ''
+        first_name = ''
+        last_name = ''
+        role_id = ''
+
+        if request_is_json():
+            app.logger.info('Creating new user based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            for key,value in data.iteritems():
+                print key+'-'+str(value)
+                if key == 'password':
+                    password = value
+                if key == 'confirm_password':
+                    confirm_password = value
+                elif key == 'email':
+                    username = value
+                    email = value
+                elif key == 'first_name':
+                    first_name = value
+                elif key == 'last_name':
+                    last_name = value
+        elif request_is_form_urlencode():
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            username = requestData['email']
+            email = requestData['email']
+            last_name = requestData['last_name']
+            first_name = requestData['first_name']
+            confirm_password = requestData['confirm_password']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+        if email is None or password is None:
+            return {"meta":buildMeta(), "error":"Email and Password is required", "data": None}
+
+        if User.query.filter_by(username = username).first() is not None:
+            return {"meta":buildMeta(), "error":"Username already exists", "data": None}
+
+        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+
+        db_session.add(newUser)
+        db_session.commit()
+
+        return {"meta":buildMeta()}
+
+    @login_required
+    def delete(self, user_id):
+        app.logger.info("Deleting User #: " + user_id)
+        user = User.query.filter_by(id=user_id).first()
+        db_session.delete(user)
+        db_session.commit()
+
+        return {"meta":buildMeta(), "data": None}
+
+api.add_resource(ApiMe, '/api/me', '/api/me/', '/api/me/<string:user_id>', '/api/me/', '/api/me/<string:user_id>')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############
 # BILL API #
 ############

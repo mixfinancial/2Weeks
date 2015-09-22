@@ -24,6 +24,10 @@ billsApp.config(['$routeProvider', function($routeProvider) {
         templateUrl: '/static/partials/billPrep.html',
         controller: ''
     }).
+    when('/userAccount', {
+        templateUrl: '/static/partials/userAccount.html',
+        controller: ''
+    }).
     otherwise({
         templateUrl: '/static/partials/billPrep.html',
         controller: ''
@@ -80,7 +84,8 @@ loginApp.config(['$routeProvider', function($routeProvider) {
 
 var menuBarApp = angular.module('menuBarApp', [
     'ngRoute',
-    'menuBarAppController'
+    'menuBarAppController',
+    'ngCookies'
 ]);
 
 
@@ -94,18 +99,6 @@ var menuBarApp = angular.module('menuBarApp', [
 
 var dbServices = angular.module('dbServices', ['ngResource']);
 
-dbServices.factory('User', ['$resource',
-  function($resource){
-    return $resource('/api/user/:userId', {}, {
-      'query': {method:'GET', isArray:false},
-      'get': {method:'GET', params:{userId:'users'}, isArray:false},
-      'save': {method:'POST', isArray:false},
-      'put': {method:'PUT', isArray:false},
-      'delete': {method:'DELETE', isArray:false}
-    });
-  }]);
-
-
 dbServices.factory('Bill', ['$resource',
   function($resource){
     return $resource('/api/bill/:billId', {}, {
@@ -117,6 +110,15 @@ dbServices.factory('Bill', ['$resource',
     });
   }]);
 
+dbServices.factory('Me', ['$resource',
+  function($resource){
+    return $resource('/api/me/:userId', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{userId:'users'}, isArray:false},
+      'save': {method:'POST', isArray:false},
+      'put': {method:'PUT', isArray:false}
+    });
+  }]);
 
 
 /******************

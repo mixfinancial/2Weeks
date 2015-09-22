@@ -41,25 +41,27 @@
       </script>
   </head>
   <body ng-app="billsApp">
-    <div class="container" role="main">
-        <div class="row">
-            <div class="col-md-12">
-            <nav class="navbar navbar-default">
-                <div class="container-fluid" ng-controller="menuBarAppController">
-                    <div class="navbar-header">
-                        <a class="navbar-brand" href="#">
-                            2Weeks
-                        </a>
-                    </div>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a ng-href='#here' ng-click="logout()">Logout</a></li>
-                    </ul>
-                </div>
-              </nav>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid" ng-controller="menuBarAppController">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    2Weeks
+                </a>
             </div>
-        </div> <!-- END ROW -->
+            <ul class="nav navbar-nav navbar-right">
+                {% raw %}
+                <li><p class="navbar-text">Signed in as {{me.first_name}}&nbsp;{{me.last_name}}</p></li>
+                <li><a ng-href='#here' ng-click="logout()">Logout</a></li>
+                {% endraw %}
+            </ul>
+        </div>
+      </nav>
     </div>
 
+    <div style="height:64px;">
+        &nbsp;
+    </div>
 
 
       <div class="container theme-showcase" role="main">
@@ -88,7 +90,6 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-route.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-animate.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-cookies.min.js"></script>
-
 
       <!-- Angular-Formly -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/7.1.1/formly.min.js"></script>

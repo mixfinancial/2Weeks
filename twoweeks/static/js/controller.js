@@ -274,16 +274,22 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', function($scope, $http, $location ) {
- //console.log('logging out');
-  $scope.logout = function($window, $location) {
-    console.log('logging out');
-        $http.get('/api/logout/').
-            success(function(data, status, headers, config) {
-                window.location.href = '/';
-            }).
-            error(function(data, status, headers, config) {
-                console.log('could not logout');
+menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', 'Me', function($scope, $http, $location, Me) {
+
+
+    Me.query(function(data) {
+        console.log(data.data[0]);
+        $scope.me = data.data[0];
+     });
+
+    $scope.logout = function($window, $location) {
+        console.log('logging out');
+            $http.get('/api/logout/').
+                success(function(data, status, headers, config) {
+                    window.location.href = '/';
+                }).
+                error(function(data, status, headers, config) {
+                    console.log('could not logout');
         });
     };
 }]);
