@@ -41,19 +41,24 @@
       </script>
   </head>
   <body ng-app="billsApp">
-
-    <nav class="navbar navbar-default">
-        <div class="container-fluid" ng-controller="menuBarAppController">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">
-                    2Weeks
-                </a>
+    <div class="container" role="main">
+        <div class="row">
+            <div class="col-md-12">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid" ng-controller="menuBarAppController">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">
+                            2Weeks
+                        </a>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a ng-href='#here' ng-click="logout()">Logout</a></li>
+                    </ul>
+                </div>
+              </nav>
             </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a ng-href='#here' ng-click="logout()">Logout</a></li>
-            </ul>
-        </div>
-      </nav>
+        </div> <!-- END ROW -->
+    </div>
 
 
 

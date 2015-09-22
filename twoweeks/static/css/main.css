@@ -1,23 +1,41 @@
-/* AngularJs UI Required CSS */
 
-  .full button span {
-    background-color: limegreen;
-    border-radius: 32px;
-    color: black;
-  }
-  .partially button span {
-    background-color: orange;
-    border-radius: 32px;
-    color: black;
-  }
+    html,
+    body {
+      height: 100%;
+      background: url("http://api.thumbr.it/whitenoise-361x370.png?background=88cfebff&noise=626262&density=16&opacity=7");
+    }
 
-  .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+    .full button span {
+        background-color: limegreen;
+        border-radius: 32px;
+        color: black;
+    }
+
+    .partially button span {
+        background-color: orange;
+        border-radius: 32px;
+        color: black;
+    }
+
+    .nav, .pagination, .carousel, .panel-title a {
+        cursor: pointer;
+    }
 
 
-tr {
-  cursor: pointer;
-}
-// or
-[ng-click] {
-  cursor: pointer;
-}
+    [ng-click] {
+      cursor: pointer;
+    }
+    .navbar{
+        background-color:#fff;
+    -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+    -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+    }
+
+    .panel{
+        background-color:#fff;
+        -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+        -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,.5);
+    }
+
