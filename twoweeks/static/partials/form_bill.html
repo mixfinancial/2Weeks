@@ -1,30 +1,14 @@
 <section>
-    <form ng-submit="submitEditForm()" class="form-horizontal">
-        <div class="modal-header">
-            <h3 class="modal-title">Edit Bill</h3>
-        </div>
-        <div class="modal-body"></div>
-            <div class="form-group">
-                <label for="uNewName" class="col-sm-2 control-label">Name:</label>
-                <div class="col-sm-4">
-                    <input type="text" id="uNewName" class="form-control" ng-model="bill.newName" placeholder="First Name" required ng-required="true">
-                </div>
+    <div class="modal-header">
+        <h3 class="modal-title">Edit Bill</h3>
+    </div>
+    <div class="modal-body">
+        <formly-form model="model" form="billForm" id="billForm" ng-submit="submitModalForm()" fields="formFields" novalidate>
+            <hr/>
+            <div class="centered">
+                <button class="btn btn-primary" type="submit" ng-click="submitModalForm()">Submit</button>
+                <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
             </div>
-            <div class="form-group">
-                <label for="uNewDueDate" class="col-sm-2 control-label">Due Date:</label>
-                <div class="col-sm-6">
-                    <div class="input-group">
-                      <input type="text" class="form-control" readonly id="uNewDueDate" datepicker-popup="{{format}}" ng-model="bill.newDueDate" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
-                      <span class="input-group-btn">
-                        <button type="button" class="btn btn-default"  ng-click="openDatePicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                      </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" type="submit">Submit</button>
-            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
-        </div>
-    </form>
+        </formly-form>
+    </div>
 </section>

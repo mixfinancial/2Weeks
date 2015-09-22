@@ -7,7 +7,9 @@ var billsApp = angular.module('billsApp', [
     'menuBarAppControllers',
     'jlareau.pnotify',
     'dbServices',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'formly',
+    'formlyBootstrap'
 ]);
 
 
@@ -15,11 +17,11 @@ billsApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
     when('/billPrep', {
         templateUrl: '/static/partials/billPrep.html',
-        controller: 'billFormController'
+        controller: ''
     }).
     otherwise({
         templateUrl: '/static/partials/billPrep.html',
-        controller: 'billFormController'
+        controller: ''
     });
 }]);
 
@@ -29,7 +31,9 @@ var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
     'loginServices',
-    'jlareau.pnotify'
+    'jlareau.pnotify',
+    'formly',
+    'formlyBootstrap'
 ]);
 
 

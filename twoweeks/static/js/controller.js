@@ -13,7 +13,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.animationsEnabled = true
 
-    $scope.openModal = function (index) {
+    $scope.editBill = function (index) {
         console.log(index);
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
@@ -34,6 +34,29 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
       };
 
 
+    $scope.newBill = function () {
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/form_bill.html',
+          controller: 'BillFormModalController',
+          resolve: {
+            data: function () {
+              return null;
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newBill) {
+          $scope.bills.push(newBill);
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+
+
+
+
     Bill.query(function(data) {
         console.log(data);
         $scope.bills = data.data;
@@ -49,7 +72,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
        });
     };
 
-    $scope.delete = function(index, $window, $location) {
+    $scope.deleteBill = function(index, $window, $location) {
        console.log('attempting to delete bill index #'+index);
        var data = $scope.bills[index];
        Bill.delete({billId: data.id}, function(data) {
@@ -70,36 +93,83 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 * BILL FORM MODAL CONTROLLER *
 ******************************/
 billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'notificationService', 'data', function ($scope, $modalInstance, Bill, notificationService, data) {
-    $scope.bill = data;
-    $scope.bill.newName = data.name;
-    $scope.bill.newDueDate = data.due_date;
+    var action = 'new';
+
+
+    if(data != null){
+        var action = 'edit';
+        $scope.model = data;
+        $scope.model.newName = data.name;
+        $scope.model.newDueDate = new Date(data.due_date);
+    }
+
+    $scope.formFields = [
+                            {
+                                key: 'newName',
+                                type: 'input',
+                                templateOptions: {
+                                    type: 'text',
+                                    label: 'name',
+                                    placeholder: 'Name of Bill',
+                                    required: true
+                                }
+                            },
+                            {
+                                key: 'newDueDate',
+                                type: 'input',
+                                templateOptions: {
+                                    type: 'date',
+                                    label: 'Due Date',
+                                    required: true
+                                }
+                            }
+                        ];
+
 
     var backup = data;
-    console.log($scope.bill);
+    console.log($scope.model);
 
-    $scope.submitEditForm = function(data) {
+    $scope.submitModalForm = function(data) {
+        var data = $scope.model;
+        data.billId = data.id;
+        data.name = $scope.model.newName;
+        data.due_date = $scope.model.newDueDate;
 
-       var data = $scope.bill;
-       data.billId = data.id;
-       data.name = $scope.bill.newName;
-       data.due_date = $scope.bill.newDueDate;
+        if(action == "edit"){
+           console.log(data);
+           Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    $scope.model.name = $scope.model.newName;
+                    $scope.model.dueDate = $scope.model.newdueDate;
+                    console.log(data);
+                    $modalInstance.close();
+                    notificationService.success("Bill Updated");
+                }else{
+                    notificationService.error("Error: "+data.error);
+                }
+           }, function(error){
+                console.log(error);
+                notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+                $scope.bill = backup;
+               });
+        }else{
+           console.log(data);
+           Bill.save(JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    console.log(data.data);
+                    $modalInstance.close(data.data);
+                    notificationService.success("Bill Added");
+                }else{
+                    notificationService.error("Error: "+data.error);
+                }
+           }, function(error){
+                console.log(error);
+                notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+                $scope.bill = backup;
+               });
 
-       console.log(data);
-       Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
-            if(data.error == null){
-                $scope.bill.name = $scope.bill.newName;
-                $scope.bill.dueDate = $scope.bill.newdueDate;
-                console.log(data);
-                $modalInstance.close();
-                notificationService.success("Bill Updated");
-            }else{
-                notificationService.error("Error: "+data.error);
-            }
-       }, function(error){
-            console.log(error);
-            notificationService.error("Received error status '"+error.status+"': "+error.statusText);
-            $scope.bill = backup;
-           });
+        }
+
     };
 
 
@@ -186,11 +256,36 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
 loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
+
+     $scope.model = {};
+
+     $scope.formFields = [
+                            {
+                                key: 'username',
+                                type: 'input',
+                                templateOptions: {
+                                    type: 'text',
+                                    label: 'username',
+                                    placeholder: 'your@email.com',
+                                    required: true
+                                }
+                            },
+                            {
+                                key: 'password',
+                                type: 'input',
+                                templateOptions: {
+                                    type: 'password',
+                                    label: 'password',
+                                    required: true
+                                }
+                            }
+                        ];
+
      $scope.submit = function() {
-        if($scope.username == null || $scope.password == null){
+        if($scope.model.username == null || $scope.model.password == null){
              notificationService.error("Please Enter username and password")
         }else{
-            Login.save(JSON.stringify({username: $scope.username, password: $scope.password}), function(data){
+            Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
                 console.log(data)
                 if(data.error == null){
                     window.location.href = '/home/';
