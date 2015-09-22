@@ -15,19 +15,21 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.editBill = function (index) {
         console.log(index);
+        console.log($scope.bills.indexOf(index));
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
           templateUrl: '/static/partials/form_bill.html',
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
-              return $scope.bills[$scope.bills.indexOf(index)];
+              return angular.copy($scope.bills[$scope.bills.indexOf(index)]);
             }
           }
         });
 
-        modalInstance.result.then(function (selectedItem) {
-          $scope.selected = selectedItem;
+        modalInstance.result.then(function (newBill) {
+          $scope.bills.splice($scope.bills.indexOf(index), 1);
+          $scope.bills.push(newBill);
         }, function () {
           console.log('Modal dismissed at: ' + new Date());
         });
@@ -74,12 +76,22 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.deleteBill = function(index, $window, $location) {
        console.log('attempting to delete bill index #'+index);
-       var data = $scope.bills[index];
+       var data = $scope.bills[$scope.bills.indexOf(index)];
        Bill.delete({billId: data.id}, function(data) {
-        $scope.bills.splice(index);
+        $scope.bills.splice($scope.bills.indexOf(index), 1);
         notificationService.notice("Bill Deleted")
        });
     };
+
+
+    function getBillIndex(id){
+        angular.forEach($scope.bills, function(bill){
+           if(bill['id'] == id){
+
+           }
+        });
+    };
+
 
 }]);
 
@@ -99,13 +111,12 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
     if(data != null){
         var action = 'edit';
         $scope.model = data;
-        $scope.model.newName = data.name;
-        $scope.model.newDueDate = new Date(data.due_date);
+        $scope.model.due_date = new Date(data.due_date);
     }
 
     $scope.formFields = [
                             {
-                                key: 'newName',
+                                key: 'name',
                                 type: 'input',
                                 templateOptions: {
                                     type: 'text',
@@ -115,7 +126,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                                 }
                             },
                             {
-                                key: 'newDueDate',
+                                key: 'due_date',
                                 type: 'input',
                                 templateOptions: {
                                     type: 'date',
@@ -131,22 +142,12 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
     $scope.submitModalForm = function(data) {
         var data = $scope.model;
-        data.billId = data.id;
-        data.name = $scope.model.newName;
-        data.due_date = $scope.model.newDueDate;
 
         if(action == "edit"){
            console.log(data);
            Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
-                    if ($scope.model.name != $scope.model.newName){
-                        $scope.model.name = $scope.model.newName;
-                    }
-                    if ($scope.model.dueDate != $scope.model.newdueDate){
-                        $scope.model.dueDate = $scope.model.newdueDate;
-                    }
-                    console.log(data);
-                    $modalInstance.close();
+                    $modalInstance.close(data.data);
                     notificationService.success("Bill Updated");
                 }else{
                     notificationService.error("Error: "+data.error);
