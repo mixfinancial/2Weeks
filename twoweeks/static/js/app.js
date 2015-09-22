@@ -26,6 +26,21 @@ billsApp.config(['$routeProvider', function($routeProvider) {
 }]);
 
 
+billsApp.directive('ngReallyClick', [function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.bind('click', function() {
+                var message = attrs.ngReallyMessage;
+                if (message && confirm(message)) {
+                    scope.$apply(attrs.ngReallyClick);
+                }
+            });
+        }
+    }
+}]);
+
+
 
 var loginApp = angular.module('loginApp', [
     'ngRoute',
@@ -52,6 +67,8 @@ loginApp.config(['$routeProvider', function($routeProvider) {
         controller: 'loginAppLoginController'
     });
 }]);
+
+
 
 
 

@@ -55,12 +55,14 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         });
       };
 
+
     //Convert dates in the bills array
     var log = [];
     Bill.query(function(data) {
         $scope.bills = data.data;
         angular.forEach($scope.bills,function(value,index){
             $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
+            $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
         });
      });
 
@@ -82,16 +84,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         notificationService.notice("Bill Deleted")
        });
     };
-
-
-    function getBillIndex(id){
-        angular.forEach($scope.bills, function(bill){
-           if(bill['id'] == id){
-
-           }
-        });
-    };
-
 
     $scope.differenceInDays = function(first_date) {
         var today = new Date();
@@ -135,6 +127,18 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                                 }
                             },
                             {
+                                key: 'total_due',
+                                type: 'input',
+                                templateOptions: {
+                                    addonLeft: {
+                                        text:'$'
+                                    },
+                                    type: 'number',
+                                    label: 'Total Due',
+                                    required: true
+                                }
+                            },
+                            {
                                 key: 'due_date',
                                 type: 'input',
                                 templateOptions: {
@@ -158,6 +162,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
            Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     data.data.due_date = new Date(data.data.due_date);
+                    data.data.total_due = parseFloat(data.data.total_due);
                     $modalInstance.close(data.data);
                     notificationService.success("Bill Updated");
                 }else{
@@ -174,6 +179,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                 if(data.error == null){
                     console.log(data.data);
                     data.data.due_date = new Date(data.data.due_date);
+                    data.data.total_due = parseFloat(data.data.total_due);
                     $modalInstance.close(data.data);
                     notificationService.success("Bill Added");
                 }else{

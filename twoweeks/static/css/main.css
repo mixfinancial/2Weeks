@@ -12,3 +12,12 @@
   }
 
   .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+
+tr {
+  cursor: pointer;
+}
+// or
+[ng-click] {
+  cursor: pointer;
+}
