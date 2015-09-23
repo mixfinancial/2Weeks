@@ -274,7 +274,7 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', 'Me', function($scope, $http, $location, Me) {
+menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
 
 
     Me.query(function(data) {
@@ -292,7 +292,84 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
                     console.log('could not logout');
         });
     };
+
+    $scope.openFeedbackModal = function () {
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/form_feedback.html',
+          controller: 'FeedbackFormModalController',
+          scope: $scope,
+          resolve: {
+            data: function () {
+              return null;
+            }
+          }
+        });
+
+        modalInstance.result.then(function () {
+            console.log('Form submitted');
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+
 }]);
 
+
+
+/*********************************
+* FEEDBACK FORM MODAL CONTROLLER *
+*********************************/
+menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$modalInstance', 'notificationService', 'Feedback', function ($scope, $modalInstance, notificationService, Feedback) {
+
+    $scope.model = {};
+
+    $scope.formFields = [
+                            {
+                                key: 'rating',
+                                type: 'input',
+                                templateOptions: {
+                                    type: 'number',
+                                    label: 'Rating (1-5)',
+                                    min: 0,
+                                    max:5
+                                }
+                            },
+                            {
+                                key: 'feedback',
+                                type: 'textarea',
+                                templateOptions: {
+                                    rows: 4,
+                                    type: 'text',
+                                    label: 'Feedback',
+                                    required: true
+                                }
+                            }
+                        ];
+
+
+    $scope.submitFeedback = function() {
+       console.log($scope.model);
+       Feedback.save(JSON.stringify($scope.model), function(data) {
+            if(data.error == null){
+                $modalInstance.close();
+                notificationService.success("Thank you for your feedback!");
+            }else{
+                notificationService.error("Error: "+data.error);
+            }
+       }, function(error){
+            console.log(error);
+            notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+           });
+    };
+
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+
+}]);
 
 

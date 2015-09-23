@@ -918,7 +918,7 @@ class ApiFeedback(Resource):
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         if rating is not None and feedback is not None:
-            newFeedback = Feedback(user_id=user_id, rating=rating, feedback=feedback)
+            newFeedback = Feedback(user_id=user_id, rating=int(rating), feedback=feedback)
 
             db_session.add(newFeedback)
             db_session.commit()

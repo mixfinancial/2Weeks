@@ -7,15 +7,16 @@ var billsApp = angular.module('billsApp', [
     'menuBarAppControllers',
     'jlareau.pnotify',
     'dbServices',
+    'feedbackServices',
     'ui.bootstrap',
     'formly',
     'formlyBootstrap'
 ]);
 
 
-billsApp.run(function() {
-    FastClick.attach(document.body);
-});
+//billsApp.run(function() {
+//    FastClick.attach(document.body);
+//});
 
 
 billsApp.config(['$routeProvider', function($routeProvider) {
@@ -79,20 +80,6 @@ loginApp.config(['$routeProvider', function($routeProvider) {
 
 
 
-
-
-
-var menuBarApp = angular.module('menuBarApp', [
-    'ngRoute',
-    'menuBarAppController',
-    'ngCookies'
-]);
-
-
-
-
-
-
 /*********************
 *  Database Services *
 **********************/
@@ -121,6 +108,7 @@ dbServices.factory('Me', ['$resource',
   }]);
 
 
+
 /******************
 *  Login Services *
 ******************/
@@ -135,3 +123,18 @@ loginServices.factory('Login', ['$resource',
   }]);
 
 
+
+/*********************
+*  Feedback Services *
+*********************/
+
+var feedbackServices = angular.module('feedbackServices', ['ngResource']);
+
+feedbackServices.factory('Feedback', ['$resource',
+  function($resource){
+    return $resource('/api/feedback/', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{userId:'users'}, isArray:false},
+      'save': {method:'POST', isArray:false}
+    });
+  }]);
