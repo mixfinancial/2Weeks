@@ -33,7 +33,7 @@ api = Api(app)
 ##########################
 from twoweeks.database import init_db
 from twoweeks.database import db_session
-from twoweeks.models import User, Bill, Role, Funds_Transfer, Bill_Funding_Item
+from twoweeks.models import User, Bill, Role, Funds_Transfer, Bill_Funding_Item, Feedback
 
 init_db()
 
@@ -64,12 +64,16 @@ def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
 
-def send_email(subject, recipients, text_body, html_body):
+def send_email(subject, recipients, text_body=None, html_body=None):
     msg = Message(subject, recipients=recipients)
-    msg.body = text_body
-    msg.html = html_body
-    thr = Thread(target=send_async_email, args=[app, msg])
-    thr.start()
+    if text_body is not None:
+        msg.body = text_body
+    if html_body is not None:
+        msg.html = html_body
+
+    if text_body is not None and html_body is not None:
+        thr = Thread(target=send_async_email, args=[app, msg])
+        thr.start()
 
 
 
@@ -212,7 +216,6 @@ api.add_resource(ApiLogout, '/api/logout/')
 
 @login_manager.request_loader
 def load_user_from_request(request):
-
     # first, try to login using the api_key url arg
     api_key = request.args.get('api_key')
     if api_key:
@@ -846,6 +849,90 @@ class ApiBill(Resource):
 
 api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>')
 
+
+
+
+
+############
+# FEEDBACK API #
+############
+
+class ApiFeedback(Resource):
+    @login_required
+    def get(self, feedback_id=None):
+        feedbackId = None;
+
+        if feedback_id is not None:
+            feedbackId = feedback_id
+        elif request.args.get('feedback_id') is not None:
+            feedbackId = request.args.get('feedback_id')
+
+        if feedbackId is not None:
+            app.logger.info("looking for feedback:" + feedbackId)
+            feedback = Feedback.query.filter_by(id=feedbackId).first()
+            app.logger.info(feedback)
+
+            if feedback is None:
+                return {"meta":buildMeta(), 'data':[]}
+            else:
+                return jsonify(meta=buildMeta(), data=[feedback.serialize])
+        else:
+            feedbacks = [i.serialize for i in Bill.query.all()]
+            return {"meta":buildMeta(), "data":feedbacks}
+
+    @login_required
+    def post(self, feedback_id=None):
+        app.logger.info('Accessing Feedback.post')
+
+        user = None
+        user_id = None
+        rating = None
+        feedback = None
+
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+        else:
+            user_id = user.id;
+
+        if request_is_json():
+            app.logger.info('Creating new feedback based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'rating':
+                        rating = value
+                    if key == 'feedback':
+                        feedback = value
+        elif request_is_form_urlencode():
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            rating = requestData['rating']
+            feedback = requestData['feedback']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+        if rating is not None and feedback is not None:
+            newFeedback = Feedback(user_id=user_id, rating=rating, feedback=feedback)
+
+            db_session.add(newFeedback)
+            db_session.commit()
+
+            html_message = "<p>Rating: " + str(rating) + "</p><p>Feedback: "+ feedback + "</p>"
+            text_message = "Rating: " + str(rating) + "\r\nFeedback: "+ feedback
+
+            send_email('New Feedback', ['"Robert Donovan" <admin@mixfin.com>', '"David Larrimore" <david.larrimore@mixfin.com'], text_message, html_message)
+
+            return {"meta":buildMeta(), 'data':newFeedback.serialize}, 201
+        else:
+            return {"meta":buildMeta(), 'error':'No feedback was provided'}, 201
+
+api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/<string:feedback_id>')
 
 
 

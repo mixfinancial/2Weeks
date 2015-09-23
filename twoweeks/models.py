@@ -40,6 +40,43 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 
+############
+# FEEDBACK #
+############
+class Feedback(Base):
+    __tablename__ = 'feedback'
+
+    id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer(), ForeignKey("user.id"))
+    rating = Column(Integer())
+    feedback = Column(String(1000))
+    date_created = Column(DateTime(120), default=datetime.utcnow)
+    last_updated = Column(DateTime(120), default=datetime.utcnow)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'type'          : 'feedback',
+           'id'            : self.id,
+           'user_id'       : self.user_id,
+           'rating'        : self.rating,
+           'feedback'      : self.feedback,
+           'date_created'  : dump_datetime(self.date_created),
+           'last_updated'  : dump_datetime(self.last_updated)
+       }
+
+    @property
+    def serialize_many2many(self):
+       """
+       Return object's relations in easily serializeable format.
+       NB! Calls many2many's serialize property.
+       """
+       return [ item.serialize for item in self.many2many]
+
+
+
+
 ########
 # ROLE #
 ########
