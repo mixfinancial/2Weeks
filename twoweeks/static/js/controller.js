@@ -255,6 +255,9 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
 
 
 
+
+
+
 loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location) {
     $scope.submit = function($window, $location) {
         $http({
@@ -274,8 +277,11 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
 
+
+
+
+menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
 
     Me.query(function(data) {
         console.log(data.data[0]);
@@ -315,6 +321,28 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 }]);
+
+
+
+
+menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', function($scope, $http, $location, $modal, Me) {
+
+    Me.query(function(data) {
+        console.log(data.data[0]);
+        $scope.me = data.data[0];
+     });
+
+
+    $scope.selection = 'general';
+
+    $scope.changeSelection = function (name) {
+        $scope.selection = name;
+    };
+}]);
+
+
+
+
 
 
 
