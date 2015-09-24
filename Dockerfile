@@ -55,7 +55,7 @@ EXPOSE 8080
 
 # Set the default command to execute when creating a new container
 #CMD ["/usr/sbin/sshd", "-D"] && python twoweeks.py
-#CMD python runserver.py
 #CMD ["supervisord", "-n"]
 
-CMD cd /2Weeks && git pull && newrelic-admin run-program python runserver.py
+##CMD cd /2Weeks && git pull && newrelic-admin run-program python runserver.py
+CMD cd /2Weeks && git pull && python runserver.py
