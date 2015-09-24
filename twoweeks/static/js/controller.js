@@ -328,12 +328,32 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
     $scope.formFields = [
                             {
                                 key: 'rating',
-                                type: 'input',
+                                type: 'radio',
                                 templateOptions: {
-                                    type: 'number',
-                                    label: 'Rating (1-5)',
-                                    min: 0,
-                                    max:5
+                                    label: 'Rating',
+                                    "options": [
+                                      {
+                                        "name": "1 - Sad Panda",
+                                        "value": "1"
+                                      },
+                                      {
+                                        "name": "2",
+                                        "value": "2"
+                                      },
+                                      {
+                                        "name": "3",
+                                        "value": "3"
+                                      },
+                                      {
+                                        "name": "4",
+                                        "value": "4"
+                                      },
+                                      {
+                                        "name": "5 - Amazing!",
+                                        "value": "5"
+                                      }
+                                    ]
+
                                 }
                             },
                             {

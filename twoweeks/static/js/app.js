@@ -14,9 +14,9 @@ var billsApp = angular.module('billsApp', [
 ]);
 
 
-//billsApp.run(function() {
-//    FastClick.attach(document.body);
-//});
+billsApp.run(function() {
+    FastClick.attach(document.body);
+});
 
 
 billsApp.config(['$routeProvider', function($routeProvider) {
