@@ -18,7 +18,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         //console.log($scope.bills.indexOf(index));
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
-          templateUrl: '/static/partials/form_bill.html',
+          templateUrl: '/static/partials/modalForm.html',
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
@@ -39,7 +39,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.newBill = function () {
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
-          templateUrl: '/static/partials/form_bill.html',
+          templateUrl: '/static/partials/modalForm.html',
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
@@ -111,8 +111,11 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
     if(data != null){
         var action = 'edit';
+        $scope.title = "Edit Bill"
         $scope.model = data;
         $scope.model.due_date = new Date(data.due_date);
+    }else{
+        $scope.title = "Create New Bill"
     }
 
     $scope.formFields = [
@@ -302,7 +305,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
     $scope.openFeedbackModal = function () {
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
-          templateUrl: '/static/partials/form_feedback.html',
+          templateUrl: '/static/partials/modalForm.html',
           controller: 'FeedbackFormModalController',
           scope: $scope,
           resolve: {
@@ -353,6 +356,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$modalInstance', 'notificationService', 'Feedback', function ($scope, $modalInstance, notificationService, Feedback) {
 
     $scope.model = {};
+    $scope.title = "Submit Feedback"
 
     $scope.formFields = [
                             {
@@ -398,7 +402,7 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
                         ];
 
 
-    $scope.submitFeedback = function() {
+    $scope.submitModalForm = function() {
        console.log($scope.model);
        Feedback.save(JSON.stringify($scope.model), function(data) {
             if(data.error == null){
