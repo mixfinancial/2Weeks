@@ -58,4 +58,4 @@ EXPOSE 8080
 #CMD ["supervisord", "-n"]
 
 ##CMD cd /2Weeks && git pull && newrelic-admin run-program python runserver.py
-CMD cd /2Weeks && git pull && python runserver.py
+CMD cd /2Weeks && git pull && python wsgi.py
