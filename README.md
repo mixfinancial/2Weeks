@@ -42,6 +42,14 @@ Rebuild the Docker image process
 2. 
 
 
+Docker Cleaners 
+Containers
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+Images
+docker rmi $(docker images -q)
+
+
 
 
 Deploying.  
@@ -51,7 +59,11 @@ Deploying.
  
 
 
+Setup of Webservice
+Use Docker offical Nginx Docker Image
+1.  docker run --name mynginx1 -P -d nginx
 
+Nginx 
 
 ### PNOTIFY Info
 

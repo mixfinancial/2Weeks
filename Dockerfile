@@ -18,8 +18,7 @@ RUN apt-get update && apt-get install -y -o Dpkg::Options::="--force-confold" ta
 RUN apt-get install -y -f python python-dev python-distribute python-pip libmysqlclient-dev python2.7-dev
 
 #Install webserver and Web server gateway
-
-#RUN sudo pip install uwsgi
+RUN pip install uwsgi
 
 # install nginx
 run apt-get install -y python-software-properties
@@ -37,8 +36,8 @@ RUN git clone https://github.com/mixfinancial/2Weeks.git
 run echo "daemon off;" >> /etc/nginx/nginx.conf
 run rm /etc/nginx/sites-enabled/default
 RUN rm -v /etc/nginx/nginx.conf
-run ln -s /home/docker/code/nginx-app.conf /etc/nginx/sites-enabled/
-run ln -s /home/docker/code/supervisor-app.conf /etc/supervisor/conf.d/
+run ln -s /2Weeks/cfig/nginx-app.conf /etc/nginx/sites-enabled/
+run ln -s /2Weeks/cfig/supervisor-app.conf /etc/supervisor/conf.d/
 
 # Get pip to download and install requirements:
 RUN pip install -r /2Weeks/requirements.txt
@@ -55,7 +54,7 @@ EXPOSE 8080
 
 # Set the default command to execute when creating a new container
 #CMD ["/usr/sbin/sshd", "-D"] && python twoweeks.py
-#CMD ["supervisord", "-n"]
+CMD ["supervisord", "-n"]
 
 ##CMD cd /2Weeks && git pull && newrelic-admin run-program python runserver.py
-CMD cd /2Weeks && git pull && python wsgi.py
+##CMD cd /2Weeks && git pull && python wsgi.py
