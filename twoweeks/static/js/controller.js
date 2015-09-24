@@ -332,11 +332,12 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
         $scope.me = data.data[0];
      });
 
-
-    $scope.selection = 'general';
+    $scope.selections = [{name:'General', icon:'user'}, {name:'System', icon:'cog'}];
+    $scope.selected = 'General';
 
     $scope.changeSelection = function (name) {
-        $scope.selection = name;
+        console.log(name+" Has been selected");
+        $scope.selected = name;
     };
 }]);
 
