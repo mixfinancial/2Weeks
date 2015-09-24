@@ -57,7 +57,7 @@ Deploying.
 2.  Build a new Docker container
 3.  sudo docker build -t 2weeks. memcached_img .
  
-
+sudo docker run -name 2weeks_cnt -p 80:80 -i -t 2weeks
 
 Setup of Webservice
 Use Docker offical Nginx Docker Image
