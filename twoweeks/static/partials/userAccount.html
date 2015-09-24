@@ -5,21 +5,18 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Settings</h3>
                 </div>
-                <div class="panel-body">
-                    <div class="list-group">
-                      <button ng-repeat="selection in selections" type="button" class="list-group-item" ng-click="changeSelection(selection.name)"><span class="glyphicon glyphicon-{{selection.icon}}"></span>&nbsp;{{selection.name}}</button>
-                    </div>
+                <div class="list-group me-nav">
+                    <button ng-repeat="selection in selections" type="button" class="list-group-item" ng-click="changeSelection(selection.name)"><span class="glyphicon glyphicon-{{selection.icon}}"></span>&nbsp;{{selection.name}}</button>
                 </div>
             </div>
         </div>
-
         <div class="col-sm-10">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{selected}}&nbsp;Settings</h3>
                 </div>
-                <div class="panel-body animate-switch-container" ng-switch on="selected">
-                      <div class="animate-switch" ng-switch-when="General">
+                <div class="panel-body" ng-switch on="selected">
+                      <div class="" ng-switch-when="General">
                           <table class="table table-hover table-bordered">
                                 <tbody>
                                     <tr>
@@ -37,7 +34,7 @@
                                 </tbody>
                             </table>
                       </div>
-                      <div class="animate-switch" ng-switch-when="System">
+                      <div class="" ng-switch-when="System">
                               <table class="table table-hover table-bordered">
                                   <tbody>
                                     <tr>
@@ -51,7 +48,7 @@
                                   </tbody>
                               </table>
                       </div>
-                      <div class="animate-switch" ng-switch-default>
+                      <div class="" ng-switch-default>
                           <table class="table table-hover table-bordered">
                                 <tbody>
                                     <tr>
