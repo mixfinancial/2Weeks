@@ -329,6 +329,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', function($scope, $http, $location, $modal, Me) {
+    $scope.isCollapsed = true;
 
     Me.query(function(data) {
         console.log(data.data[0]);

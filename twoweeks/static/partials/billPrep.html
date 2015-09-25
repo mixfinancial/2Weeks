@@ -7,6 +7,7 @@
                   </div>
                 <div class="panel-body">
                      <h5>Today's Date: {{date | date : 'EEE, MMM d, yyyy'}}</h5>
+                </div>
                     <table id="main_tbl" class="table table-bordered table-hover table-condensed">
                       <thead>
                         <tr>
@@ -32,6 +33,7 @@
                         </tr>
                       </tbody>
                     </table>
+                <div class="panel-body">
                     <div style="text-align:right">
                         <button class="btn btn-success" ng-click="newBill()"><span class="glyphicon glyphicon-plus"></span>&nbsp;Create New Bill</button>
                     </div>

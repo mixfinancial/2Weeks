@@ -1,6 +1,6 @@
 <section class="usersFormPage" ng-controller="userAccountController">
     <div class="row">
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Settings</h3>
@@ -10,61 +10,53 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{selected}}&nbsp;Settings</h3>
                 </div>
                 <div class="panel-body" ng-switch on="selected">
                       <div class="" ng-switch-when="General">
-                          <table class="table table-hover table-bordered">
+                          <table class="table table-hover">
                                 <tbody>
                                     <tr>
-                                        <td class="col-sm-3"><strong>Username</strong></td>
-                                        <td>{{me.username}}</td>
+                                        <td class="col-sm-3 col-xs-2"><strong>Username</strong></td>
+                                        <td>
+                                            {{me.username}}
+                                            <div collapse="isCollapsed">
+                                                <input type="text" ng-model="me.username"/>
+                                            </div>
+                                        </td>
+                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href="" ng-click="isCollapsed = !isCollapsed"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
                                     </tr>
                                     <tr>
-                                        <td class="col-sm-3"><strong>Name</strong></td>
+                                        <td class="col-sm-3 col-xs-2"><strong>Name</strong></td>
                                         <td>{{me.first_name}}&nbsp;{{me.last_name}}</td>
+                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
                                     </tr>
                                     <tr>
-                                        <td class="col-sm-3"><strong>Email Address</strong></td>
+                                        <td class="col-sm-3 col-xs-2"><strong>Email Address</strong></td>
                                         <td>{{me.first_name}}&nbsp;{{me.email}}</td>
+                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
                                     </tr>
                                 </tbody>
                             </table>
                       </div>
                       <div class="" ng-switch-when="System">
-                              <table class="table table-hover table-bordered">
+                              <table class="table table-hover">
                                   <tbody>
                                     <tr>
-                                        <td class="col-sm-3"><strong>Date Created</strong></td>
+                                        <td class="col-sm-3 col-xs-2"><strong>Date Created</strong></td>
                                         <td>{{me.date_created}}</td>
+                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
                                     </tr>
                                     <tr>
-                                        <td class="col-sm-3"><strong>Last Updated</strong></td>
+                                        <td class="col-sm-3 col-xs-2"><strong>Last Updated</strong></td>
                                         <td>{{me.last_updated}}</td>
+                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
                                     </tr>
                                   </tbody>
                               </table>
-                      </div>
-                      <div class="" ng-switch-default>
-                          <table class="table table-hover table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <td class="col-sm-3"><strong>Username</strong></td>
-                                        <td>{{me.username}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-sm-3"><strong>Name</strong></td>
-                                        <td>{{me.first_name}}&nbsp;{{me.last_name}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-sm-3"><strong>Email Address</strong></td>
-                                        <td>{{me.first_name}}&nbsp;{{me.email}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
                       </div>
                 </div>
             </div>
