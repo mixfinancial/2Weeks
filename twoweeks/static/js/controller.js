@@ -329,20 +329,47 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', function($scope, $http, $location, $modal, Me) {
-    $scope.isCollapsed = true;
+    $scope.uNameCollapse = true;
+    $scope.uUserNameCollapse = true;
+    $scope.uPasswordCollapse = true;
+    $scope.uEmailCollapse = true;
 
     Me.query(function(data) {
         console.log(data.data[0]);
         $scope.me = data.data[0];
      });
 
-    $scope.selections = [{name:'General', icon:'user'}, {name:'System', icon:'cog'}];
+    $scope.selections = [{name:'General', icon:'user'}, {name:'Paycheck', icon:'usd'}];
     $scope.selected = 'General';
 
     $scope.changeSelection = function (name) {
         console.log(name+" Has been selected");
         $scope.selected = name;
     };
+
+    $scope.toggleCollapse = function(toggleName){
+         if(toggleName == 'uUserNameCollapse'){
+            $scope.uUserNameCollapse = !$scope.uUserNameCollapse;
+            $scope.uNameCollapse = true;
+            $scope.uPasswordCollapse = true;
+            $scope.uEmailCollapse = true;
+         }else if(toggleName == 'uNameCollapse'){
+            $scope.uUserNameCollapse = true;
+            $scope.uNameCollapse = !$scope.uNameCollapse;
+            $scope.uPasswordCollapse = true;
+            $scope.uEmailCollapse = true;
+         }else if(toggleName == 'uPasswordCollapse'){
+            $scope.uUserNameCollapse = true;
+            $scope.uNameCollapse = true;
+            $scope.uPasswordCollapse = !$scope.uPasswordCollapse;
+            $scope.uEmailCollapse = true;
+         }else if(toggleName == 'uEmailCollapse'){
+            $scope.uUserNameCollapse = true;
+            $scope.uNameCollapse = true;
+            $scope.uPasswordCollapse = true;
+            $scope.uEmailCollapse = !$scope.uEmailCollapse;
+         }
+    }
 }]);
 
 
