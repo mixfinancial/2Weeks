@@ -6,7 +6,7 @@
                     <h3 class="panel-title">Settings</h3>
                 </div>
                 <div class="list-group me-nav">
-                    <button ng-repeat="selection in selections" type="button" class="list-group-item" ng-click="changeSelection(selection.name)"><span class="glyphicon glyphicon-{{selection.icon}}"></span>&nbsp;{{selection.name}}</button>
+                    <button ng-repeat="selection in selections" type="button" class="list-group-item" ng-class="{'active': selected == selection.name}" ng-click="changeSelection(selection.name)"><span class="glyphicon glyphicon-{{selection.icon}}"></span>&nbsp;{{selection.name}}</button>
                 </div>
             </div>
         </div>
