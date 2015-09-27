@@ -328,7 +328,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 
-menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', function($scope, $http, $location, $modal, Me) {
+menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'notificationService', function($scope, $http, $location, $modal, Me, notificationService) {
     $scope.uNameCollapse = true;
     $scope.uUserNameCollapse = true;
     $scope.uPasswordCollapse = true;
@@ -336,7 +336,8 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 
     Me.query(function(data) {
         console.log(data.data[0]);
-        $scope.me = data.data[0];
+        $scope.model = angular.copy(data.data[0]);
+        $scope.me = angular.copy(data.data[0]);
      });
 
     $scope.selections = [{name:'General', icon:'user'}, {name:'Paycheck', icon:'usd'}];
@@ -368,6 +369,84 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             $scope.uNameCollapse = true;
             $scope.uPasswordCollapse = true;
             $scope.uEmailCollapse = !$scope.uEmailCollapse;
+         }else if(!toggleName){
+            $scope.uUserNameCollapse = true;
+            $scope.uNameCollapse = true;
+            $scope.uPasswordCollapse = true;
+            $scope.uEmailCollapse = true;
+         }
+    }
+
+
+
+    $scope.submitForm = function(toggleName){
+         var data = {};
+         data.id = $scope.me.id;
+         if(toggleName == 'uUserNameCollapse'){
+            notificationService.info('uUserNameCollapse');
+            $scope.toggleCollapse(null);
+         }else if(toggleName == 'uNameCollapse'){
+            if($scope.model.first_name != $scope.me.first_name){
+                data.first_name = $scope.model.first_name;
+            }
+            if($scope.model.last_name != $scope.me.last_name){
+                data.last_name = $scope.model.last_name;
+            }
+            Me.put({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    $scope.me.first_name = $scope.model.first_name
+                    $scope.me.last_name = $scope.model.last_name
+                    notificationService.success("User Updated Successfully");
+                    $scope.toggleCollapse(null);
+                }else{
+                    notificationService.error("Error: " + data.error);
+                    $scope.model.first_name = $scope.me.first_name;
+                    $scope.model.last_name = $scope.me.last_name;
+                }
+            }, function(error){
+                console.log(error);
+                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                $scope.model.first_name = $scope.me.first_name;
+                $scope.model.last_name = $scope.me.last_name;
+            });
+         }else if(toggleName == 'uPasswordCollapse'){
+
+            if($scope.model.current_password && $scope.model.new_password && $scope.model.confirm_new_password){
+
+                if($scope.model.new_password != $scope.model.confirm_new_password){
+                    notificationService.error("New password and confirmation do not match");
+                }else if($scope.model.new_password == $scope.model.current_password){
+                    notificationService.error("New password must not be the same as the old password");
+                }else{
+
+                    data.current_password = $scope.model.current_password;
+                    data.new_password = $scope.model.new_password;
+                    data.confirm_new_password = $scope.model.confirm_new_password;
+                    console.log(data);
+                    Me.put({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                        if(data.error == null){
+                            notificationService.success("User Updated Successfully");
+                            $scope.toggleCollapse(null);
+                        }else{
+                            notificationService.error("Error: " + data.error);
+                            $scope.model.first_name = $scope.me.first_name;
+                            $scope.model.last_name = $scope.me.last_name;
+                        }
+                    }, function(error){
+                        console.log(error);
+                        notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                        $scope.model.first_name = $scope.me.first_name;
+                        $scope.model.last_name = $scope.me.last_name;
+                    });
+                }
+
+            }else{
+                notificationService.error("Please make sure all required fields are provided");
+            }
+
+         }else if(toggleName == 'uEmailCollapse'){
+            notificationService.info('uEmailCollapse');
+            $scope.toggleCollapse(null);
          }
     }
 }]);

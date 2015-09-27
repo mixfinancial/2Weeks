@@ -86,7 +86,7 @@ def send_email(subject, recipients, text_body=None, html_body=None):
 # AUTHENTICATION #
 ##################
 app.permanent_session_lifetime = timedelta(minutes=config.PERMANENT_SESSION_LIFETIME)
-
+from werkzeug.security import generate_password_hash
 
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user, login_required
 import base64
@@ -495,19 +495,19 @@ class ApiMe(Resource):
     def put(self, user_id=None):
         app.logger.info('Accessing User.put')
         id = ''
-        username = ''
-        new_password = ''
-        confirm_password = ''
-        email = ''
-        first_name = ''
-        last_name = ''
-        role_id = ''
+        username = None
+        new_password = None
+        current_password = None
+        new_password = None
+        confirm_new_password = None
+        email = None
+        first_name = None
+        last_name = None
 
         if user_id is not None:
             id = user_id
         elif request.args.get('user_id') is not None:
             id = request.args.get('user_id')
-
 
         user = User.query.filter_by(id=user_id).first()
 
@@ -516,32 +516,35 @@ class ApiMe(Resource):
                 app.logger.info('Updating user based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
-                for key,value in data.iteritems():
-                    print key+'-'+str(value)
-                    if key == 'new_password':
-                        new_password = value
-                    if key == 'confirm_password':
-                        confirm_password = value
-                    elif key == 'email':
-                        email = value
-                        username = value
-                        user.username = value
-                        user.email = value
-                    elif key == 'first_name':
-                        first_name = value
-                        user.first_name = value
-                    elif key == 'last_name':
-                        last_name = value
-                        user.last_name = value
+                if data:
+                    for key,value in data.iteritems():
+                        #print key+'-'+str(value)
+                        if key == 'new_password':
+                            new_password = value
+                        elif key == 'current_password':
+                            current_password = value
+                        elif key == 'confirm_new_password':
+                            confirm_new_password = value
+                        elif key == 'email':
+                            email = value
+                            username = value
+                        elif key == 'first_name':
+                            first_name = value
+                        elif key == 'last_name':
+                            last_name = value
+                else:
+                    return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
             elif request_is_form_urlencode():
                 # TODO: Handle nulls
                 app.logger.info('Updating user '+username)
                 requestData = json.loads(request.form['data'])
-                user.username = requestData['email']
-                user.email = requestData['email']
-                user.last_name = requestData['last_name']
-                user.first_name = requestData['first_name']
+                username = requestData['email']
+                email = requestData['email']
+                last_name = requestData['last_name']
+                first_name = requestData['first_name']
                 confirm_password = requestData['confirm_password']
+                new_password = requestData['new_password']
+                current_password = requestData['current_password']
                 password = requestData['password']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
@@ -550,9 +553,44 @@ class ApiMe(Resource):
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
+        #TODO: Prevent Username or Email Change without confirmation token!?!
+
+
+
+        if first_name:
+            user.first_name = first_name;
+        if last_name:
+            user.last_name = last_name;
+
+
+        #Password Change Logic
+        if current_password and new_password and confirm_new_password:
+            app.logger.info('Current Password:'+user.password+', Proposed Password:'+generate_password_hash(new_password))
+            if new_password == confirm_new_password and user.verify_password(current_password) and current_password != new_password:
+                app.logger.info("Everything checks out, creating new password")
+                user.password = generate_password_hash(new_password)
+            elif current_password == new_password:
+                app.logger.info("Your new password must be different than your own password")
+                return {"meta":buildMeta(), "error":"Your new password must be different than your own password"}
+            elif user.verify_password(current_password) == False:
+                app.logger.info("Current password does not match our records. Please try again")
+                return {"meta":buildMeta(), "error":"Current password does not match our records. Please try again"}
+            elif new_password != confirm_new_password:
+                return {"meta":buildMeta(), "error":"New passwords do not match"}
+            else:
+                return {"meta":buildMeta(), "error":"Failed to update Password"}
+            #TODO: ADD LOGIC TO MEET PASSWORD COMPLEXITY REQUIREMENTS
+        elif new_password and not confirm_new_password:
+            return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}
+        elif confirm_new_password and not new_password:
+            return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}
+        elif confirm_password and not confirm_new_password or new_password:
+            return {"meta":buildMeta(), "error":"New Password not provided, ignoring"}
+        elif confirm_password and not confirm_new_password or new_password:
+            return {"meta":buildMeta(), "error":"All required information was not provided to change password"}
 
         db_session.commit()
-        return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id, "data": None}
+        return {"meta":buildMeta(), "data": [user.serialize]}
 
 
     @login_required
