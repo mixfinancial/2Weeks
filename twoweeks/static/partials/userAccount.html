@@ -10,55 +10,114 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-9">
+        <div class="col-sm-9" ng-switch on="selected">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{selected}}&nbsp;Settings</h3>
                 </div>
-                <div class="panel-body" ng-switch on="selected">
-                      <div class="" ng-switch-when="General">
-                          <table class="table table-hover">
-                                <tbody>
-                                    <tr>
-                                        <td class="col-sm-3 col-xs-2"><strong>Username</strong></td>
-                                        <td>
-                                            {{me.username}}
-                                            <div collapse="isCollapsed">
-                                                <input type="text" ng-model="me.username"/>
-                                            </div>
-                                        </td>
-                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href="" ng-click="isCollapsed = !isCollapsed"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-sm-3 col-xs-2"><strong>Name</strong></td>
-                                        <td>{{me.first_name}}&nbsp;{{me.last_name}}</td>
-                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-sm-3 col-xs-2"><strong>Email Address</strong></td>
-                                        <td>{{me.first_name}}&nbsp;{{me.email}}</td>
-                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                      </div>
-                      <div class="" ng-switch-when="System">
-                              <table class="table table-hover">
-                                  <tbody>
-                                    <tr>
-                                        <td class="col-sm-3 col-xs-2"><strong>Date Created</strong></td>
-                                        <td>{{me.date_created}}</td>
-                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="col-sm-3 col-xs-2"><strong>Last Updated</strong></td>
-                                        <td>{{me.last_updated}}</td>
-                                        <td class="centered col-sm-1"><button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button></td>
-                                    </tr>
-                                  </tbody>
-                              </table>
-                      </div>
-                </div>
+                <ul class="list-group me-nav">
+                    <li class="list-group-item" ng-switch-when="General" ng-class="{'settings-form-open' : !isCollapsed, 'settings-form-closed' : isCollapsed}">
+                        <div class="row no-animate"  collapse="!isCollapsed" ng-click="isCollapsed = !isCollapsed">
+                            <div class="col-xs-3 col-md-2"><strong>Username</strong></div>
+                            <div class="col-xs-9 col-md-10">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span style="word-wrap: break-word;">{{me.username}}</span>
+                                    </div>
+                                    <div class="col-xs-3 centered">
+                                        <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row no-animate"  collapse="isCollapsed">
+                            <div class="col-xs-3 col-md-2"><strong>Username</strong></div>
+                            <div class="col-xs-9 col-md-10">
+                                <div class="row">
+                                      <div class="col-xs-12" >
+                                          <form class="form-horizontal">
+                                              <div class="form-group form-group-sm">
+                                                  <label for="username" class="col-md-3 control-label">Change Username:</label>
+                                                  <div class="col-md-6">
+                                                      <input type="text" id="username" class="form-control" ng-model="me.username">
+                                                  </div>
+                                              </div>
+                                              <div class="form-group form-group-sm">
+                                                  <div class="col-sm-offset-2 col-sm-10">
+                                                      <button class="btn btn-xs btn-primary" type="button">Save Changes</button>
+                                                      <button class="btn btn-xs btn-default" type="button" ng-click="isCollapsed = !isCollapsed">Cancel</button>
+                                                </div>
+                                              </div>
+                                          </form>
+                                      </div>
+                                  </div>
+                            </div>
+                        </div>
+                    </li>
+
+                      <li class="list-group-item">
+                          <div class="row">
+                              <div class="col-xs-3 col-md-2"><strong>Name</strong></div>
+                              <div class="col-xs-9 col-md-10">
+                                  <div class="row">
+                                      <div class="col-xs-9">
+                                          <span style="word-wrap: break-word;">{{me.first_name}}&nbsp;{{me.last_name}}</span>
+                                      </div>
+                                      <div class="col-xs-3 centered">
+                                          <button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>
+                      <li class="list-group-item">
+                          <div class="row">
+                              <div class="col-xs-3 col-md-2"><strong>Password</strong></div>
+                              <div class="col-xs-9 col-md-10">
+                                  <div class="row">
+                                      <div class="col-xs-9">
+                                          <span style="word-wrap: break-word;">Password Last changed on xx-xx-xxxx</span>
+                                      </div>
+                                      <div class="col-xs-3 centered">
+                                          <button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>
+                </ul>
+                  <ul class="list-group me-nav" ng-switch-when="System">
+                      <li class="list-group-item">
+                          <div class="row">
+                              <div class="col-xs-3 col-md-2"><strong>Date Created</strong></div>
+                              <div class="col-xs-9 col-md-10">
+                                  <div class="row">
+                                      <div class="col-xs-9">
+                                          <span style="word-wrap: break-word;">{{me.date_created}}</span>
+                                      </div>
+                                      <div class="col-xs-3 centered">
+                                          <button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>
+                      <li class="list-group-item">
+                          <div class="row">
+                              <div class="col-xs-3 col-md-2"><strong>Last Updated</strong></div>
+                              <div class="col-xs-9 col-md-10">
+                                  <div class="row">
+                                      <div class="col-xs-9">
+                                          <span style="word-wrap: break-word;">{{me.last_updated}}</span>
+                                      </div>
+                                      <div class="col-xs-3 centered">
+                                          <button class="btn btn-xs btn-warning" href=""><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>
+                </ul>
             </div>
         </div>
     </div>
