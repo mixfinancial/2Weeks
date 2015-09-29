@@ -32,7 +32,7 @@ RUN pip install uwsgi
 #run apt-get install -y python-software-properties
 RUN apt-get install -y software-properties-common python-software-properties
 RUN add-apt-repository ppa:nginx/stable
-#RUN apt-get install libmysqlclient-dev
+RUN apt-get install libmysqlclient-dev
 
 # Set up DevUser
 RUN useradd dlkrbd -u 1000 -s /bin/bash --no-create-home
