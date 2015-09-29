@@ -98,8 +98,8 @@ dbServices.factory('Bill', ['$resource',
     return $resource('/api/bill/:billId', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{billId:'billId'}, isArray:false},
-      'save': {method:'POST', params:{billId:'billId'}, isArray:false},
-      'put': {method:'PUT', isArray:false},
+      'create': {method:'POST', params:{billId:'billId'}, isArray:false},
+      'update': {method:'PUT', isArray:false},
       'delete': {method:'DELETE', isArray:false}
     });
   }]);
@@ -109,8 +109,7 @@ dbServices.factory('Me', ['$resource',
     return $resource('/api/me/:userId', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
-      'save': {method:'POST', isArray:false},
-      'put': {method:'PUT', isArray:false}
+      'update': {method:'PUT', isArray:false}
     });
   }]);
 
@@ -142,6 +141,6 @@ feedbackServices.factory('Feedback', ['$resource',
     return $resource('/api/feedback/', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
-      'save': {method:'POST', isArray:false}
+      'create': {method:'POST', isArray:false}
     });
   }]);

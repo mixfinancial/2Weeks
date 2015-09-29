@@ -540,7 +540,7 @@ class ApiMe(Resource):
                 email = requestData['email']
                 last_name = requestData['last_name']
                 first_name = requestData['first_name']
-                confirm_password = requestData['confirm_password']
+                confirm_new_password = requestData['confirm_new_password']
                 new_password = requestData['new_password']
                 current_password = requestData['current_password']
                 password = requestData['password']
@@ -582,9 +582,9 @@ class ApiMe(Resource):
             return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}
         elif confirm_new_password and not new_password:
             return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}
-        elif confirm_password and not confirm_new_password or new_password:
+        elif current_password and not confirm_new_password or new_password:
             return {"meta":buildMeta(), "error":"New Password not provided, ignoring"}
-        elif confirm_password and not confirm_new_password or new_password:
+        elif current_password and not confirm_new_password or new_password:
             return {"meta":buildMeta(), "error":"All required information was not provided to change password"}
 
         db_session.commit()
@@ -742,46 +742,63 @@ class ApiBill(Resource):
                 app.logger.info('Updating bill based upon JSON Request')
                 print json.dumps(request.get_json())
                 data = request.get_json()
-                for key,value in data.iteritems():
-                    print key+'-'+str(value)
-                    if key == 'name':
-                        bill.name = value
-                    if key == 'description':
-                        bill.description = value
-                    elif key == 'due_date':
-                        bill.due_date = value
-                    elif key == 'billing_period':
-                        bill.billing_period = value
-                    elif key == 'total_due':
-                        bill.total_due = value
-                    elif key == 'paid_flag':
-                        bill.paid_flag = value
-                    elif key == 'paid_date':
-                        bill.paid_date = value
-                    elif key == 'check_number':
-                        bill.check_number = value
-                    elif key == 'payment_type':
-                        bill.payment_type = value
+                if data:
+                    for key,value in data.iteritems():
+                        #print key+'-'+str(value)
+                        if key == 'name':
+                            name = value
+                        if key == 'description':
+                            description = value
+                        elif key == 'due_date':
+                            due_date = value
+                        elif key == 'billing_period':
+                            billing_period = value
+                        elif key == 'total_due':
+                            total_due = value
+                        elif key == 'paid_flag':
+                            paid_flag = value
+                        elif key == 'paid_date':
+                            paid_date = value
+                        elif key == 'check_number':
+                            check_number = value
+                        elif key == 'payment_type':
+                            payment_type = value
             elif request_is_form_urlencode():
                 app.logger.info('Updating bill #'+bill_id)
                 requestData = json.loads(request.form['data'])
 
-                bill.name = requestData['name']
-                bill.description = requestData['description']
-                bill.due_date = requestData['due_date']
-                bill.billing_period = requestData['billing_period']
-                bill.total_due = requestData['total_due']
-                bill.paid_flag = requestData['paid_flag']
-                bill.paid_date = requestData['paid_date']
-                bill.check_number = requestData['check_number']
-                bill.payment_type = requestData['payment_type']
+                name = requestData['name']
+                description = requestData['description']
+                due_date = requestData['due_date']
+                billing_period = requestData['billing_period']
+                total_due = requestData['total_due']
+                paid_flag = requestData['paid_flag']
+                paid_date = requestData['paid_date']
+                check_number = requestData['check_number']
+                payment_type = requestData['payment_type']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
         else:
             return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
 
-        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
-
+        if name:
+            bill.name = name
+        if description:
+            bill.description = description
+        if due_date:
+            bill.due_date = due_date
+        if billing_period:
+            bill.billing_period = billing_period
+        if total_due:
+            bill.total_due = total_due
+        if paid_flag:
+            bill.paid_flag = paid_flag
+        if paid_date:
+            bill.paid_date = paid_date
+        if check_number:
+            bill.check_number = check_number
+        if payment_type:
+            bill.payment_type = payment_type
 
         if bill.name is None or bill.name =='' or not bill.name:
             return {"meta":buildMeta(), "error":"Name is required", "data":None}

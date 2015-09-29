@@ -162,7 +162,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
         var data = $scope.model;
         if(action == "edit"){
            //console.log(data);
-           Bill.put({billId: data.id}, JSON.stringify(data), function(data) {
+           Bill.update({billId: data.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     data.data.due_date = new Date(data.data.due_date);
                     data.data.total_due = parseFloat(data.data.total_due);
@@ -178,7 +178,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                });
         }else{
            console.log(data);
-           Bill.save(JSON.stringify(data), function(data) {
+           Bill.create(JSON.stringify(data), function(data) {
                 if(data.error == null){
                     console.log(data.data);
                     data.data.due_date = new Date(data.data.due_date);
@@ -392,7 +392,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             if($scope.model.last_name != $scope.me.last_name){
                 data.last_name = $scope.model.last_name;
             }
-            Me.put({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+            Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     $scope.me.first_name = $scope.model.first_name
                     $scope.me.last_name = $scope.model.last_name
@@ -423,7 +423,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                     data.new_password = $scope.model.new_password;
                     data.confirm_new_password = $scope.model.confirm_new_password;
                     console.log(data);
-                    Me.put({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                    Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                         if(data.error == null){
                             notificationService.success("User Updated Successfully");
                             $scope.toggleCollapse(null);
@@ -511,7 +511,7 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
 
     $scope.submitModalForm = function() {
        console.log($scope.model);
-       Feedback.save(JSON.stringify($scope.model), function(data) {
+       Feedback.create(JSON.stringify($scope.model), function(data) {
             if(data.error == null){
                 $modalInstance.close();
                 notificationService.success("Thank you for your feedback!");
