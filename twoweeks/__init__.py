@@ -8,8 +8,6 @@ import twoweeks.config as config
 from datetime import timedelta
 
 
-
-
 ######################
 # BASE CONFIGURATION #
 ######################

@@ -10,8 +10,7 @@ All required Python libraries can be installed by leveraging the included requir
     
 Run newrelic-admin run-program python runserver.py
 
-
-    
+  
     
     
  ## Testing
@@ -55,9 +54,9 @@ docker rmi $(docker images -q)
 Deploying.  
 1.  SSH into Dockerbase
 2.  Build a new Docker container
-3.  sudo docker build -t 2weeks. memcached_img .
- 
-sudo docker run -name 2weeks_cnt -p 80:80 -i -t 2weeks
+3.  sudo docker build --rm -t 2weeks .
+4.  Run the container
+5.  sudo docker run -name 2weeks_cnt -p 80:80 -i -t 2weeks
 
 Setup of Webservice
 Use Docker offical Nginx Docker Image
