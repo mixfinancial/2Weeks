@@ -24,7 +24,7 @@ RUN easy_install pip
 
 # Install Python and Basic Python Tools
 RUN apt-get install -y -f python python-dev python-distribute python-pip python2.7-dev
-RUN apt-get install -y -f libmysqlclient-dev mysql-connector-python
+RUN apt-get install -y -f libmysqlclient-dev
 
 #Install webserver and Web server gateway
 RUN pip install uwsgi
