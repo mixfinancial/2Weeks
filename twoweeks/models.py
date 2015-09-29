@@ -135,7 +135,13 @@ class User(Base, UserMixin):
     bill = relationship("Bill")
 
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
-    pay_recurrance_flag = Column(String(1), default="W");
+
+    #TODO: This needs to be changed to an Indicator...
+    #W: Weekly
+    #B: Bi-Weekly
+    #T: Twice Monthly (1st/15th)
+    #M Monthly
+    pay_recurrance_flag = Column(String(1), default="B");
 
 
 

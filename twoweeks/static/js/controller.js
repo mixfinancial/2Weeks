@@ -333,11 +333,33 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
     $scope.uUserNameCollapse = true;
     $scope.uPasswordCollapse = true;
     $scope.uEmailCollapse = true;
+    $scope.uNextPayDate = true;
+    $scope.uPayRecurrence = true;
+
+    $scope.uPayRecurrenceSelectOptions = [
+            {id: '1', value: "W",  name: 'Weekly'},
+            {id: '2', value: "B",  name: 'Bi-Weekly'},
+            {id: '3', value: "T",  name: 'Twice Monthly'},
+            {id: '4', value: "M",  name: 'Monthly'}
+        ];
+
 
     Me.query(function(data) {
         console.log(data.data[0]);
         $scope.model = angular.copy(data.data[0]);
         $scope.me = angular.copy(data.data[0]);
+        $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
+        $scope.model.next_pay_date = $scope.me.next_pay_date;
+
+        if ($scope.me.pay_recurrance_flag == "W"){
+            $scope.model.selectedOption = {id: '1', value: "W",  name: 'Weekly'};
+        }else if ($scope.me.pay_recurrance_flag =="B"){
+            $scope.model.selectedOption = {id: '2', value: "B",  name: 'Bi-Weekly'};
+        }else if ($scope.me.pay_recurrance_flag =="T"){
+            $scope.model.selectedOption = {id: '3', value: "T",  name: 'Twice Monthly'};
+        }else if ($scope.me.pay_recurrance_flag =="M"){
+            $scope.model.selectedOption = {id: '4', value: "M",  name: 'Monthly'};
+        }
      });
 
     $scope.selections = [{name:'General', icon:'user'}, {name:'Paycheck', icon:'usd'}];
@@ -345,36 +367,63 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 
     $scope.changeSelection = function (name) {
         console.log(name+" Has been selected");
+
+        //Collapse all General tabs
+        $scope.uUserNameCollapse = true;
+        $scope.uNameCollapse = true;
+        $scope.uPasswordCollapse = true;
+        $scope.uEmailCollapse = true;
+
+        //Collapse all Paycheck tabs
+        $scope.uNextPayDate = true;
+        $scope.uPayRecurrence = true;
+
+        //Collapse all Paycheck tabs
         $scope.selected = name;
     };
 
     $scope.toggleCollapse = function(toggleName){
-         if(toggleName == 'uUserNameCollapse'){
-            $scope.uUserNameCollapse = !$scope.uUserNameCollapse;
-            $scope.uNameCollapse = true;
-            $scope.uPasswordCollapse = true;
-            $scope.uEmailCollapse = true;
-         }else if(toggleName == 'uNameCollapse'){
-            $scope.uUserNameCollapse = true;
-            $scope.uNameCollapse = !$scope.uNameCollapse;
-            $scope.uPasswordCollapse = true;
-            $scope.uEmailCollapse = true;
-         }else if(toggleName == 'uPasswordCollapse'){
-            $scope.uUserNameCollapse = true;
-            $scope.uNameCollapse = true;
-            $scope.uPasswordCollapse = !$scope.uPasswordCollapse;
-            $scope.uEmailCollapse = true;
-         }else if(toggleName == 'uEmailCollapse'){
-            $scope.uUserNameCollapse = true;
-            $scope.uNameCollapse = true;
-            $scope.uPasswordCollapse = true;
-            $scope.uEmailCollapse = !$scope.uEmailCollapse;
-         }else if(!toggleName){
-            $scope.uUserNameCollapse = true;
-            $scope.uNameCollapse = true;
-            $scope.uPasswordCollapse = true;
-            $scope.uEmailCollapse = true;
-         }
+        if ($scope.selected == "General"){
+            if(toggleName == 'uUserNameCollapse'){
+                $scope.uUserNameCollapse = !$scope.uUserNameCollapse;
+                $scope.uNameCollapse = true;
+                $scope.uPasswordCollapse = true;
+                $scope.uEmailCollapse = true;
+            }else if(toggleName == 'uNameCollapse'){
+                $scope.uUserNameCollapse = true;
+                $scope.uNameCollapse = !$scope.uNameCollapse;
+                $scope.uPasswordCollapse = true;
+                $scope.uEmailCollapse = true;
+            }else if(toggleName == 'uPasswordCollapse'){
+                $scope.uUserNameCollapse = true;
+                $scope.uNameCollapse = true;
+                $scope.uPasswordCollapse = !$scope.uPasswordCollapse;
+                $scope.uEmailCollapse = true;
+            }else if(toggleName == 'uEmailCollapse'){
+                $scope.uUserNameCollapse = true;
+                $scope.uNameCollapse = true;
+                $scope.uPasswordCollapse = true;
+                $scope.uEmailCollapse = !$scope.uEmailCollapse;
+            }else if(toggleName == 'uPayRecurrence'){
+                $scope.uPayRecurrence = !$scope.uPayRecurrence;
+            }else if(!toggleName){
+                $scope.uUserNameCollapse = true;
+                $scope.uNameCollapse = true;
+                $scope.uPasswordCollapse = true;
+                $scope.uEmailCollapse = true;
+            }
+        }else if ($scope.selected == "Paycheck"){
+            if(toggleName == 'uPayRecurrence'){
+                $scope.uPayRecurrence = !$scope.uPayRecurrence;
+                $scope.uNextPayDate = true;
+            }else if(toggleName == 'uNextPayDate'){
+                $scope.uPayRecurrence = true;
+                $scope.uNextPayDate = !$scope.uNextPayDate;
+            }else if(!toggleName){
+                $scope.uPayRecurrence = true;
+                $scope.uNextPayDate = true;
+            }
+        }
     }
 
 
@@ -447,6 +496,45 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
          }else if(toggleName == 'uEmailCollapse'){
             notificationService.info('uEmailCollapse');
             $scope.toggleCollapse(null);
+         }else if(toggleName == 'uPayRecurrence'){
+            $scope.model.pay_recurrance_flag = $scope.model.selectedOption.value;
+            if($scope.model.pay_recurrance_flag != $scope.me.pay_recurrance_flag){
+                data.pay_recurrance_flag = $scope.model.pay_recurrance_flag;
+            }
+            Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    $scope.me.pay_recurrance_flag = $scope.model.pay_recurrance_flag
+                    notificationService.success("User Updated Successfully");
+                    $scope.toggleCollapse(null);
+                }else{
+                    notificationService.error("Error: " + data.error);
+                    //TODO: Add logic to revert option to current
+                    $scope.model.pay_recurrance_flag = $scope.me.pay_recurrance_flag;
+                }
+            }, function(error){
+                console.log(error);
+                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                $scope.model.pay_recurrance_flag = $scope.me.pay_recurrance_flag;
+            });
+         }else if(toggleName == 'uNextPayDate'){
+            if($scope.model.next_pay_date != $scope.me.next_pay_date){
+                data.next_pay_date = $scope.model.next_pay_date;
+            }
+            Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    $scope.me.next_pay_date = $scope.model.next_pay_date
+                    notificationService.success("User Updated Successfully");
+                    $scope.toggleCollapse(null);
+                }else{
+                    notificationService.error("Error: " + data.error);
+                    //TODO: Add logic to revert option to current
+                    $scope.model.next_pay_date = $scope.me.next_pay_date;
+                }
+            }, function(error){
+                console.log(error);
+                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                $scope.model.next_pay_date = $scope.me.next_pay_date;
+            });
          }
     }
 }]);

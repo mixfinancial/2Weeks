@@ -502,6 +502,14 @@ class ApiMe(Resource):
         first_name = None
         last_name = None
 
+
+        next_pay_date = None
+        pay_recurrance_flag = None
+
+
+
+
+
         if user_id is not None:
             id = user_id
         elif request.args.get('user_id') is not None:
@@ -530,6 +538,10 @@ class ApiMe(Resource):
                             first_name = value
                         elif key == 'last_name':
                             last_name = value
+                        elif key == 'next_pay_date':
+                            next_pay_date = value
+                        elif key == 'pay_recurrance_flag':
+                            pay_recurrance_flag = value
                 else:
                     return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
             elif request_is_form_urlencode():
@@ -544,6 +556,8 @@ class ApiMe(Resource):
                 new_password = requestData['new_password']
                 current_password = requestData['current_password']
                 password = requestData['password']
+                next_pay_date = requestData['next_pay_date']
+                pay_recurrance_flag = requestData['pay_recurrance_flag']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
@@ -559,6 +573,12 @@ class ApiMe(Resource):
             user.first_name = first_name;
         if last_name:
             user.last_name = last_name;
+        if pay_recurrance_flag:
+            user.pay_recurrance_flag = pay_recurrance_flag;
+        if next_pay_date:
+            user.next_pay_date = next_pay_date;
+
+
 
 
         #Password Change Logic
