@@ -7,11 +7,10 @@ Flask-login
 Flask-Mail
 Flask-RESTful
 sqlalchemy-migrate
-MySQL-Python
 pylint
 selenium
 werkzeug
 coverage
 newrelic
 uwsgi
-cherrypy
+MySQL-Python
