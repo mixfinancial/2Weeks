@@ -23,8 +23,8 @@ RUN easy_install pip
 ##RUN apt-get install -y -o Dpkg::Options::="--force-confold" tar curl nano wget dialog nginx supervisor net-tools libxml2-dev libxslt1-dev
 
 # Install Python and Basic Python Tools
-#RUN apt-get install -y -f python python-dev python-distribute python-pip python2.7-dev
-#RUN apt-get install -y -f libmysqlclient-dev
+RUN apt-get install -y -f python python-dev python-distribute python-pip python2.7-dev
+RUN apt-get install -y -f libmysqlclient-dev mysql-connector-python
 
 #Install webserver and Web server gateway
 RUN pip install uwsgi
