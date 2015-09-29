@@ -56,7 +56,11 @@ Deploying.
 2.  Build a new Docker container
 3.  sudo docker build --rm -t 2weeks --no-cache .
 4.  Run the container
-5.  sudo docker run -name 2weeks_cnt -p 80:80 -i -t 2weeks
+5.  sudo docker run --name 2weeks_cnt -p 80:80 -i -t 2weeks:latest
+
+5a. Check container
+    sudo docker run -t -i 2weeks:latest /bin/bash
+
 
 Setup of Webservice
 Use Docker offical Nginx Docker Image
