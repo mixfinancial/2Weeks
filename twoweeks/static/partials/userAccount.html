@@ -269,6 +269,45 @@
                             </div>
                         </div>
                     </li><!-- END NEXT PAY DATE SECTION -->
+
+                    <li class="list-group-item" ng-class="{'settings-form-open' : !uAveragePaycheckAmount, 'settings-form-closed' : uAveragePaycheckAmount}">
+                        <div class="row no-animate"  collapse="!uAveragePaycheckAmount" ng-click="toggleCollapse('uAveragePaycheckAmount')">
+                            <div class="col-xs-3 col-md-2"><strong>Paycheck Amount</strong></div>
+                            <div class="col-xs-9 col-md-10">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <span style="word-wrap: break-word;">{{model.average_paycheck_amount | number:2}}</span>
+                                    </div>
+                                    <div class="col-xs-3 centered">
+                                        <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row no-animate"  collapse="uAveragePaycheckAmount">
+                            <div class="col-xs-3 col-md-2"><strong>Paycheck Amount</strong></div>
+                            <div class="col-xs-9 col-md-10">
+                                <div class="row">
+                                    <div class="col-xs-12" >
+                                        <form class="form-horizontal">
+                                            <div class="form-group form-group-sm">
+                                                <label for="first_name" class="col-sm-3 control-label">How much are you paid on Average?</label>
+                                                <div class="col-sm-5">
+                                                    <input type="number" id="average_paycheck_amount" class="form-control" ng-model="model.average_paycheck_amount">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-group-sm">
+                                                <div class="col-sm-offset-2 col-sm-10">
+                                                    <button class="btn btn-xs btn-primary" type="button" ng-click="submitForm('uAveragePaycheckAmount')">Save Changes</button>
+                                                    <button class="btn btn-xs btn-default" type="button" ng-click="toggleCollapse('uAveragePaycheckAmount')">Cancel</button>
+                                                </div>
+                                            </div>
+                                          </form>
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li><!-- END AVERAGE PAYCHECK AMOUNT SECTION -->
                 </ul>
             </div>
         </div>

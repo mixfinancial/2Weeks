@@ -335,6 +335,9 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
     $scope.uEmailCollapse = true;
     $scope.uNextPayDate = true;
     $scope.uPayRecurrence = true;
+    $scope.uAveragePaycheckAmount = true;
+
+
 
     $scope.uPayRecurrenceSelectOptions = [
             {id: '1', value: "W",  name: 'Weekly'},
@@ -342,7 +345,6 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             {id: '3', value: "T",  name: 'Twice Monthly'},
             {id: '4', value: "M",  name: 'Monthly'}
         ];
-
 
     Me.query(function(data) {
         console.log(data.data[0]);
@@ -377,6 +379,8 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
         //Collapse all Paycheck tabs
         $scope.uNextPayDate = true;
         $scope.uPayRecurrence = true;
+        $scope.uAveragePaycheckAmount = true;
+
 
         //Collapse all Paycheck tabs
         $scope.selected = name;
@@ -404,8 +408,6 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 $scope.uNameCollapse = true;
                 $scope.uPasswordCollapse = true;
                 $scope.uEmailCollapse = !$scope.uEmailCollapse;
-            }else if(toggleName == 'uPayRecurrence'){
-                $scope.uPayRecurrence = !$scope.uPayRecurrence;
             }else if(!toggleName){
                 $scope.uUserNameCollapse = true;
                 $scope.uNameCollapse = true;
@@ -416,12 +418,19 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             if(toggleName == 'uPayRecurrence'){
                 $scope.uPayRecurrence = !$scope.uPayRecurrence;
                 $scope.uNextPayDate = true;
+                $scope.uAveragePaycheckAmount = true;
             }else if(toggleName == 'uNextPayDate'){
                 $scope.uPayRecurrence = true;
                 $scope.uNextPayDate = !$scope.uNextPayDate;
+                $scope.uAveragePaycheckAmount = true
+            }else if(toggleName == 'uAveragePaycheckAmount'){
+                $scope.uPayRecurrence = true;
+                $scope.uNextPayDate = true
+                $scope.uAveragePaycheckAmount = !$scope.uAveragePaycheckAmount;
             }else if(!toggleName){
                 $scope.uPayRecurrence = true;
                 $scope.uNextPayDate = true;
+                $scope.uAveragePaycheckAmount = true;
             }
         }
     }
@@ -534,6 +543,25 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 console.log(error);
                 notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.next_pay_date = $scope.me.next_pay_date;
+            });
+         }else if(toggleName == 'uAveragePaycheckAmount'){
+            if($scope.model.average_paycheck_amount != $scope.me.average_paycheck_amount){
+                data.average_paycheck_amount = $scope.model.average_paycheck_amount;
+            }
+            Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
+                if(data.error == null){
+                    $scope.me.average_paycheck_amount = $scope.model.average_paycheck_amount
+                    notificationService.success("User Updated Successfully");
+                    $scope.toggleCollapse(null);
+                }else{
+                    notificationService.error("Error: " + data.error);
+                    //TODO: Add logic to revert option to current
+                    $scope.model.average_paycheck_amount = $scope.me.average_paycheck_amount;
+                }
+            }, function(error){
+                console.log(error);
+                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                $scope.model.average_paycheck_amount = $scope.me.average_paycheck_amount;
             });
          }
     }

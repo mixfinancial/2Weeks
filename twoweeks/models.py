@@ -143,7 +143,7 @@ class User(Base, UserMixin):
     #M Monthly
     pay_recurrance_flag = Column(String(1), default="B");
 
-    average_paycheck_amoount = Column(Float(2), default="0");
+    average_paycheck_amount = Column(Float(2), default="0");
 
 
 
@@ -167,8 +167,8 @@ class User(Base, UserMixin):
                 role_id = value
             elif key=="active":
                 active = value
-            elif key=="average_paycheck_amoount":
-                self.average_paycheck_amoount = value
+            elif key=="average_paycheck_amount":
+                self.average_paycheck_amount = value
             elif key=="pay_recurrance_flag":
                 self.pay_recurrance_flag = value
             elif key=="next_pay_date":
@@ -218,20 +218,21 @@ class User(Base, UserMixin):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'                : 'users',
-           'id'                  : self.id,
-           'username'            : self.username,
-           'email'               : self.email,
-           #'password'            : self.password,
-           'first_name'          : self.first_name,
-           'last_name'           : self.last_name,
-           'active'              : self.active,
-           'role_id'             : self.role_id,
-           'confirmed_at'        : self.confirmed_at,
-           'next_pay_date'       : dump_datetime(self.next_pay_date),
-           'pay_recurrance_flag' : self.pay_recurrance_flag,
-           'date_created'        : dump_datetime(self.date_created),
-           'last_updated'        : dump_datetime(self.last_updated)
+           'type'                    : 'users',
+           'id'                      : self.id,
+           'username'                : self.username,
+           'email'                   : self.email,
+           #'password'               : self.password,
+           'first_name'              : self.first_name,
+           'last_name'               : self.last_name,
+           'active'                  : self.active,
+           'role_id'                 : self.role_id,
+           'confirmed_at'            : self.confirmed_at,
+           'next_pay_date'           : dump_datetime(self.next_pay_date),
+           'pay_recurrance_flag'     : self.pay_recurrance_flag,
+           'average_paycheck_amount' : self.average_paycheck_amount,
+           'date_created'            : dump_datetime(self.date_created),
+           'last_updated'            : dump_datetime(self.last_updated)
        }
 
     @property
