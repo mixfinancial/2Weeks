@@ -143,6 +143,8 @@ class User(Base, UserMixin):
     #M Monthly
     pay_recurrance_flag = Column(String(1), default="B");
 
+    average_paycheck_amoount = Column(Float(2), default="0");
+
 
 
 
@@ -165,6 +167,12 @@ class User(Base, UserMixin):
                 role_id = value
             elif key=="active":
                 active = value
+            elif key=="average_paycheck_amoount":
+                self.average_paycheck_amoount = value
+            elif key=="pay_recurrance_flag":
+                self.pay_recurrance_flag = value
+            elif key=="next_pay_date":
+                self.next_pay_date = value
 
 
         self.role_id = role_id

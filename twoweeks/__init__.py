@@ -503,6 +503,7 @@ class ApiMe(Resource):
         last_name = None
 
 
+        average_paycheck_amount = None
         next_pay_date = None
         pay_recurrance_flag = None
 
@@ -542,6 +543,8 @@ class ApiMe(Resource):
                             next_pay_date = value
                         elif key == 'pay_recurrance_flag':
                             pay_recurrance_flag = value
+                        elif key == 'average_paycheck_amount':
+                            average_paycheck_amount = value
                 else:
                     return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
             elif request_is_form_urlencode():
@@ -558,6 +561,7 @@ class ApiMe(Resource):
                 password = requestData['password']
                 next_pay_date = requestData['next_pay_date']
                 pay_recurrance_flag = requestData['pay_recurrance_flag']
+                average_paycheck_amount = requestData['average_paycheck_amount']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
@@ -577,8 +581,8 @@ class ApiMe(Resource):
             user.pay_recurrance_flag = pay_recurrance_flag;
         if next_pay_date:
             user.next_pay_date = next_pay_date;
-
-
+        if average_paycheck_amount:
+            user.average_paycheck_amount = average_paycheck_amount
 
 
         #Password Change Logic
@@ -615,39 +619,64 @@ class ApiMe(Resource):
     def post(self, user_id=None):
         app.logger.info('Accessing User.post')
 
-        username = ''
-        password = ''
-        confirm_password = ''
-        email = ''
-        first_name = ''
-        last_name = ''
-        role_id = ''
+        id = ''
+        username = None
+        new_password = None
+        current_password = None
+        new_password = None
+        confirm_new_password = None
+        email = None
+        first_name = None
+        last_name = None
+
+
+        average_paycheck_amount = None
+        next_pay_date = None
+        pay_recurrance_flag = None
 
         if request_is_json():
-            app.logger.info('Creating new user based upon JSON Request')
+            app.logger.info('Updating user based upon JSON Request')
             print json.dumps(request.get_json())
             data = request.get_json()
-            for key,value in data.iteritems():
-                print key+'-'+str(value)
-                if key == 'password':
-                    password = value
-                if key == 'confirm_password':
-                    confirm_password = value
-                elif key == 'email':
-                    username = value
-                    email = value
-                elif key == 'first_name':
-                    first_name = value
-                elif key == 'last_name':
-                    last_name = value
+            if data:
+                for key,value in data.iteritems():
+                    #print key+'-'+str(value)
+                    if key == 'new_password':
+                        new_password = value
+                    elif key == 'current_password':
+                        current_password = value
+                    elif key == 'confirm_new_password':
+                        confirm_new_password = value
+                    elif key == 'email':
+                        email = value
+                        username = value
+                    elif key == 'first_name':
+                        first_name = value
+                    elif key == 'last_name':
+                        last_name = value
+                    elif key == 'next_pay_date':
+                        next_pay_date = value
+                    elif key == 'pay_recurrance_flag':
+                        pay_recurrance_flag = value
+                    elif key == 'average_paycheck_amount':
+                        average_paycheck_amount = value
+            else:
+                return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            # TODO: Handle nulls
+            app.logger.info('Updating user '+username)
             requestData = json.loads(request.form['data'])
             username = requestData['email']
             email = requestData['email']
             last_name = requestData['last_name']
             first_name = requestData['first_name']
-            confirm_password = requestData['confirm_password']
+            confirm_new_password = requestData['confirm_new_password']
+            new_password = requestData['new_password']
+            current_password = requestData['current_password']
+            password = requestData['password']
+            next_pay_date = requestData['next_pay_date']
+            pay_recurrance_flag = requestData['pay_recurrance_flag']
+            average_paycheck_amount = requestData['average_paycheck_amount']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
