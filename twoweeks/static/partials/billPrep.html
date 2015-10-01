@@ -1,19 +1,33 @@
 <section class="usersFormPage" ng-controller="billFormController">
     <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <h5>Today's Date: {{date | date : 'EEE, MMM d, yyyy'}}</h5>
+                        </div>
+                        <div class="col-xs-4">
+                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak>Bills due before the next paycheck: ${{dueBeforeNextPaycheck(bills,me) | number:2}}</h5>
+                            <h5 ng-cloak>Bills due in the next 30 days: ${{dueBeforeNext30(bills,me) | number:2}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-sm-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Upcoming Bills</h3>
                   </div>
-                <div class="panel-body">
-                     <h5>Today's Date: {{date | date : 'EEE, MMM d, yyyy'}}</h5>
-                </div>
                     <table id="main_tbl" class="table table-bordered table-hover table-condensed">
                       <thead>
                         <tr>
                             <th>Name</th>
                             <th class="hidden-xs hidden-sm hidden-md" >Due Date</th>
-                            <th>Days <span class="hidden-xs hidden-sm">Till Due</span></th>
+                            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1 centered">&nbsp;</th>
                             <th>Amount</th>
                             <th>Action</th>
                         </tr>
@@ -22,7 +36,9 @@
                         <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id" ng-class="{'danger':differenceInDays(bill.due_date) < 7, 'warning':differenceInDays(bill.due_date) < 14 }">
                             <td ng-click="editBill(bill)">{{bill.name}}</td>
                             <td class="hidden-xs hidden-sm hidden-md" ng-click="editBill(bill)">{{bill.due_date | date : 'EEE, MMM d, yyyy'}}</td>
-                            <td style="text-align: right;" ng-click="editBill(bill)">{{differenceInDays(bill.due_date) | number:0}}</td>
+                            <td class="centered" ng-click="editBill(bill)">
+                                <span class="label" ng-class="{'label-danger':differenceInDays(bill.due_date) < 7, 'label-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'label-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
+                            </td>
                             <td style="text-align: right;" ng-click="editBill(bill)">${{bill.total_due | number:2}}</td>
                             <td class="centered">
                                 <p class="list-group-item-text centered">

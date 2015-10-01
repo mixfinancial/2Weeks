@@ -9,9 +9,15 @@ var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 /***********************
 * BILL PREP CONTROLLER *
 ************************/
-billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal) {
+billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', 'Me', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal, Me) {
     $scope.date = new Date();
     $scope.animationsEnabled = true
+
+
+
+
+
+
 
     $scope.editBill = function (index) {
         //console.log(index);
@@ -58,13 +64,47 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     //Convert dates in the bills array
     var log = [];
-    Bill.query(function(data) {
-        $scope.bills = data.data;
-        angular.forEach($scope.bills,function(value,index){
-            $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
-            $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
-        });
+
+    Me.query(function(data) {
+        $scope.me = angular.copy(data.data[0]);
+        $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
+
+         Bill.query(function(data) {
+            $scope.bills = data.data;
+            angular.forEach($scope.bills,function(value,index){
+                $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
+                $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
+
+                $scope.dueBeforeNextPaycheck = function() {
+                var total = 0;
+                for(var i = 0; i < $scope.bills.length; i++){
+                    if ($scope.bills[i].due_date.getTime() < $scope.me.next_pay_date.getTime()){
+                        if($scope.bills[i].total_due){
+                            total += $scope.bills[i].total_due;
+                        }
+                    }
+                }
+                return total;
+                };
+
+
+                $scope.dueBeforeNext30 = function() {
+                var total = 0;
+                for(var i = 0; i < $scope.bills.length; i++){
+                    if ($scope.differenceInDays($scope.bills[i].due_date) < 30){
+                        if($scope.bills[i].total_due){
+                            total += $scope.bills[i].total_due;
+                        }
+                    }
+                }
+                return total;
+                };
+
+            });
+         });
+
      });
+
 
     $scope.submit = function() {
        var data = $scope.bill;
@@ -92,8 +132,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         var days = millisBetween / millisecondsPerDay
         return Math.floor(days);
     };
-
-
 }]);
 
 
