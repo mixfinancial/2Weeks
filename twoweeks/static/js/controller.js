@@ -337,14 +337,13 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
     $scope.uPayRecurrence = true;
     $scope.uAveragePaycheckAmount = true;
 
-
-
     $scope.uPayRecurrenceSelectOptions = [
             {id: '1', value: "W",  name: 'Weekly'},
             {id: '2', value: "B",  name: 'Bi-Weekly'},
             {id: '3', value: "T",  name: 'Twice Monthly'},
             {id: '4', value: "M",  name: 'Monthly'}
         ];
+
 
     Me.query(function(data) {
         console.log(data.data[0]);
@@ -355,12 +354,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 
         if ($scope.me.pay_recurrance_flag == "W"){
             $scope.model.selectedOption = {id: '1', value: "W",  name: 'Weekly'};
+            $scope.me.selectedOption = {id: '1', value: "W",  name: 'Weekly'};
         }else if ($scope.me.pay_recurrance_flag =="B"){
             $scope.model.selectedOption = {id: '2', value: "B",  name: 'Bi-Weekly'};
+            $scope.me.selectedOption = {id: '2', value: "B",  name: 'Bi-Weekly'};
         }else if ($scope.me.pay_recurrance_flag =="T"){
             $scope.model.selectedOption = {id: '3', value: "T",  name: 'Twice Monthly'};
+            $scope.me.selectedOption = {id: '3', value: "T",  name: 'Twice Monthly'};
         }else if ($scope.me.pay_recurrance_flag =="M"){
             $scope.model.selectedOption = {id: '4', value: "M",  name: 'Monthly'};
+            $scope.me.selectedOption = {id: '4', value: "M",  name: 'Monthly'};
         }
      });
 
@@ -512,7 +515,9 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             }
             Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
-                    $scope.me.pay_recurrance_flag = $scope.model.pay_recurrance_flag
+                    $scope.me.pay_recurrance_flag = $scope.model.pay_recurrance_flag;
+                    $scope.me.selectedOption = $scope.model.selectedOption;
+
                     notificationService.success("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{

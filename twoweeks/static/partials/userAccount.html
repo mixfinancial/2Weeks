@@ -22,7 +22,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.username}}</span>
+                                        <span style="word-wrap: break-word;">{{me.username}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -55,7 +55,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.email}}</span>
+                                        <span style="word-wrap: break-word;">{{me.email}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -93,7 +93,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.first_name}}&nbsp;{{model.last_name}}</span>
+                                        <span style="word-wrap: break-word;">{{me.first_name}}&nbsp;{{me.last_name}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -190,7 +190,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.selectedOption.name}}</span>
+                                        <span style="word-wrap: break-word;">{{me.selectedOption.name}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -237,7 +237,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.next_pay_date | date : 'EEEE, MMMM d, yyyy'}}</span>
+                                        <span style="word-wrap: break-word;">{{me.next_pay_date | date : 'EEEE, MMMM d, yyyy'}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -276,7 +276,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{model.average_paycheck_amount | number:2}}</span>
+                                        <span style="word-wrap: break-word;">${{me.average_paycheck_amount | number:2}}</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -293,7 +293,10 @@
                                             <div class="form-group form-group-sm">
                                                 <label for="first_name" class="col-sm-3 control-label">How much are you paid on Average?</label>
                                                 <div class="col-sm-5">
-                                                    <input type="number" id="average_paycheck_amount" class="form-control" ng-model="model.average_paycheck_amount">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon">$</div>
+                                                        <input type="number" id="average_paycheck_amount" class="form-control" ng-model="model.average_paycheck_amount">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="form-group form-group-sm">
