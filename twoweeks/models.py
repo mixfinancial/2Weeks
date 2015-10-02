@@ -300,6 +300,11 @@ class Payee(Base):
 
 
 
+
+
+
+
+
 ########
 # BILL #
 ########
@@ -354,6 +359,9 @@ class Bill(Base):
 
 
 
+
+
+
 ##################
 # FUNDS TRANSFER #
 ##################
@@ -389,6 +397,9 @@ class Funds_Transfer(Base):
        NB! Calls many2many's serialize property.
        """
        return [ item.serialize for item in self.many2many]
+
+
+
 
 
 

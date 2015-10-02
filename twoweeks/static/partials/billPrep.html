@@ -5,11 +5,11 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-4">
-                            <h5>Today's Date: {{date | date : 'EEE, MMM d, yyyy'}}</h5>
+                            <h5>Today's Date:<br> {{date | date : 'EEE, MMM d, yyyy'}}</h5>
                         </div>
                         <div class="col-xs-4">
-                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak>Bills due before the next paycheck: ${{dueBeforeNextPaycheck(bills,me) | number:2}}</h5>
-                            <h5 ng-cloak>Bills due in the next 30 days: ${{dueBeforeNext30(bills,me) | number:2}}</h5>
+                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><strong>${{dueBeforeNextPaycheck(bills,me) | number:2}}</strong>&nbsp;is due before your next paycheck</h5>
+                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><strong>${{dueBeforeNext30(bills,me) | number:2}}</strong>&nbsp;is due in the next 30 days</h5>
                         </div>
                     </div>
                 </div>
