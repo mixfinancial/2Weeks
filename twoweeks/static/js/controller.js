@@ -14,11 +14,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.animationsEnabled = true
 
 
-
-
-
-
-
     $scope.editBill = function (index) {
         //console.log(index);
         //console.log($scope.bills.indexOf(index));
@@ -256,7 +251,14 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
 
-loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', function($scope, transformRequestAsFormPost, $location, Login, notificationService) {
+loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, notificationService, LoginCheck) {
+
+    LoginCheck.get(function(data) {
+        console.log(data);
+        if($scope.error == null){
+            window.location.href = '/home/';
+        }
+     });
 
      $scope.model = {};
 

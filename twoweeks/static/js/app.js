@@ -128,7 +128,12 @@ loginServices.factory('Login', ['$resource',
     });
   }]);
 
-
+loginServices.factory('LoginCheck', ['$resource',
+  function($resource){
+    return $resource('/api/login_check/', {}, {
+      'get': {method:'GET', isArray:false}
+    });
+  }]);
 
 /*********************
 *  Feedback Services *

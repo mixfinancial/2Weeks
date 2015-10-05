@@ -3,7 +3,7 @@ __author__ = 'davidlarrimore'
 import json
 from datetime import datetime
 
-from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session
+from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session, make_response
 import twoweeks.config as config
 from datetime import timedelta
 
@@ -127,15 +127,39 @@ def login_check():
     return redirect(url_for('home'))
 
 
+#APILOGIN
+class ApiLoginCheck(Resource):
+    def get(self):
+        user = None
+
+        if 'username' in session and session['username'] is not '':
+            user=User.query.filter_by(username=session['username']).first()
+            if user:
+                return {"meta":buildMeta(), "error": None, "data":[user.serialize]}
+            else:
+                return {"meta":buildMeta(), "error":"No Session Found for '"+session['username']+"'", "data":None}
+        else:
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}
+
+api.add_resource(ApiLoginCheck, '/api/login_check', '/api/login_check/')
+
+
+
+
+
+
+
 
 @app.route('/logout')
 def logout():
+    session['username']= ''
     logout_user()
     return redirect(url_for('/'))
 
 
 @app.route('/adminLogout')
 def adminLogout():
+    session['username']= ''
     logout_user()
     return redirect(url_for('/admin/'))
 
@@ -173,7 +197,7 @@ class ApiLogin(Resource):
             if (user is not None and user.verify_password(password)):
                 app.logger.info('Login Successful')
                 login_user(user)
-                session['username']=username;
+                session['username']=username
                 return {"meta":buildMeta(), "data": None}
             elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
                 app.logger.info('Attempting to login as Root User')
@@ -184,10 +208,10 @@ class ApiLogin(Resource):
                     db_session.add(newUser)
                     db_session.commit()
                     login_user(newUser)
-                    session['username']=username;
+                    session['username']=username
                 else:
                     login_user(user)
-                    session['username']=username;
+                    session['username']=username
             else:
                 app.logger.info('Username or password incorrect')
                 return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}
@@ -207,7 +231,8 @@ api.add_resource(ApiLogin, '/api/login')
 class ApiLogout(Resource):
     def get(self):
         logout_user()
-        return {"meta":buildMeta(), "error":"none", "data": ""}
+        session['username']= ''
+        return {"meta":buildMeta(), "error":None, "data": None}
 api.add_resource(ApiLogout, '/api/logout/')
 
 
