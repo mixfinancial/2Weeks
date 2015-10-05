@@ -333,6 +333,14 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
 
+
+
+    $scope.isActive = function (viewLocation) {
+        console.log(viewLocation);
+        return viewLocation === $location.path();
+    };
+
+
     Me.query(function(data) {
         console.log(data.data[0]);
         $scope.me = data.data[0];
