@@ -1,15 +1,16 @@
 <section class="usersFormPage" ng-controller="billFormController">
     <div class="row">
         <div class="col-xs-12">
-            <div class="panel panel-default">
+            <div class="panel panel-default" ng-cloak>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-xs-4">
-                            <h5>Today's Date:<br> {{date | date : 'EEE, MMM d, yyyy'}}</h5>
+                        <div class="col-sm-4">
+                            <h5>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d, yyyy'}}</strong></span></h5>
+                            <h5><span style="color:darkblue;"><strong>{{daysBeforeNextPaycheck()}}</strong></span> days till your next paycheck</h5>
                         </div>
-                        <div class="col-xs-4">
-                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><strong>${{dueBeforeNextPaycheck(bills,me) | number:2}}</strong>&nbsp;is due before your next paycheck</h5>
-                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><strong>${{dueBeforeNext30(bills,me) | number:2}}</strong>&nbsp;is due in the next 30 days</h5>
+                        <div class="col-sm-4">
+                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h5>
+                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNext30() | number:2}}</strong></span>&nbsp;is due in the next 30 days</h5>
                         </div>
                     </div>
                 </div>
