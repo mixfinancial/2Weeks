@@ -37,8 +37,7 @@ billsApp.config(['$routeProvider', function($routeProvider) {
         controller: ''
     }).
     otherwise({
-        templateUrl: '/static/partials/billPrep.html',
-        controller: ''
+        redirectTo: '/billPrep'
     });
 }]);
 

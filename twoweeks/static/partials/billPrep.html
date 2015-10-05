@@ -4,11 +4,11 @@
             <div class="panel panel-default" ng-cloak>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-sm-4">
-                            <h5>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d, yyyy'}}</strong></span></h5>
+                        <div class="col-sm-6">
+                            <h5>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d'}}</strong></span></h5>
                             <h5><span style="color:darkblue;"><strong>{{daysBeforeNextPaycheck()}}</strong></span> days till your next paycheck</h5>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h5>
                             <h5 ng-show="dueBeforeNextPaycheck(bills,me) > 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNext30() | number:2}}</strong></span>&nbsp;is due in the next 30 days</h5>
                         </div>
@@ -23,25 +23,16 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Upcoming Bills</h3>
                   </div>
-                    <table id="main_tbl" class="table table-bordered table-hover table-condensed">
-                      <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th class="hidden-xs hidden-sm hidden-md" >Due Date</th>
-                            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1 centered">&nbsp;</th>
-                            <th>Amount</th>
-                            <th>Action</th>
-                        </tr>
-                      </thead>
+                    <table id="bill-prep-table" class="table table-hover table-condensed bill-prep-table">
                       <tbody>
-                        <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id" ng-class="{'danger':differenceInDays(bill.due_date) < 7, 'warning':differenceInDays(bill.due_date) < 14 }">
-                            <td ng-click="editBill(bill)">{{bill.name}}</td>
-                            <td class="hidden-xs hidden-sm hidden-md" ng-click="editBill(bill)">{{bill.due_date | date : 'EEE, MMM d, yyyy'}}</td>
-                            <td class="centered" ng-click="editBill(bill)">
-                                <span class="label" ng-class="{'label-danger':differenceInDays(bill.due_date) < 7, 'label-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'label-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
+                        <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id">
+                            <td class="" ng-click="editBill(bill)">
+                                <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) < 7, 'badge-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
+                                &nbsp;{{bill.due_date | date : 'EEE, MMM d'}}
                             </td>
-                            <td style="text-align: right;" ng-click="editBill(bill)">${{bill.total_due | number:2}}</td>
-                            <td class="centered">
+                            <td ng-click="editBill(bill)">{{bill.name}}</td>
+                            <td class="col-xs-2 col-md-3" style="text-align: right;" ng-click="editBill(bill)">${{bill.total_due | number:2}}</td>
+                            <td class="col-xs-2 centered">
                                 <p class="list-group-item-text centered">
                                     <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
                                     <button class="btn btn-danger btn-xs" ng-really-message="Are you sure you want to delete this bill?" ng-really-click="deleteBill(bill)"><span class="glyphicon glyphicon-trash"></span></button>

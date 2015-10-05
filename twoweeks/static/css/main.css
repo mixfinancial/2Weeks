@@ -1,9 +1,16 @@
-
     html,
     body {
       height: 100%;
       background: url("http://api.thumbr.it/whitenoise-361x370.png?background=eaf3f7ff&noise=626262&density=10&opacity=2");
     }
+
+
+    body{
+       min-width:600px; /* suppose you want minimun width of 1000px */
+       width: auto !important;  /* Firefox will set width as auto */
+       width:600px;             /* As IE ignores !important it will set width as 1000px; */
+    }
+
 
     .full button span {
         background-color: limegreen;
@@ -141,7 +148,6 @@
     background: -ms-linear-gradient(top,  rgba(150,202,255,1) 0%,rgba(136,188,239,1) 44%,rgba(88,157,226,1) 100%); /* IE10+ */
     background: linear-gradient(to bottom,  rgba(150,202,255,1) 0%,rgba(136,188,239,1) 44%,rgba(88,157,226,1) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#96caff', endColorstr='#589de2',GradientType=0 ); /* IE6-8 */
-
 }
 
 
@@ -150,13 +156,41 @@
 
 
     /*******************
-    * TABLE FORMATTING *
+    * BADGE FORMATTING *
     *******************/
+.badge{
+    text-shadow: 0 -.5px rgba(0, 0, 0, .5);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+.badge-danger{
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
+}
 
 
+.badge-warning{
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+}
+
+.badge-info{
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+}
 
 
+.bill-prep-table{
+}
 
+.bill-prep-table>tbody>tr>td{
+    border-top:1px dotted lightgrey;
+}
 
-
-
+.bill-prep-table>tbody>tr>td:first-child {
+    border-right:1px dotted lightgrey;
+}

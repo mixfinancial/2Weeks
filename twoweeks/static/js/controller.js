@@ -255,7 +255,7 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
 
     LoginCheck.get(function(data) {
         console.log(data);
-        if($scope.error == null){
+        if(data.error == null && data.data != null){
             window.location.href = '/home/';
         }
      });
@@ -333,10 +333,7 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
 
-
-
     $scope.isActive = function (viewLocation) {
-        console.log(viewLocation);
         return viewLocation === $location.path();
     };
 
