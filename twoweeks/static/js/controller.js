@@ -114,8 +114,23 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             $scope.addToPaymentPlan = function(bill){
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
-                notificationService.notice(bill.name+" added to Plan");
+                notificationService.info(bill.name+" added to Plan");
             }
+
+            $scope.removeFromPaymentPlan = function(paymentPlanBill){
+                $scope.bills.push(paymentPlanBill);
+                $scope.paymentPlanBills.splice($scope.paymentPlanBills.indexOf(paymentPlanBill), 1);
+                notificationService.notice(paymentPlanBill.name+" removed from Plan");
+            }
+
+            $scope.resetBillPrep = function(){
+                console.log("resetting");
+                $scope.bills.push.apply($scope.bills, $scope.paymentPlanBills);
+                $scope.paymentPlanBills = [];
+                notificationService.notice("Plan Reset");
+            }
+
+
          });
      });
 
