@@ -9,9 +9,10 @@ var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 /***********************
 * BILL PREP CONTROLLER *
 ************************/
-billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', 'Me', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal, Me) {
+billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', 'Me', 'PaymentPlan', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal, Me, PaymentPlan) {
     $scope.date = new Date();
     $scope.animationsEnabled = true
+    $scope.paymentPlanBills = [];
 
 
     $scope.editBill = function (index) {
@@ -64,13 +65,21 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         $scope.me = angular.copy(data.data[0]);
         $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
 
-         Bill.query(function(data) {
+        PaymentPlan.query(function(data){
+            console.log(data.data);
+            $scope.paymentPlans = data.data;
+            angular.forEach($scope.paymentPlans,function(value,index){
+                $scope.paymentPlans[index].transfer_date = new Date($scope.paymentPlans[index].transfer_date);
+            });
+            console.log($scope.paymentPlans);
+        });
+
+        Bill.query(function(data) {
             $scope.bills = data.data;
             angular.forEach($scope.bills,function(value,index){
                 $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
                 $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
             });
-
 
             $scope.dueBeforeNextPaycheck = function() {
             var total = 0;
@@ -102,10 +111,14 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 return $scope.differenceInDays($scope.me.next_pay_date);
             };
 
-
+            $scope.addToPaymentPlan = function(bill){
+                $scope.paymentPlanBills.push(bill);
+                $scope.bills.splice($scope.bills.indexOf(bill), 1);
+                notificationService.notice(bill.name+" added to Plan");
+            }
          });
-
      });
+
 
 
     $scope.submit = function() {
@@ -114,7 +127,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
        Bill.save(JSON.stringify(data), function(data) {
             console.log(data);
             $scope.bills.push(data.data);
-            notificationService.success("Bill Created")
+            notificationService.success("Bill Created");
        });
     };
 
@@ -123,7 +136,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
        var data = $scope.bills[$scope.bills.indexOf(index)];
        Bill.delete({billId: data.id}, function(data) {
         $scope.bills.splice($scope.bills.indexOf(index), 1);
-        notificationService.notice("Bill Deleted")
+        notificationService.notice("Bill Deleted");
        });
     };
 
@@ -131,7 +144,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         var today = new Date();
         var millisecondsPerDay = 1000 * 60 * 60 * 24;
         var millisBetween = first_date.getTime() - today.getTime();
-        var days = millisBetween / millisecondsPerDay
+        var days = millisBetween / millisecondsPerDay;
         return Math.floor(days);
     };
 }]);

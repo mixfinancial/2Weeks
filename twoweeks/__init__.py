@@ -31,7 +31,7 @@ api = Api(app)
 ##########################
 from twoweeks.database import init_db
 from twoweeks.database import db_session
-from twoweeks.models import User, Bill, Role, Funds_Transfer, Bill_Funding_Item, Feedback
+from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, Feedback
 
 init_db()
 
@@ -975,6 +975,63 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"Bill #"+bill_id+" Could not be found", "data" : None}
 
 api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################
+# PAYMENT PLAN API #
+####################
+
+class ApiPaymentPlan(Resource):
+    @login_required
+    def get(self, payment_plan_id=None):
+        paymentPlanId = None;
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+
+
+        #TODO: BIND payment_plan with User ID based upon session
+        if payment_plan_id is not None:
+            paymentPlanId = payment_plan_id
+        elif request.args.get('payment_plan_id') is not None:
+            paymentPlanId = request.args.get('payment_plan_id')
+
+        if paymentPlanId is not None:
+            app.logger.info("looking for bill:" + paymentPlanId)
+            payment_plan = Payment_Plan.query.filter_by(id=paymentPlanId, user_id=user.id).first()
+            app.logger.info(payment_plan)
+
+            if payment_plan is None:
+                return {"meta":buildMeta(), 'data':[]}
+            else:
+                return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
+        else:
+            payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+            return {"meta":buildMeta(), "data":payment_plans}
+
+api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/api/payment_plan/<string:payment_plan_id>')
+
+
+
+
+
 
 
 

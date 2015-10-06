@@ -362,16 +362,16 @@ class Bill(Base):
 
 
 
-##################
-# FUNDS TRANSFER #
-##################
-class Funds_Transfer(Base):
+#################
+# PAYMENT PLAN  #
+#################
+class Payment_Plan(Base):
 
-    __tablename__ = 'funds_transfer'
+    __tablename__ = 'payment_plan'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    amount = Column(Float(2))
+    amount = Column(Float(2), default=0)
     base_flag = Column(Boolean, default=False);
     transfer_date = Column(DateTime(120), default=datetime.utcnow)
     date_created = Column(DateTime(120), default=datetime.utcnow)
@@ -381,7 +381,8 @@ class Funds_Transfer(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'               : 'funds_Transfer',
+           'type'               : 'payment_plan',
+           'id'                 : self.id,
            'user_id'            : self.user_id,
            'base_flag'          : self.base_flag,
            'amount'             : str(self.amount),
@@ -405,17 +406,17 @@ class Funds_Transfer(Base):
 
 
 #####################
-# BILL FUNDING ITEM #
+# PAYMENT PLAN ITEM #
 #####################
 
-class Bill_Funding_Item(Base):
+class Payment_Plan_Item(Base):
 
-    __tablename__ = 'bill_funding_item'
+    __tablename__ = 'payment_plan_item'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     bill_id = Column(Integer, ForeignKey("bill.id"), nullable=False)
-    funds_transfer_id = Column(Integer, ForeignKey("funds_transfer.id"), nullable=True)
+    payment_plan_id = Column(Integer, ForeignKey("payment_plan.id"), nullable=True)
     amount = Column(Float(2))
 
     date_created = Column(DateTime(120), default=datetime.utcnow)
@@ -427,8 +428,9 @@ class Bill_Funding_Item(Base):
        return {
            'type'               : 'bill_funding_item',
            'user_id'            : self.user_id,
+           'is'                 : self.id,
            'bill_id'            : self.bill_id,
-           'funds_transfer_id'  : self.funds_transfer_id,
+           'payment_plan_id'    : self.payment_plan_id,
            'amount'             : str(self.amount),
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)

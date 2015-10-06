@@ -103,6 +103,17 @@ dbServices.factory('Bill', ['$resource',
     });
   }]);
 
+dbServices.factory('PaymentPlan', ['$resource',
+  function($resource){
+    return $resource('/api/payment_plan/:payment_plan_id', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{payment_plan_id:'payment_plan_id'}, isArray:false},
+      'create': {method:'POST', params:{payment_plan_id:'payment_plan_id'}, isArray:false},
+      'update': {method:'PUT', isArray:false},
+      'delete': {method:'DELETE', isArray:false}
+    });
+  }]);
+
 dbServices.factory('Me', ['$resource',
   function($resource){
     return $resource('/api/me/:userId', {}, {
@@ -133,6 +144,7 @@ loginServices.factory('LoginCheck', ['$resource',
       'get': {method:'GET', isArray:false}
     });
   }]);
+
 
 /*********************
 *  Feedback Services *
