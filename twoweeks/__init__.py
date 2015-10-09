@@ -794,7 +794,7 @@ class ApiBill(Resource):
         paid_date = None
         check_number = None
         payment_type = None
-
+        payment_type_ind = None
         user = None
 
         if 'username' in session:
@@ -837,6 +837,8 @@ class ApiBill(Resource):
                             check_number = value
                         elif key == 'payment_type':
                             payment_type = value
+                        elif key == 'payment_type_ind':
+                            payment_type_ind = value
             elif request_is_form_urlencode():
                 app.logger.info('Updating bill #'+bill_id)
                 requestData = json.loads(request.form['data'])
@@ -850,6 +852,7 @@ class ApiBill(Resource):
                 paid_date = requestData['paid_date']
                 check_number = requestData['check_number']
                 payment_type = requestData['payment_type']
+                payment_type_ind = requestData['payment_type_ind']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
         else:
@@ -873,6 +876,8 @@ class ApiBill(Resource):
             bill.check_number = check_number
         if payment_type:
             bill.payment_type = payment_type
+        if payment_type_ind:
+            bill.payment_type_ind = payment_type_ind
 
         if bill.name is None or bill.name =='' or not bill.name:
             return {"meta":buildMeta(), "error":"Name is required", "data":None}
@@ -897,7 +902,7 @@ class ApiBill(Resource):
         paid_date = None
         check_number = None
         payment_type = None
-
+        payment_type_ind = None
 
 
 
@@ -931,6 +936,8 @@ class ApiBill(Resource):
                     check_number = value
                 elif key == 'payment_type':
                     payment_type = value
+                elif key == 'payment_type_ind':
+                    payment_type = value
         elif request_is_form_urlencode():
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
@@ -943,13 +950,14 @@ class ApiBill(Resource):
             paid_date = requestData['paid_date']
             check_number = requestData['check_number']
             payment_type = requestData['payment_type']
+            payment_type_ind = requestData['payment_type_ind']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
             return {"meta":buildMeta(), "error":"Bill already exists"}
 
-        newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type=payment_type, check_number=check_number)
+        newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type_ind=payment_type_ind, check_number=check_number)
 
         db_session.add(newBill)
         db_session.commit()

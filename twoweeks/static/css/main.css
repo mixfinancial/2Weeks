@@ -12,6 +12,11 @@
     }
 
 
+    .glyphicon{
+        text-shadow: 0 -.5px rgba(0, 0, 0, .5);
+        -webkit-font-smoothing: antialiased;
+    }
+
     .full button span {
         background-color: limegreen;
         border-radius: 32px;

@@ -323,7 +323,11 @@ class Bill(Base):
     paid_flag = Column(Boolean())
     paid_date = Column(DateTime())
     check_number = Column(Integer)
-    payment_type = Column(String(45))
+
+    #A: Automatic
+    #M: Manual
+    payment_type_ind = Column(String(1), default="M")
+
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
 
@@ -343,7 +347,7 @@ class Bill(Base):
            'paid_flag'          : self.paid_flag,
            'paid_date'          : dump_datetime(self.paid_date),
            'check_number'       : self.check_number,
-           'payment_type'       : self.payment_type,
+           'payment_type_ind'  : self.payment_type_ind,
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }

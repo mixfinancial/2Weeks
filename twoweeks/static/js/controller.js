@@ -217,6 +217,23 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                                     label: 'Due Date',
                                     required: true
                                 }
+                            },
+                            {
+                                key: 'payment_type_ind',
+                                type: 'radio',
+                                templateOptions: {
+                                    label: 'Payment Type',
+                                    "options": [
+                                    {
+                                        "name": "Manual",
+                                        "value": "M"
+                                        },
+                                        {
+                                        "name": "Automatic",
+                                        "value": "A"
+                                      }
+                                    ]
+                                }
                             }
                         ];
 

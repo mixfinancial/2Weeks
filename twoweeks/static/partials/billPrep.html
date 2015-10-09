@@ -1,16 +1,26 @@
 <section class="usersFormPage" ng-controller="billFormController">
     <div class="row">
         <div class="col-xs-12">
-            <div class="panel panel-default bill-dashboard" ng-cloak>
-                <div class="panel-body">
+            <div class="well well-sm bill-dashboard" ng-cloak>
+                <div class="">
                     <div class="row">
-                        <div class="col-xs-6">
-                            <h5>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d'}}</strong></span></h5>
-                            <h5><span style="color:darkblue;"><strong>{{daysBeforeNextPaycheck()}}</strong></span> days till your next paycheck</h5>
+                        <div class="col-xs-4">
+                            <h6>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d'}}</strong></span></h6>
+                            <h6><span style="color:darkblue;"><strong>{{daysBeforeNextPaycheck()}}</strong></span> days till your next paycheck</h6>
                         </div>
-                        <div class="col-xs-6">
-                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h5>
-                            <h5 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNext30() | number:2}}</strong></span>&nbsp;is due in the next 30 days</h5>
+                        <div class="col-xs-4">
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <span for="current_account_balance" style="text-align:left;color:#333;font-size: 12px;font-weight: 500;" class="">Account Balance:</span>
+                                    <input type="number" class="" min="0" id="current_account_balance" ng-model="me.current_account_balance">
+                                </div>
+                            </form>
+                            <h6>Bills Left to pay: xxx.xxx</h6>
+                            <h6>Subtotal: xxx.xx</h6>
+                        </div>
+                        <div class="col-xs-4">
+                            <h6 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h6>
+                            <h6 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNext30() | number:2}}</strong></span>&nbsp;is due in the next 30 days</h6>
                         </div>
                     </div>
                 </div>
@@ -30,7 +40,7 @@
                                 <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) < 7, 'badge-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
                                 &nbsp;{{bill.due_date | date : 'EEE, MMM d'}}
                             </td>
-                            <td ng-click="addToPaymentPlan(bill)">{{bill.name}}</td>
+                            <td class="col-xs-4" ng-click="addToPaymentPlan(bill)">{{bill.name}}</td>
                             <td class="col-xs-2 col-md-3" style="text-align: right;" ng-click="addToPaymentPlan(bill)">${{bill.total_due | number:2}}</td>
                             <td class="col-xs-2 centered">
                                 <p class="list-group-item-text centered">
@@ -63,8 +73,10 @@
                 </table>
                 <div class="panel-body">
                     <div style="text-align:right">
-                        <button class="btn btn-sm btn-warning" ng-click="resetBillPrep()"><span class="glyphicon glyphicon-trash"></span>&nbsp;Reset Plan</button>
-                        <button class="btn btn-sm btn-primary" ng-click="savePaymentPlan()"><span class="glyphicon glyphicon-save"></span>&nbsp;Save Plan</button>
+                        <div class="">
+                        <button class="btn btn-sm btn-warning" ng-click="resetBillPrep()"><span class="glyphicon glyphicon-trash"></span>&nbsp;Reset</button>
+                        <button class="btn btn-sm btn-primary" ng-click="savePaymentPlan()"><span class="glyphicon glyphicon-save"></span>&nbsp;Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
