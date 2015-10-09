@@ -1,8 +1,8 @@
 <section class="usersFormPage" ng-controller="billFormController">
     <div class="row">
         <div class="col-xs-12">
-            <div class="well well-sm bill-dashboard" ng-cloak>
-                <div class="">
+            <div class="panel bill-dashboard" ng-cloak>
+                <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-4">
                             <h6>Today's Date: <span style="color:darkblue;"><strong>{{date | date : 'EEE, MMM d'}}</strong></span></h6>
@@ -12,11 +12,14 @@
                             <form class="form-inline">
                                 <div class="form-group">
                                     <span for="current_account_balance" style="text-align:left;color:#333;font-size: 12px;font-weight: 500;" class="">Account Balance:</span>
-                                    <input type="number" class="" min="0" id="current_account_balance" ng-model="me.current_account_balance">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">$</div>
+                                        <input type="number" class="form-control input-sm" min="0" id="current_account_balance" ng-model="me.current_account_balance">
+                                    </div>
                                 </div>
                             </form>
-                            <h6>Bills Left to pay: xxx.xxx</h6>
-                            <h6>Subtotal: xxx.xx</h6>
+                            <h6>Bills Left to pay: <span style="color:darkblue;"><strong>xxx.xxx</strong></span></h6>
+                            <h6>Subtotal: <span style="color:darkblue;"><strong>xxx.xx</strong></span></h6>
                         </div>
                         <div class="col-xs-4">
                             <h6 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h6>

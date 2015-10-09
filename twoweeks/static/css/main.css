@@ -206,6 +206,14 @@
     }
 
     .bill-dashboard>.panel-body{
-        padding-top:0px;
-        padding-bottom:0px;
+        padding-top:10px;
+        padding-bottom:10px;
+    }
+
+    .input-xs{
+        height: 22px;
+        padding: 5px 8px;
+        font-size: 10px;
+        line-height: 1;
+        border-radius: 3px;
     }
