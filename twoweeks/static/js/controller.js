@@ -74,7 +74,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             console.log($scope.paymentPlans);
         });
 
-        Bill.query(function(data) {
+        Bill.query({'paid_flag': false}, function(data) {
             $scope.bills = data.data;
             angular.forEach($scope.bills,function(value,index){
                 $scope.bills[index].due_date = new Date($scope.bills[index].due_date);

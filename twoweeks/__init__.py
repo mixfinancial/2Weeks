@@ -750,8 +750,8 @@ api.add_resource(ApiMe, '/api/me', '/api/me/', '/api/me/<string:user_id>', '/api
 class ApiBill(Resource):
     @login_required
     def get(self, bill_id=None):
-        billId = None;
-
+        billId = None
+        paid_flag = None
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
@@ -765,9 +765,19 @@ class ApiBill(Resource):
         elif request.args.get('bill_id') is not None:
             billId = request.args.get('bill_id')
 
+        if request.args.get('paid_flag') is not None:
+            if request.args.get('paid_flag').upper() == 'TRUE':
+                app.logger.info('paid flag is TRUE')
+                paid_flag = True
+            elif request.args.get('paid_flag').upper() == 'FALSE':
+                app.logger.info('paid flag is FALSE')
+                paid_flag = False
+
+
+
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
-            bill = Bill.query.filter_by(id=billId, user_id=user.id).first()
+            bill = Bill.query.filter_by(id=billId, user_id=user.id, paid_flag=paid_flag).first()
             app.logger.info(bill)
 
             if bill is None:
@@ -775,7 +785,10 @@ class ApiBill(Resource):
             else:
                 return jsonify(meta=buildMeta(), data=[bill.serialize])
         else:
-            bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
+            if paid_flag is not None:
+                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag)]
+            else:
+                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
             return {"meta":buildMeta(), "data":bills}
 
     @login_required
@@ -1006,20 +1019,26 @@ api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>
 class ApiPaymentPlan(Resource):
     @login_required
     def get(self, payment_plan_id=None):
-        paymentPlanId = None;
+        paymentPlanId = None
+        accepted_flag = None
 
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}
 
-
-
         #TODO: BIND payment_plan with User ID based upon session
         if payment_plan_id is not None:
             paymentPlanId = payment_plan_id
         elif request.args.get('payment_plan_id') is not None:
             paymentPlanId = request.args.get('payment_plan_id')
+
+        if request.args.get('accepted_flag') is not None:
+            if request.args.get('accepted_flag').upper() == 'TRUE':
+                accepted_flag = True
+            elif request.args.get('accepted_flag').upper() == 'FALSE':
+                accepted_flag = False
+
 
         if paymentPlanId is not None:
             app.logger.info("looking for bill:" + paymentPlanId)
@@ -1031,10 +1050,19 @@ class ApiPaymentPlan(Resource):
             else:
                 return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
         else:
-            payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+            if accepted_flag is not None:
+                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
+            else:
+                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+
             return {"meta":buildMeta(), "data":payment_plans}
 
 api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/api/payment_plan/<string:payment_plan_id>')
+
+
+
+
+
 
 
 

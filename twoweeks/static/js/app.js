@@ -122,6 +122,19 @@ dbServices.factory('PaymentPlan', ['$resource',
     });
   }]);
 
+
+dbServices.factory('PaymentPlanItem', ['$resource',
+  function($resource){
+    return $resource('/api/payment_plan_item/:payment_plan_item_id', {}, {
+      'query': {method:'GET', isArray:false},
+      'get': {method:'GET', params:{payment_plan_item_id:'payment_plan_item_id'}, isArray:false},
+      'create': {method:'POST', params:{payment_plan_item_id:'payment_plan_item_id'}, isArray:false},
+      'update': {method:'PUT', isArray:false},
+      'delete': {method:'DELETE', isArray:false}
+    });
+  }]);
+
+
 dbServices.factory('Me', ['$resource',
   function($resource){
     return $resource('/api/me/:userId', {}, {

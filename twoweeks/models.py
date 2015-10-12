@@ -320,7 +320,7 @@ class Bill(Base):
     due_date = Column(DateTime(120))
     billing_period = Column(DateTime(120))
     total_due = Column(Float(2))
-    paid_flag = Column(Boolean())
+    paid_flag = Column(Boolean(), default=False)
     paid_date = Column(DateTime())
     check_number = Column(Integer)
 
@@ -376,10 +376,11 @@ class Payment_Plan(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     amount = Column(Float(2), default=0)
-    base_flag = Column(Boolean, default=False);
+    base_flag = Column(Boolean, default=False)
     transfer_date = Column(DateTime(120), default=datetime.utcnow)
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
+    accepted_flag = Column(Boolean, default=False)
 
     @property
     def serialize(self):
@@ -389,6 +390,7 @@ class Payment_Plan(Base):
            'id'                 : self.id,
            'user_id'            : self.user_id,
            'base_flag'          : self.base_flag,
+           'accepted_flag'      : self.accepted_flag,
            'amount'             : str(self.amount),
            'transfer_date'      : dump_datetime(self.transfer_date),
            'date_created'       : dump_datetime(self.date_created),
