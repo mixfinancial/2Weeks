@@ -30,7 +30,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Upcoming Bills - <small>Click Bill to add to Plan</small></h3>
@@ -39,11 +39,13 @@
                     <tbody>
                         <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id">
                             <td class="" ng-click="addToPaymentPlan(bill)">
-                                <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) < 7, 'badge-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
-                                &nbsp;{{bill.due_date | date : 'EEE, MMM d'}}
+                                <span class="pull-left">
+                                    <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) < 7, 'badge-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
+                                    &nbsp;{{bill.due_date | date : 'EEE, MMM d'}} - {{bill.name}}</span>
+                                <span style="color:darkblue;" class="pull-right">
+                                    ${{bill.total_due | number:2}}
+                                </span>
                             </td>
-                            <td class="col-xs-4" ng-click="addToPaymentPlan(bill)">{{bill.name}}</td>
-                            <td class="col-xs-2 col-md-3" style="text-align: right;" ng-click="addToPaymentPlan(bill)">${{bill.total_due | number:2}}</td>
                             <td class="col-xs-2 centered">
                                 <p class="list-group-item-text centered">
                                     <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
@@ -60,7 +62,7 @@
                 </div>
             </div>
         </div> <!-- END BILL PREP TABLE -->
-        <div class="col-sm-4">
+        <div class="col-sm-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Plan - <small>Click Bill to remove from Plan</small></h3>
@@ -69,7 +71,7 @@
                     <tbody>
                         <tr ng-repeat="paymentPlanBill in paymentPlanBills | orderBy: 'due_date' track by paymentPlanBill.id">
                             <td ng-click="removeFromPaymentPlan(paymentPlanBill)">{{paymentPlanBill.name}}</td>
-                            <td class="col-sm-4" style="text-align: right;" ng-click="removeFromPaymentPlan(paymentPlanBill)">${{paymentPlanBill.total_due | number:2}}</td>
+                            <td class="col-sm-4" style="text-align: right;" ng-click="removeFromPaymentPlan(paymentPlanBill)"><span style="color:darkblue;" class="pull-right">${{paymentPlanBill.total_due | number:2}}</span></td>
                         </tr>
                     </tbody>
                 </table>

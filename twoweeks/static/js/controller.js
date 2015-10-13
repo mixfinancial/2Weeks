@@ -190,7 +190,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.savePaymentPlan = function(){
             var paymentPlanItems = [];
-            ngToast.info('Saving payment plan')
+            //ngToast.info('Saving payment plan')
 
             angular.forEach($scope.paymentPlanBills,function(value,index){
                 var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].total_due};
