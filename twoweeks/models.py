@@ -434,9 +434,9 @@ class Payment_Plan_Item(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'               : 'bill_funding_item',
+           'type'               : 'payment_plan_item',
            'user_id'            : self.user_id,
-           'is'                 : self.id,
+           'id'                 : self.id,
            'bill_id'            : self.bill_id,
            'payment_plan_id'    : self.payment_plan_id,
            'amount'             : str(self.amount),

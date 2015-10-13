@@ -752,6 +752,9 @@ class ApiBill(Resource):
     def get(self, bill_id=None):
         billId = None
         paid_flag = None
+        funded_flag = None
+
+
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
@@ -773,6 +776,14 @@ class ApiBill(Resource):
                 app.logger.info('paid flag is FALSE')
                 paid_flag = False
 
+        if request.args.get('funded_flag') is not None:
+            if request.args.get('funded_flag').upper() == 'TRUE':
+                app.logger.info('funded flag is TRUE')
+                funded_flag = True
+            elif request.args.get('funded_flag').upper() == 'FALSE':
+                app.logger.info('funded flag is FALSE')
+                funded_flag = False
+
 
 
         if billId is not None:
@@ -785,8 +796,12 @@ class ApiBill(Resource):
             else:
                 return jsonify(meta=buildMeta(), data=[bill.serialize])
         else:
-            if paid_flag is not None:
+            if paid_flag is not None and funded_flag is not None:
+                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag, funded_flag=funded_flag)]
+            elif paid_flag is not None:
                 bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag)]
+            elif funded_flag is not None:
+                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, funded_flag=funded_flag)]
             else:
                 bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
             return {"meta":buildMeta(), "data":bills}
@@ -1095,23 +1110,23 @@ class ApiPaymentPlanItem(Resource):
             paymentPlanId = request.args.get('payment_plan_item_id')
 
         if request.args.get('payment_plan_id') is not None:
-            payment_plan_id = True
+            payment_plan_id = request.args.get('payment_plan_id')
 
         if payment_plan_item_id is not None:
             app.logger.info("looking for Payment Plan Item:" + payment_plan_item_id)
-            payment_plan_item = Payment_Plan.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
+            payment_plan_items = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
 
-            if payment_plan_item is None:
+            if payment_plan_items is None:
                 return {"meta":buildMeta(), 'data':[]}
             else:
-                return jsonify(meta=buildMeta(), data=[payment_plan_item.serialize])
+                return jsonify(meta=buildMeta(), data=[payment_plan_items.serialize])
         else:
             if payment_plan_id is not None:
-                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, payment_plan_id=payment_plan_id)]
+                payment_plan_items = [i.serialize for i in Payment_Plan_Item.query.filter_by(user_id=user.id, payment_plan_id=payment_plan_id)]
             else:
-                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+                payment_plan_items = [i.serialize for i in Payment_Plan_Item.query.filter_by(user_id=user.id)]
 
-            return {"meta":buildMeta(), "data":payment_plans}
+            return {"meta":buildMeta(), "data":payment_plan_items}
 
 api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_plan_item/', '/api/payment_plan_item/<string:payment_plan_item_id>')
 
@@ -1131,9 +1146,9 @@ api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_pla
 
 
 
-############
+################
 # FEEDBACK API #
-############
+################
 
 class ApiFeedback(Resource):
     @login_required
