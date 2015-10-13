@@ -26,7 +26,7 @@ billsApp.run(function(editableOptions) {
 });
 
 
-billsApp.config(['$routeProvider', function($routeProvider) {
+billsApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, ngToastProvider) {
     $routeProvider.
     when('/billPrep', {
         templateUrl: '/static/partials/billPrep.html',
@@ -38,6 +38,11 @@ billsApp.config(['$routeProvider', function($routeProvider) {
     }).
     otherwise({
         redirectTo: '/billPrep'
+    });
+
+    ngToastProvider.configure({
+        animation: 'fade',
+        dismissButton: 'true'
     });
 }]);
 
