@@ -267,13 +267,13 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                     data.data.due_date = new Date(data.data.due_date);
                     data.data.total_due = parseFloat(data.data.total_due);
                     $modalInstance.close(data.data);
-                    ngToast.create("Bill Updated");
+                    ngToast.success("Bill Updated");
                 }else{
                     ngToast.create("Error: "+data.error);
                 }
            }, function(error){
                 console.log(error);
-                ngToast.create("Received error status '"+error.status+"': "+error.statusText);
+                ngToast.danger("Received error status '"+error.status+"': "+error.statusText);
                 $scope.bill = backup;
                });
         }else{
@@ -286,11 +286,11 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                     $modalInstance.close(data.data);
                     ngToast.create("Bill Added");
                 }else{
-                    ngToast.create("Error: "+data.error);
+                    ngToast.danger("Error: "+data.error);
                 }
            }, function(error){
                 console.log(error);
-                ngToast.create("Received error status '"+error.status+"': "+error.statusText);
+                ngToast.danger("Received error status '"+error.status+"': "+error.statusText);
                 $scope.bill = backup;
                });
 
@@ -353,7 +353,7 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
                 if(data.error == null){
                     window.location.href = '/home/';
                 }else{
-                    ngToast.create(data.error)
+                    ngToast.danger(data.error)
                     console.log(data.error);
                 }
             });
@@ -391,7 +391,7 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', function($scope, $http, $location, $modal, Me, Feedback) {
+menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', 'ngToast', function($scope, $http, $location, $modal, Me, Feedback, ngToast) {
 
     $scope.isActive = function (viewLocation) {
         return viewLocation === $location.path();
@@ -411,6 +411,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
                 }).
                 error(function(data, status, headers, config) {
                     console.log('could not logout');
+                    ngToast.danger('Could not logout')
         });
     };
 
@@ -569,16 +570,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 if(data.error == null){
                     $scope.me.first_name = $scope.model.first_name
                     $scope.me.last_name = $scope.model.last_name
-                    ngToast.create("User Updated Successfully");
+                    ngToast.success("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
-                    ngToast.create("Error: " + data.error);
+                    ngToast.danger("Error: " + data.error);
                     $scope.model.first_name = $scope.me.first_name;
                     $scope.model.last_name = $scope.me.last_name;
                 }
             }, function(error){
                 console.log(error);
-                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.first_name = $scope.me.first_name;
                 $scope.model.last_name = $scope.me.last_name;
             });
@@ -587,9 +588,9 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             if($scope.model.current_password && $scope.model.new_password && $scope.model.confirm_new_password){
 
                 if($scope.model.new_password != $scope.model.confirm_new_password){
-                    ngToast.create("New password and confirmation do not match");
+                    ngToast.warning("New password and confirmation do not match");
                 }else if($scope.model.new_password == $scope.model.current_password){
-                    ngToast.create("New password must not be the same as the old password");
+                    ngToast.warning("New password must not be the same as the old password");
                 }else{
 
                     data.current_password = $scope.model.current_password;
@@ -598,16 +599,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                     console.log(data);
                     Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                         if(data.error == null){
-                            ngToast.create("User Updated Successfully");
+                            ngToast.success("User Updated Successfully");
                             $scope.toggleCollapse(null);
                         }else{
-                            ngToast.create("Error: " + data.error);
+                            ngToast.danger("Error: " + data.error);
                             $scope.model.first_name = $scope.me.first_name;
                             $scope.model.last_name = $scope.me.last_name;
                         }
                     }, function(error){
                         console.log(error);
-                        ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                        ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
                         $scope.model.first_name = $scope.me.first_name;
                         $scope.model.last_name = $scope.me.last_name;
                     });
@@ -618,7 +619,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             }
 
          }else if(toggleName == 'uEmailCollapse'){
-            ngToast.create('uEmailCollapse');
+            ngToast.success('uEmailCollapse');
             $scope.toggleCollapse(null);
          }else if(toggleName == 'uPayRecurrence'){
             $scope.model.pay_recurrance_flag = $scope.model.selectedOption.value;
@@ -639,7 +640,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 }
             }, function(error){
                 console.log(error);
-                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.pay_recurrance_flag = $scope.me.pay_recurrance_flag;
             });
          }else if(toggleName == 'uNextPayDate'){
@@ -649,7 +650,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     $scope.me.next_pay_date = $scope.model.next_pay_date
-                    ngToast.create("User Updated Successfully");
+                    ngToast.success("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
                     ngToast.create("Error: " + data.error);
@@ -658,7 +659,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 }
             }, function(error){
                 console.log(error);
-                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.next_pay_date = $scope.me.next_pay_date;
             });
          }else if(toggleName == 'uAveragePaycheckAmount'){
@@ -668,7 +669,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     $scope.me.average_paycheck_amount = $scope.model.average_paycheck_amount
-                    ngToast.create("User Updated Successfully");
+                    ngToast.success("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
                     ngToast.create("Error: " + data.error);
@@ -677,7 +678,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 }
             }, function(error){
                 console.log(error);
-                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.average_paycheck_amount = $scope.me.average_paycheck_amount;
             });
          }
@@ -749,7 +750,7 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
                 $modalInstance.close();
                 ngToast.create("Thank you for your feedback!");
             }else{
-                ngToast.create("Error: "+data.error);
+                ngToast.danger("Error: "+data.error);
             }
        }, function(error){
             console.log(error);

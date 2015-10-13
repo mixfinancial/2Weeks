@@ -18,8 +18,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <h6>Bills Left to pay: <span style="color:darkblue;"><strong>xxx.xxx</strong></span></h6>
-                            <h6>Subtotal: <span style="color:darkblue;"><strong>xxx.xx</strong></span></h6>
+                            <h6>Bills pending: <span style="color:darkblue;"><strong>xxx.xxx</strong></span></h6>
                         </div>
                         <div class="col-xs-4">
                             <h6 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h6>
@@ -76,7 +75,9 @@
                 </table>
                 <div class="panel-body">
                     <div style="text-align:right">
-                        Total: <span style="color:darkblue;">${{paymentPlanTotal() | number:2}}</span>
+                        Total: <span style="color:darkblue;">${{paymentPlanTotal() | number:2}}</span><br/>
+                        Bills pending: <span style="color:darkblue;"><strong>xxx.xxx</strong></span><br/>
+                        Subtotal: <span style="color:darkblue;"><strong>xxx.xx</strong></span>
                     </div>
                 </div>
                 <div class="panel-body">
