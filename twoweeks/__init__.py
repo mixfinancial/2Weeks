@@ -1073,6 +1073,64 @@ api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/ap
 
 
 
+
+####################
+# PAYMENT PLAN API #
+####################
+
+class ApiPaymentPlanItem(Resource):
+    @login_required
+    def get(self, payment_plan_item_id=None):
+        payment_plan_item_id = None
+        payment_plan_id = None
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+        if payment_plan_item_id is not None:
+            paymentPlanId = payment_plan_item_id
+        elif request.args.get('payment_plan_item_id') is not None:
+            paymentPlanId = request.args.get('payment_plan_item_id')
+
+        if request.args.get('payment_plan_id') is not None:
+            payment_plan_id = True
+
+        if payment_plan_item_id is not None:
+            app.logger.info("looking for Payment Plan Item:" + payment_plan_item_id)
+            payment_plan_item = Payment_Plan.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
+
+            if payment_plan_item is None:
+                return {"meta":buildMeta(), 'data':[]}
+            else:
+                return jsonify(meta=buildMeta(), data=[payment_plan_item.serialize])
+        else:
+            if payment_plan_id is not None:
+                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, payment_plan_id=payment_plan_id)]
+            else:
+                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+
+            return {"meta":buildMeta(), "data":payment_plans}
+
+api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_plan_item/', '/api/payment_plan_item/<string:payment_plan_item_id>')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############
 # FEEDBACK API #
 ############

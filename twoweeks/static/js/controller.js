@@ -127,7 +127,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 console.log("resetting");
                 $scope.bills.push.apply($scope.bills, $scope.paymentPlanBills);
                 $scope.paymentPlanBills = [];
-                ngToast.create("Plan Reset");
+                ngToast.info("Plan Reset");
             }
 
 

@@ -321,6 +321,7 @@ class Bill(Base):
     billing_period = Column(DateTime(120))
     total_due = Column(Float(2))
     paid_flag = Column(Boolean(), default=False)
+    funded_flag = Column(Boolean(), default=False)
     paid_date = Column(DateTime())
     check_number = Column(Integer)
 
@@ -345,9 +346,10 @@ class Bill(Base):
            'billing_period'     : dump_date(self.billing_period),
            'total_due'          : str(self.total_due),
            'paid_flag'          : self.paid_flag,
+           'funded_flag'        : self.funded_flag,
            'paid_date'          : dump_datetime(self.paid_date),
            'check_number'       : self.check_number,
-           'payment_type_ind'  : self.payment_type_ind,
+           'payment_type_ind'   : self.payment_type_ind,
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }
