@@ -87,23 +87,19 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             $scope.ActivePaymentPlan = $scope.paymentPlans[index];
                             console.log('~~~Active Payment Plan~~~');
                             console.log($scope.paymentPlans[index]);
-                            PaymentPlanItem.query({'payment_plan_id':$scope.ActivePaymentPlan.id}, function(data){
-                                if(data.error == null){
-                                    $scope.ActivePaymentPlan.items = data.data;
-                                    console.log('~~~Payment Plan Items~~~~');
-                                    console.log($scope.ActivePaymentPlan.items);
-                                    angular.forEach($scope.ActivePaymentPlan.items,function(value,indexX){
-                                        angular.forEach($scope.bills,function(value,indexY){
-                                            if($scope.bills[indexY].id == $scope.ActivePaymentPlan.items[indexX].bill_id){
-                                                $scope.paymentPlanBills.push($scope.bills[indexY]);
-                                                $scope.bills.splice($scope.bills[indexY], 1);
-                                            }
-                                        });
-                                    });
-                                }else{
-                                    ngToast.danger("Error: "+data.error);
-                                }
+                            console.log('~~~Payment Plan Items~~~~');
+                            console.log($scope.ActivePaymentPlan.payment_plan_items);
+
+                            angular.forEach($scope.ActivePaymentPlan.payment_plan_items,function(value,indexX){
+                                angular.forEach($scope.bills,function(value,indexY){
+                                    if($scope.bills[indexY].id == $scope.ActivePaymentPlan.payment_plan_items[indexX].bill_id){
+                                        $scope.paymentPlanBills.push($scope.bills[indexY]);
+                                        $scope.bills.splice($scope.bills[indexY], 1);
+                                    }
+                                });
                             });
+
+
                         }
                     });
                 }else{
@@ -124,19 +120,17 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             return total;
             };
 
-
             $scope.dueBeforeNext30 = function() {
-            var total = 0;
-            for(var i = 0; i < $scope.bills.length; i++){
-                if ($scope.differenceInDays($scope.bills[i].due_date) < 30){
-                    if($scope.bills[i].total_due){
-                        total += $scope.bills[i].total_due;
+                var total = 0;
+                for(var i = 0; i < $scope.bills.length; i++){
+                    if ($scope.differenceInDays($scope.bills[i].due_date) < 30){
+                        if($scope.bills[i].total_due){
+                            total += $scope.bills[i].total_due;
+                        }
                     }
                 }
-            }
-            return total;
+                return total;
             };
-
 
             $scope.daysBeforeNextPaycheck = function() {
                 return $scope.differenceInDays($scope.me.next_pay_date);
@@ -161,8 +155,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 //Moving Payment Plan To Bills
                 for(var i = $scope.paymentPlanBills.length; i--;){
                     var found = false;
-                    for(var j = 0; j < $scope.ActivePaymentPlan.items.length; j++){
-                        if($scope.paymentPlanBills[i].id == $scope.ActivePaymentPlan.items[j].bill_id){
+                    for(var j = 0; j < $scope.ActivePaymentPlan.payment_plan_items.length; j++){
+                        if($scope.paymentPlanBills[i].id == $scope.ActivePaymentPlan.payment_plan_items[j].bill_id){
                             found = true;
                         }
                     }
@@ -175,8 +169,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 //Moving Bills to Payment Plan
                 for(var i = $scope.bills.length; i--;){
                     var found = false;
-                    for(var j = 0; j < $scope.ActivePaymentPlan.items.length; j++){
-                        if($scope.bills[i].id == $scope.ActivePaymentPlan.items[j].bill_id){
+                    for(var j = 0; j < $scope.ActivePaymentPlan.payment_plan_items.length; j++){
+                        if($scope.bills[i].id == $scope.ActivePaymentPlan.payment_plan_items[j].bill_id){
                             found = true;
                         }
                     }
@@ -186,10 +180,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                     }
                 }
 
-
-
-
-                //ngToast.info("Plan Reset");
+                ngToast.info("Plan Reset");
             }
 
 
@@ -199,6 +190,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.savePaymentPlan = function(){
         if($scope.paymentPlanBills.length > 0){
             ngToast.info('Saving payment plan')
+            PaymentPlanItem.Save
         }
     }
 

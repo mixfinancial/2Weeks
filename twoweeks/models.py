@@ -383,6 +383,8 @@ class Payment_Plan(Base):
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
     accepted_flag = Column(Boolean, default=False)
+    payment_plan_items = relationship("Payment_Plan_Item", backref="payment_plan")
+
 
     @property
     def serialize(self):
@@ -394,6 +396,7 @@ class Payment_Plan(Base):
            'base_flag'          : self.base_flag,
            'accepted_flag'      : self.accepted_flag,
            'amount'             : str(self.amount),
+           'payment_plan_items' : [ item.serialize for item in self.payment_plan_items],
            'transfer_date'      : dump_datetime(self.transfer_date),
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)

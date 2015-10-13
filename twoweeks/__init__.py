@@ -1063,6 +1063,7 @@ class ApiPaymentPlan(Resource):
             if payment_plan is None:
                 return {"meta":buildMeta(), 'data':[]}
             else:
+
                 return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
         else:
             if accepted_flag is not None:
