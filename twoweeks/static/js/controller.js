@@ -156,8 +156,10 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
             $scope.resetBillPrep = function(){
                 console.log("resetting");
+                var deleteList = [];
 
-                for(var i = 0; i < $scope.paymentPlanBills.length; i++){
+                //Moving Payment Plan To Bills
+                for(var i = $scope.paymentPlanBills.length; i--;){
                     var found = false;
                     for(var j = 0; j < $scope.ActivePaymentPlan.items.length; j++){
                         if($scope.paymentPlanBills[i].id == $scope.ActivePaymentPlan.items[j].bill_id){
@@ -165,11 +167,27 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                         }
                     }
                     if (!found){
-                        console.log('removing: '+ $scope.paymentPlanBills[i].name);
                         $scope.bills.push($scope.paymentPlanBills[i]);
                         $scope.paymentPlanBills.splice(i, 1);
                     }
                 }
+
+                //Moving Bills to Payment Plan
+                for(var i = $scope.bills.length; i--;){
+                    var found = false;
+                    for(var j = 0; j < $scope.ActivePaymentPlan.items.length; j++){
+                        if($scope.bills[i].id == $scope.ActivePaymentPlan.items[j].bill_id){
+                            found = true;
+                        }
+                    }
+                    if (found){
+                        $scope.paymentPlanBills.push($scope.bills[i]);
+                        $scope.bills.splice(i, 1);
+                    }
+                }
+
+
+
 
                 //ngToast.info("Plan Reset");
             }
