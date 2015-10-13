@@ -830,11 +830,11 @@ class ApiBill(Resource):
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}
 
-        if bill_id is not None:
-            id = bill_id
-        elif request.args.get('user_id') is not None:
-            id = request.args.get('user_id')
-
+        if bill_id is None:
+            if request.args.get('bill_id') is not None:
+                bill_id = request.args.get('bill_id')
+            else:
+                return {"meta":buildMeta(), "error":"No Bill ID Provided"}
 
         bill = Bill.query.filter_by(id=bill_id).first()
         bill.user_id = user.id
@@ -1072,6 +1072,87 @@ class ApiPaymentPlan(Resource):
                 payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
 
             return {"meta":buildMeta(), "data":payment_plans}
+
+
+    @login_required
+    def put(self, payment_plan_id=None):
+        app.logger.info('Accessing PaymentPlan.put')
+
+        #TODO: Handle update
+        user_id = None
+        user = None
+        amount = None
+        base_flag = None
+        transfer_date = None
+        date_created = None
+        last_updated = None
+        accepted_flag = None
+        payment_plan_items = None
+
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+        if payment_plan_id is None:
+            if request.args.get('payment_plan_id') is not None:
+                bill_id = request.args.get('payment_plan_id')
+            else:
+                return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}
+
+        payment_plan = Payment_Plan.query.filter_by(id=payment_plan_id, user_id=user.id).first()
+        app.logger.info(payment_plan)
+
+        if payment_plan is None:
+            return {"meta":buildMeta(), 'error':'Could not find Payment Plan', 'data':[]}
+
+
+
+
+        if request_is_json():
+            app.logger.info('Updating Payment Plan based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'transfer_date':
+                        transfer_date = value
+                    elif key == 'accepted_flag':
+                        accepted_flag = value
+                    elif key == 'payment_plan_items':
+                        payment_plan_items = value
+            else:
+                return {"meta":buildMeta(), "error":"No JSON Data Sent"}
+        elif request_is_form_urlencode():
+            app.logger.info('Updating Payment Plan based upon form Request')
+            requestData = json.loads(request.form['data'])
+            if requestData is not None:
+                transfer_date = requestData['transfer_date']
+                accepted_flag = requestData['accepted_flag']
+                payment_plan_items = requestData['payment_plan_items']
+            else:
+                return {"meta":buildMeta(), "error":"No form Data Sent"}
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+
+        if payment_plan_items is not None:
+            print "Payment_Plan_Items"
+            print payment_plan_items
+            new_payment_plan_items = list()
+            for payment_plan_item in payment_plan_items:
+                new_payment_plan_items.append(Payment_Plan_Item(payment_plan_id=payment_plan_id, user_id=payment_plan_item['user_id'], bill_id=payment_plan_item['bill_id'], amount=payment_plan_item['amount']))
+
+            payment_plan.payment_plan_items = new_payment_plan_items;
+
+        app.logger.info('Saving Payment Plan')
+        db_session.commit()
+        return {"meta":buildMeta(), "data":payment_plan.serialize}
+
+
+
 
 api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/api/payment_plan/<string:payment_plan_id>')
 

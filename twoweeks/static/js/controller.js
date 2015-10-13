@@ -87,17 +87,18 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             $scope.ActivePaymentPlan = $scope.paymentPlans[index];
                             console.log('~~~Active Payment Plan~~~');
                             console.log($scope.paymentPlans[index]);
-                            console.log('~~~Payment Plan Items~~~~');
-                            console.log($scope.ActivePaymentPlan.payment_plan_items);
 
-                            angular.forEach($scope.ActivePaymentPlan.payment_plan_items,function(value,indexX){
-                                angular.forEach($scope.bills,function(value,indexY){
-                                    if($scope.bills[indexY].id == $scope.ActivePaymentPlan.payment_plan_items[indexX].bill_id){
-                                        $scope.paymentPlanBills.push($scope.bills[indexY]);
-                                        $scope.bills.splice($scope.bills[indexY], 1);
+                            //Pushing any bills to ActivePaymentPlan object that are in users active payment plan
+                            for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
+                                for(var j = $scope.bills.length; j--;){
+                                    if($scope.bills[j].id == $scope.ActivePaymentPlan.payment_plan_items[i].bill_id){
+                                        $scope.paymentPlanBills.push($scope.bills[j]);
+                                        $scope.bills.splice(j, 1);
                                     }
-                                });
-                            });
+                                }
+                            }
+
+
 
 
                         }
@@ -189,8 +190,28 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.savePaymentPlan = function(){
         if($scope.paymentPlanBills.length > 0){
+            var paymentPlanItems = [];
             ngToast.info('Saving payment plan')
-            PaymentPlanItem.Save
+
+            angular.forEach($scope.paymentPlanBills,function(value,index){
+                var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].total_due};
+                console.log(paymentPlanItem);
+                paymentPlanItems.push(paymentPlanItem);
+            });
+            console.log(paymentPlanItems);
+            PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems}), function(data){
+                if(data.error == null){
+                     if(data.data == null){
+                        ngToast.danger('No Data');
+                     }else{
+                        console.log(data.data);
+                        ngToast.success("Plan Saved");
+                        $scope.ActivePaymentPlan = data.data;
+                     }
+                }else{
+                    ngToast.danger('Error: ' + data.error);
+                }
+            });
         }
     }
 
