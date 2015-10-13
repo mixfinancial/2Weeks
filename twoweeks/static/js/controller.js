@@ -9,7 +9,7 @@ var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 /***********************
 * BILL PREP CONTROLLER *
 ************************/
-billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', 'notificationService', '$modal', 'Me', 'PaymentPlan', function($scope, $http, transformRequestAsFormPost, $location, Bill, notificationService, $modal, Me, PaymentPlan) {
+billsAppControllers.controller("billFormController",['$scope', '$http', '$routeParams', '$location', 'Bill', '$modal', 'Me', 'PaymentPlan', 'ngToast', function($scope, $http, transformRequestAsFormPost, $location, Bill, $modal, Me, PaymentPlan, ngToast) {
     $scope.date = new Date();
     $scope.animationsEnabled = true
     $scope.paymentPlanBills = [];
@@ -114,25 +114,40 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             $scope.addToPaymentPlan = function(bill){
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
-                notificationService.info(bill.name+" added to Plan");
+                ngToast.create(bill.name+" added to Plan");
             }
 
             $scope.removeFromPaymentPlan = function(paymentPlanBill){
                 $scope.bills.push(paymentPlanBill);
                 $scope.paymentPlanBills.splice($scope.paymentPlanBills.indexOf(paymentPlanBill), 1);
-                notificationService.notice(paymentPlanBill.name+" removed from Plan");
+                ngToast.create(paymentPlanBill.name+" removed from Plan");
             }
 
             $scope.resetBillPrep = function(){
                 console.log("resetting");
                 $scope.bills.push.apply($scope.bills, $scope.paymentPlanBills);
                 $scope.paymentPlanBills = [];
-                notificationService.notice("Plan Reset");
+                ngToast.create("Plan Reset");
             }
 
 
          });
      });
+
+
+    $scope.paymentPlanTotal = function(){
+    var total = 0;
+    if($scope.paymentPlanBills.length > 0){
+        for(var i = 0; i < $scope.paymentPlanBills.length; i++){
+            if ($scope.differenceInDays($scope.paymentPlanBills[i].due_date) < 30){
+                if($scope.paymentPlanBills[i].total_due){
+                    total += $scope.paymentPlanBills[i].total_due;
+                }
+            }
+        }
+    }
+    return total;
+    };
 
 
 
@@ -142,7 +157,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
        Bill.save(JSON.stringify(data), function(data) {
             console.log(data);
             $scope.bills.push(data.data);
-            notificationService.success("Bill Created");
+            ngToast.create("Bill Created");
        });
     };
 
@@ -151,7 +166,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
        var data = $scope.bills[$scope.bills.indexOf(index)];
        Bill.delete({billId: data.id}, function(data) {
         $scope.bills.splice($scope.bills.indexOf(index), 1);
-        notificationService.notice("Bill Deleted");
+        ngToast.create("Bill Deleted");
        });
     };
 
@@ -173,7 +188,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 /*****************************
 * BILL FORM MODAL CONTROLLER *
 ******************************/
-billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'notificationService', 'data', function ($scope, $modalInstance, Bill, notificationService, data) {
+billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'data', 'ngToast', function ($scope, $modalInstance, Bill, data, ngToast) {
     var action = 'new';
 
 
@@ -252,13 +267,13 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                     data.data.due_date = new Date(data.data.due_date);
                     data.data.total_due = parseFloat(data.data.total_due);
                     $modalInstance.close(data.data);
-                    notificationService.success("Bill Updated");
+                    ngToast.create("Bill Updated");
                 }else{
-                    notificationService.error("Error: "+data.error);
+                    ngToast.create("Error: "+data.error);
                 }
            }, function(error){
                 console.log(error);
-                notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+                ngToast.create("Received error status '"+error.status+"': "+error.statusText);
                 $scope.bill = backup;
                });
         }else{
@@ -269,13 +284,13 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                     data.data.due_date = new Date(data.data.due_date);
                     data.data.total_due = parseFloat(data.data.total_due);
                     $modalInstance.close(data.data);
-                    notificationService.success("Bill Added");
+                    ngToast.create("Bill Added");
                 }else{
-                    notificationService.error("Error: "+data.error);
+                    ngToast.create("Error: "+data.error);
                 }
            }, function(error){
                 console.log(error);
-                notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+                ngToast.create("Received error status '"+error.status+"': "+error.statusText);
                 $scope.bill = backup;
                });
 
@@ -296,7 +311,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
 
-loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'notificationService', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, notificationService, LoginCheck) {
+loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, ngToast, LoginCheck) {
 
     LoginCheck.get(function(data) {
         console.log(data);
@@ -331,14 +346,14 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
 
      $scope.submit = function() {
         if($scope.model.username == null || $scope.model.password == null){
-             notificationService.error("Please Enter username and password")
+             ngToast.create("Please Enter username and password")
         }else{
             Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
                 console.log(data)
                 if(data.error == null){
                     window.location.href = '/home/';
                 }else{
-                    notificationService.error(data.error)
+                    ngToast.create(data.error)
                     console.log(data.error);
                 }
             });
@@ -425,7 +440,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 
-menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'notificationService', function($scope, $http, $location, $modal, Me, notificationService) {
+menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'ngToast', function($scope, $http, $location, $modal, Me, ngToast) {
     $scope.uNameCollapse = true;
     $scope.uUserNameCollapse = true;
     $scope.uPasswordCollapse = true;
@@ -541,7 +556,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
          var data = {};
          data.id = $scope.me.id;
          if(toggleName == 'uUserNameCollapse'){
-            notificationService.info('uUserNameCollapse');
+            ngToast.create('uUserNameCollapse');
             $scope.toggleCollapse(null);
          }else if(toggleName == 'uNameCollapse'){
             if($scope.model.first_name != $scope.me.first_name){
@@ -554,16 +569,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                 if(data.error == null){
                     $scope.me.first_name = $scope.model.first_name
                     $scope.me.last_name = $scope.model.last_name
-                    notificationService.success("User Updated Successfully");
+                    ngToast.create("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
-                    notificationService.error("Error: " + data.error);
+                    ngToast.create("Error: " + data.error);
                     $scope.model.first_name = $scope.me.first_name;
                     $scope.model.last_name = $scope.me.last_name;
                 }
             }, function(error){
                 console.log(error);
-                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.first_name = $scope.me.first_name;
                 $scope.model.last_name = $scope.me.last_name;
             });
@@ -572,9 +587,9 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             if($scope.model.current_password && $scope.model.new_password && $scope.model.confirm_new_password){
 
                 if($scope.model.new_password != $scope.model.confirm_new_password){
-                    notificationService.error("New password and confirmation do not match");
+                    ngToast.create("New password and confirmation do not match");
                 }else if($scope.model.new_password == $scope.model.current_password){
-                    notificationService.error("New password must not be the same as the old password");
+                    ngToast.create("New password must not be the same as the old password");
                 }else{
 
                     data.current_password = $scope.model.current_password;
@@ -583,27 +598,27 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                     console.log(data);
                     Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                         if(data.error == null){
-                            notificationService.success("User Updated Successfully");
+                            ngToast.create("User Updated Successfully");
                             $scope.toggleCollapse(null);
                         }else{
-                            notificationService.error("Error: " + data.error);
+                            ngToast.create("Error: " + data.error);
                             $scope.model.first_name = $scope.me.first_name;
                             $scope.model.last_name = $scope.me.last_name;
                         }
                     }, function(error){
                         console.log(error);
-                        notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                        ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
                         $scope.model.first_name = $scope.me.first_name;
                         $scope.model.last_name = $scope.me.last_name;
                     });
                 }
 
             }else{
-                notificationService.error("Please make sure all required fields are provided");
+                ngToast.create("Please make sure all required fields are provided");
             }
 
          }else if(toggleName == 'uEmailCollapse'){
-            notificationService.info('uEmailCollapse');
+            ngToast.create('uEmailCollapse');
             $scope.toggleCollapse(null);
          }else if(toggleName == 'uPayRecurrence'){
             $scope.model.pay_recurrance_flag = $scope.model.selectedOption.value;
@@ -615,16 +630,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
                     $scope.me.pay_recurrance_flag = $scope.model.pay_recurrance_flag;
                     $scope.me.selectedOption = $scope.model.selectedOption;
 
-                    notificationService.success("User Updated Successfully");
+                    ngToast.create("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
-                    notificationService.error("Error: " + data.error);
+                    ngToast.create("Error: " + data.error);
                     //TODO: Add logic to revert option to current
                     $scope.model.pay_recurrance_flag = $scope.me.pay_recurrance_flag;
                 }
             }, function(error){
                 console.log(error);
-                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.pay_recurrance_flag = $scope.me.pay_recurrance_flag;
             });
          }else if(toggleName == 'uNextPayDate'){
@@ -634,16 +649,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     $scope.me.next_pay_date = $scope.model.next_pay_date
-                    notificationService.success("User Updated Successfully");
+                    ngToast.create("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
-                    notificationService.error("Error: " + data.error);
+                    ngToast.create("Error: " + data.error);
                     //TODO: Add logic to revert option to current
                     $scope.model.next_pay_date = $scope.me.next_pay_date;
                 }
             }, function(error){
                 console.log(error);
-                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.next_pay_date = $scope.me.next_pay_date;
             });
          }else if(toggleName == 'uAveragePaycheckAmount'){
@@ -653,16 +668,16 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             Me.update({userId: $scope.me.id}, JSON.stringify(data), function(data) {
                 if(data.error == null){
                     $scope.me.average_paycheck_amount = $scope.model.average_paycheck_amount
-                    notificationService.success("User Updated Successfully");
+                    ngToast.create("User Updated Successfully");
                     $scope.toggleCollapse(null);
                 }else{
-                    notificationService.error("Error: " + data.error);
+                    ngToast.create("Error: " + data.error);
                     //TODO: Add logic to revert option to current
                     $scope.model.average_paycheck_amount = $scope.me.average_paycheck_amount;
                 }
             }, function(error){
                 console.log(error);
-                notificationService.error("Error Saving User Updates '" + error.status + "': " + error.statusText);
+                ngToast.create("Error Saving User Updates '" + error.status + "': " + error.statusText);
                 $scope.model.average_paycheck_amount = $scope.me.average_paycheck_amount;
             });
          }
@@ -678,7 +693,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 /*********************************
 * FEEDBACK FORM MODAL CONTROLLER *
 *********************************/
-menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$modalInstance', 'notificationService', 'Feedback', function ($scope, $modalInstance, notificationService, Feedback) {
+menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$modalInstance', 'ngToast', 'Feedback', function ($scope, $modalInstance, ngToast, Feedback) {
 
     $scope.model = {};
     $scope.title = "Submit Feedback"
@@ -732,13 +747,13 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
        Feedback.create(JSON.stringify($scope.model), function(data) {
             if(data.error == null){
                 $modalInstance.close();
-                notificationService.success("Thank you for your feedback!");
+                ngToast.create("Thank you for your feedback!");
             }else{
-                notificationService.error("Error: "+data.error);
+                ngToast.create("Error: "+data.error);
             }
        }, function(error){
             console.log(error);
-            notificationService.error("Received error status '"+error.status+"': "+error.statusText);
+            ngToast.create("Received error status '"+error.status+"': "+error.statusText);
            });
     };
 

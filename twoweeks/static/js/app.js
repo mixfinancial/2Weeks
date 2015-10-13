@@ -5,14 +5,14 @@ var billsApp = angular.module('billsApp', [
     'ngRoute',
     'billsAppControllers',
     'menuBarAppControllers',
-    'jlareau.pnotify',
     'dbServices',
     'feedbackServices',
     'ui.bootstrap',
     'formly',
     'formlyBootstrap',
     'xeditable',
-    'ngAnimate'
+    'ngAnimate',
+    'ngToast'
 ]);
 
 
@@ -26,7 +26,7 @@ billsApp.run(function(editableOptions) {
 });
 
 
-billsApp.config(['$routeProvider', 'notificationServiceProvider', function($routeProvider, notificationServiceProvider) {
+billsApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.
     when('/billPrep', {
         templateUrl: '/static/partials/billPrep.html',
@@ -39,14 +39,6 @@ billsApp.config(['$routeProvider', 'notificationServiceProvider', function($rout
     otherwise({
         redirectTo: '/billPrep'
     });
-    notificationServiceProvider.setStack('bottom_right', 'stack-bottomright', {
-                dir1: 'up',
-                dir2: 'left',
-                firstpos1: 25,
-                firstpos2: 25
-            })
-    notificationServiceProvider.setDefaultStack('bottom_right');
-
 }]);
 
 

@@ -14,7 +14,11 @@
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
 
-      <link rel="stylesheet" href="{{ url_for('static', filename='css/pnotify.custom.min.css') }}">
+      <!-- ngToast CSS -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast.min.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast-animations.min.css') }}">
+
+      <!-- CSS -->
       <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 
 
@@ -42,31 +46,32 @@
       </script>
   </head>
   <body>
-  <div class="container" role="main" ng-app="loginApp">
-      <div class="row vertical-center-row">
-          <!-- ANGULAR APP -->
-          <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-offset-3 col-md-6 col-md-offset-3 col-lg-offset-3 col-lg-6" >
-              <div class="cover-container">
-                  <div class="inner cover">
-                      <h1 class="cover-heading">2Weeks</h1>
-                      <p class="lead">Simplify your Bills</p>
-                      <p class="lead">
-                      <div class="panel panel-default login-panel">
-                        <div class="panel-body">
-                            <!-- ANGULAR VIEW-FRAME -->
-                            <div ng-view class="view-frame"></div>
-                        </div>
+      <toast></toast>
+      <div class="container" role="main" ng-app="loginApp">
+          <div class="row vertical-center-row">
+              <!-- ANGULAR APP -->
+              <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-offset-3 col-md-6 col-md-offset-3 col-lg-offset-3 col-lg-6" >
+                  <div class="cover-container">
+                      <div class="inner cover">
+                          <h1 class="cover-heading">2Weeks</h1>
+                          <p class="lead">Simplify your Bills</p>
+                          <p class="lead">
+                          <div class="panel panel-default login-panel">
+                            <div class="panel-body">
+                                <!-- ANGULAR VIEW-FRAME -->
+                                <div ng-view class="view-frame"></div>
+                            </div>
+                          </div>
                       </div>
-                  </div>
-                  <div class="mastfoot">
-                      <div class="inner">
-                          <p>Mixfin LLC 2015</p>
+                      <div class="mastfoot">
+                          <div class="inner">
+                              <p>Mixfin LLC 2015</p>
+                          </div>
                       </div>
                   </div>
               </div>
           </div>
       </div>
-  </div>
 
       <!-- Include all compiled plugins (below), or include individual files as needed -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -98,10 +103,7 @@
       <script src="{{ url_for('static', filename='js/Controller.js') }}?v=1.0"></script>
       <script src="{{ url_for('static', filename='js/fb.js') }}"></script>
 
-
-       <!-- pNotify JS File -->
-       <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"></script>
-       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
-
+      <!-- NgToast-->
+      <script src="{{ url_for('static', filename='js/ngToast.min.js') }}"></script>
   </body>
 </html>

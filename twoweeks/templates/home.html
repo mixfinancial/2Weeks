@@ -16,9 +16,9 @@
       <!-- X-Editable -->
       <link href="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.9/css/xeditable.css" rel="stylesheet"/>
 
-      <!-- PNotify theme -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.buttons.min.css">
+      <!-- ngToast CSS -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast.min.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast-animations.min.css') }}">
 
       <!-- CSS -->
       <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -45,7 +45,7 @@
       </script>
   </head>
   <body ng-app="billsApp">
-
+    <toast></toast>
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-cloak>
         <div class="container-fluid" ng-controller="menuBarAppController">
             <div class="navbar-header">
@@ -82,57 +82,53 @@
     <div style="height:64px;">
         &nbsp;
     </div>
+    <div class="container theme-showcase" role="main">
+        <div class="row">
+            <!-- ANGULAR APP -->
+            <div class="col-md-12">
+                <!-- ANGULAR VIEW-FRAME -->
+                <div ng-view class="view-frame"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript for Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/api-check/7.5.0/api-check.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript for AngularJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-resource.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-route.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-animate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-cookies.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.0-beta.1/angular-sanitize.min.js"></script>
 
 
-      <div class="container theme-showcase" role="main">
-          <div class="row">
-              <!-- ANGULAR APP -->
-              <div class="col-md-12">
-                  <!-- ANGULAR VIEW-FRAME -->
-                  <div ng-view class="view-frame"></div>
-              </div>
-          </div>
-      </div>
+    <!-- Angular-Formly -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/7.1.1/formly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly-templates-bootstrap/6.1.0/angular-formly-templates-bootstrap.min.js"></script>
 
-      <!-- Include all compiled plugins (below), or include individual files as needed -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!-- BootstrapUI -->
+    <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script>
 
-      <!-- Latest compiled and minified JavaScript for Bootstrap -->
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Angular-Xeditable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.9/js/xeditable.min.js"></script>
 
+    <!-- Fastclick -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/api-check/7.5.0/api-check.min.js"></script>
-
-
-      <!-- Latest compiled and minified JavaScript for AngularJS -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-resource.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-route.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-animate.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-cookies.min.js"></script>
-
-      <!-- Angular-Formly -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/7.1.1/formly.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly-templates-bootstrap/6.1.0/angular-formly-templates-bootstrap.min.js"></script>
-
-      <!-- BootstrapUI -->
-      <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script>
-
-      <!-- Angular-Xeditable -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.9/js/xeditable.min.js"></script>
-
-      <!-- Fastclick -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>
-
-      <!-- 2Weeks AngularJS Files -->
-      <script src="{{ url_for('static', filename='js/App.js') }}?v=1.0"></script>
-      <script src="{{ url_for('static', filename='js/Controller.js') }}?v=1.0"></script>
-      <!-- <script src="{{ url_for('static', filename='js/fb.js') }}"></script> -->
+    <!-- 2Weeks AngularJS Files -->
+    <script src="{{ url_for('static', filename='js/App.js') }}?v=1.0"></script>
+    <script src="{{ url_for('static', filename='js/Controller.js') }}?v=1.0"></script>
+    <!-- <script src="{{ url_for('static', filename='js/fb.js') }}"></script> -->
 
 
-       <!-- pNotify JS File -->
-       <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"></script>
-       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
-
+    <!-- NgToast-->
+    <script src="{{ url_for('static', filename='js/ngToast.min.js') }}"></script>
   </body>
 </html>

@@ -70,10 +70,15 @@
                     <tbody>
                         <tr ng-repeat="paymentPlanBill in paymentPlanBills | orderBy: 'due_date' track by paymentPlanBill.id">
                             <td ng-click="removeFromPaymentPlan(paymentPlanBill)">{{paymentPlanBill.name}}</td>
-                            <td style="text-align: right;" ng-click="removeFromPaymentPlan(paymentPlanBill)">${{paymentPlanBill.total_due | number:2}}</td>
+                            <td class="col-sm-4" style="text-align: right;" ng-click="removeFromPaymentPlan(paymentPlanBill)">${{paymentPlanBill.total_due | number:2}}</td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="panel-body">
+                    <div style="text-align:right">
+                        Total: <span style="color:darkblue;">${{paymentPlanTotal() | number:2}}</span>
+                    </div>
+                </div>
                 <div class="panel-body">
                     <div style="text-align:right">
                         <div class="">
