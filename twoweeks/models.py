@@ -383,7 +383,7 @@ class Payment_Plan(Base):
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
     accepted_flag = Column(Boolean, default=False)
-    payment_plan_items = relationship("Payment_Plan_Item", backref="payment_plan")
+    payment_plan_items = relationship("Payment_Plan_Item", backref="payment_plan",cascade="all, save-update, merge, delete")
 
 
     @property
@@ -427,7 +427,7 @@ class Payment_Plan_Item(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     bill_id = Column(Integer, ForeignKey("bill.id"), nullable=False)
-    payment_plan_id = Column(Integer, ForeignKey("payment_plan.id"), nullable=True)
+    payment_plan_id = Column(Integer, ForeignKey("payment_plan.id"), nullable=False)
     amount = Column(Float(2))
 
     date_created = Column(DateTime(120), default=datetime.utcnow)

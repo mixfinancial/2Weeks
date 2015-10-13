@@ -189,7 +189,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
      });
 
     $scope.savePaymentPlan = function(){
-        if($scope.paymentPlanBills.length > 0){
             var paymentPlanItems = [];
             ngToast.info('Saving payment plan')
 
@@ -212,7 +211,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                     ngToast.danger('Error: ' + data.error);
                 }
             });
-        }
     }
 
 

@@ -1145,7 +1145,11 @@ class ApiPaymentPlan(Resource):
             for payment_plan_item in payment_plan_items:
                 new_payment_plan_items.append(Payment_Plan_Item(payment_plan_id=payment_plan_id, user_id=payment_plan_item['user_id'], bill_id=payment_plan_item['bill_id'], amount=payment_plan_item['amount']))
 
-            payment_plan.payment_plan_items = new_payment_plan_items;
+            Payment_Plan_Item.query.filter_by(payment_plan_id=payment_plan_id).delete()
+            db_session.commit()
+
+            payment_plan.payment_plan_items = new_payment_plan_items
+            db_session.commit()
 
         app.logger.info('Saving Payment Plan')
         db_session.commit()
