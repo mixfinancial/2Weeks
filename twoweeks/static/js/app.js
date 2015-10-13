@@ -68,9 +68,9 @@ var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
     'loginServices',
-    'jlareau.pnotify',
     'formly',
-    'formlyBootstrap'
+    'formlyBootstrap',
+    'ngToast'
 ]);
 
 

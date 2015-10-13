@@ -145,7 +145,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             $scope.addToPaymentPlan = function(bill){
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
-                //ngToast.create(bill.name+" added to Plan");
+                ngToast.create(bill.name+" added to Plan");
             }
 
             $scope.removeFromPaymentPlan = function(paymentPlanBill){
