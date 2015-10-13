@@ -324,6 +324,7 @@ class Bill(Base):
     funded_flag = Column(Boolean(), default=False)
     paid_date = Column(DateTime())
     check_number = Column(Integer)
+    payment_plan_items = relationship("Payment_Plan_Item", backref="bill",cascade="all, save-update, merge, delete")
 
     #A: Automatic
     #M: Manual
@@ -350,6 +351,7 @@ class Bill(Base):
            'paid_date'          : dump_datetime(self.paid_date),
            'check_number'       : self.check_number,
            'payment_type_ind'   : self.payment_type_ind,
+           'payment_plan_item'  : [ item.serialize for item in self.payment_plan_items],
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }
