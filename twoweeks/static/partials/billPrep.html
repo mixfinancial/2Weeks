@@ -40,7 +40,7 @@
                         <tr ng-repeat="bill in bills | orderBy: 'due_date' track by bill.id">
                             <td class="" ng-click="addToPaymentPlan(bill)">
                                 <span class="pull-left">
-                                    <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) < 7, 'badge-warning':differenceInDays(bill.due_date) < 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) > 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
+                                    <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) <= 7, 'badge-warning':differenceInDays(bill.due_date) <= 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) >= 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
                                     &nbsp;{{bill.due_date | date : 'EEE, MMM d'}} - {{bill.name}}</span>
                                 <span style="color:darkblue;" class="pull-right">
                                     ${{bill.total_due | number:2}}
@@ -70,8 +70,15 @@
                 <table id="payment-plan-table" class="table table-hover table-condensed bill-prep-table">
                     <tbody>
                         <tr ng-repeat="paymentPlanBill in paymentPlanBills | orderBy: 'due_date' track by paymentPlanBill.id">
-                            <td ng-click="removeFromPaymentPlan(paymentPlanBill)">{{paymentPlanBill.name}}</td>
-                            <td class="col-sm-4" style="text-align: right;" ng-click="removeFromPaymentPlan(paymentPlanBill)"><span style="color:darkblue;" class="pull-right">${{paymentPlanBill.total_due | number:2}}</span></td>
+                            <td ng-click="removeFromPaymentPlan(paymentPlanBill)">
+                                <span class="pull-left">{{paymentPlanBill.name}}&nbsp;<small>(${{paymentPlanBill.amount | number:2}})</small></span>
+                                <span style="color:darkblue;" class="pull-right">${{paymentPlanBill.amount | number:2}}<span>&nbsp;({{differenceBetweenBillAndPlan(paymentPlanBill) | number:2}}%)</span></span>
+                            </td>
+                            <td class="col-xs-1 centered">
+                                <p class="list-group-item-text centered">
+                                    <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editPaymentPlanItem(paymentPlanBill)"><span class="glyphicon glyphicon-edit"></span></button>
+                                </p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

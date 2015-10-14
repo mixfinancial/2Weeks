@@ -38,6 +38,34 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
       };
 
 
+
+    $scope.editPaymentPlanItem = function (item) {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/Prepare-EditPaymentPlanItemModalForm.html',
+          controller: 'EditPaymentPlanItemModalController',
+          resolve: {
+            data: function () {
+              return angular.copy($scope.paymentPlanBills[$scope.paymentPlanBills.indexOf(item)]);
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newPaymentPlanItem) {
+          angular.forEach($scope.paymentPlanBills,function(value,index){
+            if($scope.paymentPlanBills[index].id == newPaymentPlanItem.id){
+                $scope.paymentPlanBills.splice(index, 1);
+            }
+          });
+          $scope.paymentPlanBills.push(newPaymentPlanItem);
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+
     $scope.newBill = function () {
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
@@ -71,6 +99,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             angular.forEach($scope.bills,function(value,index){
                 $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
                 $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
+                $scope.bills[index].amount = parseFloat($scope.bills[index].total_due);
             });
 
             console.log('~~~Bills~~~');
@@ -92,6 +121,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
                                 for(var j = $scope.bills.length; j--;){
                                     if($scope.bills[j].id == $scope.ActivePaymentPlan.payment_plan_items[i].bill_id){
+                                        $scope.bills[j].amount = parseFloat($scope.ActivePaymentPlan.payment_plan_items[i].amount);
                                         $scope.paymentPlanBills.push($scope.bills[j]);
                                         $scope.bills.splice(j, 1);
                                     }
@@ -99,7 +129,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             }
 
 
-
+                            $scope.differenceBetweenBillAndPlan = function(paymentPlanBill){
+                                return (paymentPlanBill.amount/paymentPlanBill.total_due)*100;
+                            }
 
                         }
                     });
@@ -138,6 +170,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             };
 
             $scope.addToPaymentPlan = function(bill){
+                if(bill.amount == null){
+                    bill.amount = parseFloat(bill.total_due);
+                }
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
                 ngToast.create(bill.name+" added to Plan");
@@ -193,7 +228,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             //ngToast.info('Saving payment plan')
 
             angular.forEach($scope.paymentPlanBills,function(value,index){
-                var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].total_due};
+                var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].amount};
                 console.log(paymentPlanItem);
                 paymentPlanItems.push(paymentPlanItem);
             });
@@ -219,10 +254,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     var total = 0;
     if($scope.paymentPlanBills.length > 0){
         for(var i = 0; i < $scope.paymentPlanBills.length; i++){
-            if ($scope.differenceInDays($scope.paymentPlanBills[i].due_date) < 30){
-                if($scope.paymentPlanBills[i].total_due){
-                    total += $scope.paymentPlanBills[i].total_due;
-                }
+            if($scope.paymentPlanBills[i].amount){
+                total += parseFloat($scope.paymentPlanBills[i].amount);
             }
         }
     }
@@ -386,6 +419,35 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 }]);
 
+
+
+/*************************************
+* EDIT PAYMENT PLAN MODAL CONTROLLER *
+*************************************/
+billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', '$modalInstance', 'PaymentPlanItem', 'data', 'ngToast', function ($scope, $modalInstance, PaymentPlanItem, data, ngToast) {
+    var action = 'new';
+
+    $scope.title = "Edit Payment Plan Item"
+
+    $scope.model = data;
+
+
+     $scope.differenceInAmount = function() {
+       return $scope.model.total_due - $scope.model.amount;
+    };
+
+    $scope.submitModalForm = function(data) {
+       //console.log($scope.model);
+       $scope.model.amount = parseFloat($scope.model.amount);
+       $modalInstance.close($scope.model);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+
+}]);
 
 
 

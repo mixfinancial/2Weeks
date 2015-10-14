@@ -1097,7 +1097,7 @@ class ApiPaymentPlan(Resource):
 
         if payment_plan_id is None:
             if request.args.get('payment_plan_id') is not None:
-                bill_id = request.args.get('payment_plan_id')
+                payment_plan_id = request.args.get('payment_plan_id')
             else:
                 return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}
 
@@ -1155,9 +1155,6 @@ class ApiPaymentPlan(Resource):
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan.serialize}
 
-
-
-
 api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/api/payment_plan/<string:payment_plan_id>')
 
 
@@ -1213,6 +1210,67 @@ class ApiPaymentPlanItem(Resource):
                 payment_plan_items = [i.serialize for i in Payment_Plan_Item.query.filter_by(user_id=user.id)]
 
             return {"meta":buildMeta(), "data":payment_plan_items}
+
+
+    @login_required
+    def put(self, payment_plan_item_id=None):
+        app.logger.info('Accessing PaymentPlanItem.put')
+
+        #TODO: Handle update
+        user_id = None
+        user = None
+        amount = None
+
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+
+        if payment_plan_item_id is None:
+            if request.args.get('payment_plan_item_id') is not None:
+                payment_plan_item_id = request.args.get('payment_plan_item_id')
+            else:
+                return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}
+
+        payment_plan_item = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
+        app.logger.info(payment_plan_item)
+
+        if payment_plan_item is None:
+            return {"meta":buildMeta(), 'error':'Could not find Payment Plan Item', 'data':[]}
+
+
+
+
+        if request_is_json():
+            app.logger.info('Updating Payment Plan Item based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'amount':
+                        amount = value
+            else:
+                return {"meta":buildMeta(), "error":"No JSON Data Sent"}
+        elif request_is_form_urlencode():
+            app.logger.info('Updating Payment Plan Item based upon form Request')
+            requestData = json.loads(request.form['data'])
+            if requestData is not None:
+                amount = requestData['amount']
+            else:
+                return {"meta":buildMeta(), "error":"No form Data Sent"}
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+        if amount is not None:
+            payment_plan_item.amount = amount
+
+        app.logger.info('Saving Payment Plan Item')
+        db_session.commit()
+        return {"meta":buildMeta(), "data":payment_plan_item.serialize}
+
+
 
 api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_plan_item/', '/api/payment_plan_item/<string:payment_plan_item_id>')
 
