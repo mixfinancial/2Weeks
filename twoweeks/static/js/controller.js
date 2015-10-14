@@ -430,7 +430,38 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
     $scope.title = "Edit Payment Plan Item"
 
     $scope.model = data;
+    $scope.model.total_due = parseFloat($scope.model.total_due);
+    $scope.model.amount = parseFloat($scope.model.amount);
 
+
+    $scope.addTenPercent = function(){
+        var tenPercent = Math.round(($scope.model.total_due/10)*100)/100;
+        if((tenPercent + $scope.model.amount) >= $scope.model.total_due){
+            $scope.model.amount = $scope.model.total_due;
+        }else{
+            $scope.model.amount = Math.round(($scope.model.amount + tenPercent)*100)/100;
+        }
+    }
+
+    $scope.makeAmountTotal = function(){
+        $scope.model.amount = $scope.model.total_due;
+    }
+
+
+
+    $scope.subtractTenPercent = function(){
+        var tenPercent = Math.round(($scope.model.total_due/10)*100)/100;
+        if(($scope.model.amount - tenPercent) <= 0){
+            $scope.model.amount = 0
+        }else{
+            $scope.model.amount = Math.round(($scope.model.amount - tenPercent)*100)/100;
+        }
+    }
+
+    $scope.differencePercent = function() {
+       return Math.floor(($scope.model.amount/$scope.model.total_due)*100);
+
+    }
 
      $scope.differenceInAmount = function() {
        return $scope.model.total_due - $scope.model.amount;
@@ -448,8 +479,6 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 
 
 }]);
-
-
 
 
 

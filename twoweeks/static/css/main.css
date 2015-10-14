@@ -218,3 +218,7 @@
         line-height: 1;
         border-radius: 3px;
     }
+
+    input[type="number"] {
+        text-align:right;
+    }
