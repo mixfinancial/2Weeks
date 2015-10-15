@@ -76,7 +76,7 @@
                             </td>
                             <td class="col-xs-1 centered">
                                 <p class="list-group-item-text centered">
-                                    <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editPaymentPlanItem(paymentPlanBill)"><span class="glyphicon glyphicon-edit"></span></button>
+                                    <button class="btn btn-warning btn-xs" ng-click="editPaymentPlanItem(paymentPlanBill)"><span class="glyphicon glyphicon-edit"></span></button>
                                 </p>
                             </td>
                         </tr>
@@ -90,11 +90,10 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div style="text-align:right">
-                        <div class="">
-                        <button class="btn btn-sm btn-warning" ng-click="resetBillPrep()"><span class="glyphicon glyphicon-trash"></span>&nbsp;Reset</button>
+                    <div class="pull-right">
+                        <button class="btn btn-sm btn-warning" ng-click="resetBillPrep()"><span class="glyphicon glyphicon-fast-backward"></span>&nbsp;Reset</button>
                         <button class="btn btn-sm btn-primary" ng-click="savePaymentPlan()"><span class="glyphicon glyphicon-save"></span>&nbsp;Save</button>
-                        </div>
+                        <button class="btn btn-sm btn-success"  ng-really-message="Are you sure you are ready to execute this plan?" ng-really-click="executePaymentPlan()"><span class="glyphicon glyphicon-flash"></span>&nbsp;Execute</button>
                     </div>
                 </div>
             </div>

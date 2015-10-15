@@ -784,8 +784,6 @@ class ApiBill(Resource):
                 app.logger.info('funded flag is FALSE')
                 funded_flag = False
 
-
-
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
             bill = Bill.query.filter_by(id=billId, user_id=user.id, paid_flag=paid_flag).first()
@@ -1056,7 +1054,7 @@ class ApiPaymentPlan(Resource):
 
 
         if paymentPlanId is not None:
-            app.logger.info("looking for bill:" + paymentPlanId)
+            app.logger.info("looking for payment plan:" + paymentPlanId)
             payment_plan = Payment_Plan.query.filter_by(id=paymentPlanId, user_id=user.id).first()
             app.logger.info(payment_plan)
 
@@ -1067,7 +1065,17 @@ class ApiPaymentPlan(Resource):
                 return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
         else:
             if accepted_flag is not None:
-                payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
+                if accepted_flag is False:
+                    payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
+                    if payment_plans is None:
+                        #User does not have a working payment plan...creating new one
+                        app.logger.info('User does not have a working payment plan...creating new one')
+                        newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=accepted_flag, base_flag=False, amount=0)
+                        db_session.add(newPaymentPlan)
+                        db_session.commit()
+                        return {"meta":buildMeta(), "data":newPaymentPlan}
+                else:
+                    payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
             else:
                 payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
 
@@ -1106,8 +1114,6 @@ class ApiPaymentPlan(Resource):
 
         if payment_plan is None:
             return {"meta":buildMeta(), 'error':'Could not find Payment Plan', 'data':[]}
-
-
 
 
         if request_is_json():

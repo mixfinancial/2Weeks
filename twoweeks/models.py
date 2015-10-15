@@ -19,7 +19,7 @@ def dump_datetime(value):
         return None
 
     #return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
-    return value.strftime("%Y-%m-%d") + " " + value.strftime("%H:%M:%S")
+    return value.strftime("%Y-%m-%d") + "T" + value.strftime("%H:%M:%S")
 
 def dump_date(value):
     """Deserialize datetime object into string form for JSON processing."""

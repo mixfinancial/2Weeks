@@ -262,7 +262,22 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     return total;
     };
 
-
+    $scope.executePaymentPlan = function() {
+        $scope.ActivePaymentPlan.accepted_flag = true;
+        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify($scope.ActivePaymentPlan), function(data){
+            if(data.error == null){
+                 if(data.data == null){
+                    ngToast.danger('No Data');
+                 }else{
+                    console.log(data.data);
+                    ngToast.success("Plan Saved");
+                    $scope.ActivePaymentPlan = data.data;
+                 }
+            }else{
+                ngToast.danger('Error: ' + data.error);
+            }
+        });
+    }
 
     $scope.submit = function() {
        var data = $scope.bill;
