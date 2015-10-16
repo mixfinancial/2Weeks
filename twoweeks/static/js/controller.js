@@ -104,7 +104,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             console.log('~~~Bills~~~');
             console.log($scope.bills);
 
-            PaymentPlan.query({accepted_flag:false}, function(data){
+            PaymentPlan.query({accepted_flag:false, base_flag:false}, function(data){
                 if(data.error == null){
                     $scope.paymentPlan = data.data;
                     console.log('~~~Payment Plans~~~');
@@ -114,7 +114,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                         $scope.ActivePaymentPlan = $scope.paymentPlan;
                         console.log('~~~Active Payment Plan~~~');
                         console.log($scope.paymentPlan);
-                        
+
                         //Pushing any bills to ActivePaymentPlan object that are in users active payment plan
                         for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
                             for(var j = $scope.bills.length; j--;){

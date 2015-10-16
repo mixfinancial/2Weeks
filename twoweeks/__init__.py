@@ -1054,7 +1054,7 @@ class ApiPaymentPlan(Resource):
                 app.logger.info('accepted_flag is false')
                 accepted_flag = False
 
-
+        #TODO: Add some logic for "Base_flag" filtering
         if paymentPlanId is not None:
             app.logger.info("looking for payment plan:" + paymentPlanId)
             payment_plan = Payment_Plan.query.filter_by(id=paymentPlanId, user_id=user.id).first()
