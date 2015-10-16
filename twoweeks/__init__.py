@@ -1135,6 +1135,8 @@ class ApiPaymentPlan(Resource):
                         accepted_flag = value
                     elif key == 'payment_plan_items':
                         payment_plan_items = value
+                    elif key == 'amount':
+                        amount = value
             else:
                 return {"meta":buildMeta(), "error":"No JSON Data Sent"}
         elif request_is_form_urlencode():
@@ -1144,11 +1146,15 @@ class ApiPaymentPlan(Resource):
                 transfer_date = requestData['transfer_date']
                 accepted_flag = requestData['accepted_flag']
                 payment_plan_items = requestData['payment_plan_items']
+                amount = requestData['amount']
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
+
+        if amount is not None:
+            payment_plan.amount = amount
 
         if payment_plan_items is not None:
             print "Payment_Plan_Items"
@@ -1162,6 +1168,26 @@ class ApiPaymentPlan(Resource):
 
             payment_plan.payment_plan_items = new_payment_plan_items
             db_session.commit()
+
+
+
+        if accepted_flag is not None:
+            if str(accepted_flag).upper() == 'TRUE':
+                accepted_flag = True
+            elif str(accepted_flag).upper() == 'FALSE':
+                accepted_flag = False
+
+
+            if accepted_flag is True:
+                payment_plan.accepted_flag = True
+                #TODO: Process existing payment plan
+                app.logger.info('creating new working payment plan')
+                newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=accepted_flag, base_flag=False, amount=0)
+                db_session.add(newPaymentPlan)
+
+            elif accepted_flag is False:
+                payment_plan.accepted_flag = False
+
 
         app.logger.info('Saving Payment Plan')
         db_session.commit()

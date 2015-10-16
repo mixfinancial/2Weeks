@@ -221,30 +221,35 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
      });
 
     $scope.savePaymentPlan = function(){
-            var paymentPlanItems = [];
-            //ngToast.info('Saving payment plan')
-
-            angular.forEach($scope.paymentPlanBills,function(value,index){
-                var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].amount};
-                console.log(paymentPlanItem);
-                paymentPlanItems.push(paymentPlanItem);
-            });
-            console.log(paymentPlanItems);
-            PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems}), function(data){
-                if(data.error == null){
-                     if(data.data == null){
-                        ngToast.danger('No Data');
-                     }else{
-                        console.log(data.data);
-                        ngToast.success("Plan Saved");
-                        $scope.ActivePaymentPlan = data.data;
-                     }
-                }else{
-                    ngToast.danger('Error: ' + data.error);
-                }
-            });
+        savePaymentPlan();
     }
 
+
+    function savePaymentPlan(){
+        console.log('Saving Payment Plan');
+        var paymentPlanItems = [];
+        //ngToast.info('Saving payment plan')
+
+        angular.forEach($scope.paymentPlanBills,function(value,index){
+            var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].amount};
+            console.log(paymentPlanItem);
+            paymentPlanItems.push(paymentPlanItem);
+        });
+        console.log(paymentPlanItems);
+        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems}), function(data){
+            if(data.error == null){
+                 if(data.data == null){
+                    ngToast.danger('No Data');
+                 }else{
+                    console.log(data.data);
+                    ngToast.success("Plan Saved");
+                    $scope.ActivePaymentPlan = data.data;
+                 }
+            }else{
+                ngToast.danger('Error: ' + data.error);
+            }
+        });
+    }
 
 
     $scope.paymentPlanTotal = function(){
@@ -260,20 +265,51 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     };
 
     $scope.executePaymentPlan = function() {
-        $scope.ActivePaymentPlan.accepted_flag = true;
-        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify($scope.ActivePaymentPlan), function(data){
-            if(data.error == null){
-                 if(data.data == null){
-                    ngToast.danger('No Data');
-                 }else{
-                    console.log(data.data);
-                    ngToast.success("Plan Saved");
-                    $scope.ActivePaymentPlan = data.data;
-                 }
-            }else{
-                ngToast.danger('Error: ' + data.error);
-            }
-        });
+
+        if ($scope.paymentPlanBills.length > 0){
+            console.log('Saving Payment Plan');
+            var paymentPlanItems = [];
+            //ngToast.info('Saving payment plan')
+
+            angular.forEach($scope.paymentPlanBills,function(value,index){
+                var paymentPlanItem = {bill_id: $scope.paymentPlanBills[index].id, user_id:$scope.me.id, amount:$scope.paymentPlanBills[index].amount};
+                console.log(paymentPlanItem);
+                paymentPlanItems.push(paymentPlanItem);
+            });
+            console.log(paymentPlanItems);
+            PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems}), function(data){
+                if(data.error == null){
+                     if(data.data == null){
+                        ngToast.danger('No Data');
+                     }else{
+                        console.log(data.data);
+                        $scope.ActivePaymentPlan = data.data;
+
+
+                        $scope.ActivePaymentPlan.accepted_flag = true;
+                        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify($scope.ActivePaymentPlan), function(data){
+                            if(data.error == null){
+                                 if(data.data == null){
+                                    ngToast.danger('No Data');
+                                 }else{
+                                    console.log(data.data);
+                                    ngToast.success("Plan Saved");
+                                    window.location.href = '/home/';
+                                 }
+                            }else{
+                                ngToast.danger('Error: ' + data.error);
+                            }
+                        });
+
+
+                     }
+                }else{
+                    ngToast.danger('Error: ' + data.error);
+                }
+            });
+        }else{
+            ngToast.warning('You must select a bill to pay to execute a funding plan')
+        }
     }
 
     $scope.submit = function() {
@@ -420,7 +456,6 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                 ngToast.danger("Received error status '"+error.status+"': "+error.statusText);
                 $scope.bill = backup;
                });
-
         }
 
     };
