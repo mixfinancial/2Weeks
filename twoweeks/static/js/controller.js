@@ -14,6 +14,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.animationsEnabled = true
     $scope.paymentPlanBills = [];
 
+    $scope.disableSave = true;
+    $scope.disableReset = true;
+
     $scope.editBill = function (index) {
         //console.log(index);
         //console.log($scope.bills.indexOf(index));
@@ -35,8 +38,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
           console.log('Modal dismissed at: ' + new Date());
         });
       };
-
-
 
     $scope.editPaymentPlanItem = function (item) {
         //console.log(index);
@@ -126,6 +127,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             }
                         }
 
+                        if($scope.paymentPlanBills.length > 0){
+                            $scope.disableExecute = false;
+                        }
 
                         $scope.differenceBetweenBillAndPlan = function(paymentPlanBill){
                             return (paymentPlanBill.amount/paymentPlanBill.total_due)*100;
@@ -173,13 +177,23 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
                 ngToast.create(bill.name+" added to Plan");
+
+                $scope.disableSave = false;
+                $scope.disableExecute = true;
+                $scope.disableReset = false;
             }
+
 
             $scope.removeFromPaymentPlan = function(paymentPlanBill){
                 $scope.bills.push(paymentPlanBill);
                 $scope.paymentPlanBills.splice($scope.paymentPlanBills.indexOf(paymentPlanBill), 1);
                 ngToast.create(paymentPlanBill.name+" removed from Plan");
+
+                $scope.disableSave = false;
+                $scope.disableExecute = true;
+                $scope.disableReset = false;
             }
+
 
             $scope.resetBillPrep = function(){
                 console.log("resetting");
@@ -214,6 +228,16 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                 }
 
                 ngToast.info("Plan Reset");
+
+                $scope.disableSave = true;
+
+                if($scope.paymentPlanBills.length > 0){
+                    $scope.disableExecute = false;
+                }else{
+                    $scope.disableExecute = true;
+                }
+
+                $scope.disableReset = true;
             }
 
 
@@ -244,6 +268,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                     console.log(data.data);
                     ngToast.success("Plan Saved");
                     $scope.ActivePaymentPlan = data.data;
+                    $scope.disableSave = true;
+                    $scope.disableExecute = false;
+                    $scope.disableReset = true;
                  }
             }else{
                 ngToast.danger('Error: ' + data.error);
@@ -323,6 +350,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     };
 
     $scope.deleteBill = function(index, $window, $location) {
+       //TODO: Add logic to check for already approved bill payment items
+       //TODO: Add logic to delete bill pay items
        console.log('attempting to delete bill index #'+index);
        var data = $scope.bills[$scope.bills.indexOf(index)];
        Bill.delete({billId: data.id}, function(data) {
