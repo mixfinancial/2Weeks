@@ -8,16 +8,30 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Welcome to 2Weeks!</title>
 
+
       <!-- Latest compiled and minified CSS -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <!-- Optional theme -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-      <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+      <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">-->
 
+      <!-- X-Editable -->
+      <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.9/css/xeditable.css" rel="stylesheet"/> -->
+
+      <!-- ngToast CSS -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast.min.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/ngToast-animations.min.css') }}">
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
       <!-- GOOGLE WEBMASTER TOOLS -->
       <meta name="google-site-verification" content="MwHU_cofD8jJ_ri51e1Ne9TFog2qzQA03R96duCMpx4" />
 
+      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+      <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
 
       <!-- GOOGLE ANALYTICS -->
       <script>
@@ -60,39 +74,42 @@
           </div>
         </div>
 
-      <!-- Include all compiled plugins (below), or include individual files as needed -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
-      <!-- Latest compiled and minified JavaScript for Bootstrap -->
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified JavaScript for Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/api-check/7.5.0/api-check.min.js"></script>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/api-check/7.5.0/api-check.min.js"></script>
-
-
-      <!-- Latest compiled and minified JavaScript for AngularJS -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-resource.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-route.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-animate.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-cookies.min.js"></script>
-
-
-      <!-- Angular-Formly -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/7.1.1/formly.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly-templates-bootstrap/6.1.0/angular-formly-templates-bootstrap.min.js"></script>
-
-      <!-- BootstrapUI -->
-      <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script>
-
-      <!-- 2Weeks AngularJS Files -->
-      <script src="{{ url_for('static', filename='js/adminApp.js') }}?v=1.0"></script>
-      <script src="{{ url_for('static', filename='js/adminController.js') }}?v=1.0"></script>
-
-       <!-- pNotify JS File -->
-       <script src="https://cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"></script>
-       <script src="{{ url_for('static', filename='js/angular-pnotify.js') }}"></script>
+    <!-- Latest compiled and minified JavaScript for AngularJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-resource.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-route.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-animate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-cookies.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular-sanitize.min.js"></script>
 
 
+    <!-- Angular-Formly -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/7.1.1/formly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly-templates-bootstrap/6.1.0/angular-formly-templates-bootstrap.min.js"></script>
+
+    <!-- BootstrapUI -->
+    <script src="{{ url_for('static', filename='js/ui-bootstrap-tpls-0.13.4.min.js') }}"></script>
+
+    <!-- Angular-Xeditable -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.9/js/xeditable.min.js"></script>-->
+
+    <!-- Fastclick -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>
+
+    <!-- NgToast-->
+    <script src="{{ url_for('static', filename='js/ngToast.min.js') }}"></script>
+
+    <!-- 2Weeks AngularJS Files -->
+    <script src="{{ url_for('static', filename='js/adminApp.js') }}?v=1.0"></script>
+    <script src="{{ url_for('static', filename='js/adminController.js') }}?v=1.0"></script>
+    <!-- <script src="{{ url_for('static', filename='js/fb.js') }}"></script> -->
   </body>
 </html>

@@ -3,12 +3,39 @@
 var myApp = angular.module('myApp', [
     'ngRoute',
     'userControllers',
-    'dbServices',
+    'loginAppControllers',
     'loginServices',
-    'jlareau.pnotify'
+    'dbServices',
+    'ui.bootstrap',
+    'formly',
+    'formlyBootstrap',
+    'ngAnimate',
+    'ngToast',
+    'ngCookies'
 ]);
 
-myApp.config(['$routeProvider', function($routeProvider) {
+
+myApp.run(function() {
+    FastClick.attach(document.body);
+});
+
+
+myApp.directive('ngReallyClick', [function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.bind('click', function() {
+                var message = attrs.ngReallyMessage;
+                if (message && confirm(message)) {
+                    scope.$apply(attrs.ngReallyClick);
+                }
+            });
+        }
+    }
+}]);
+
+
+myApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, ngToastProvider) {
     $routeProvider.
     when('/usersTable', {
         templateUrl: '/static/partials/adminUsersTable.html',
@@ -33,6 +60,13 @@ myApp.config(['$routeProvider', function($routeProvider) {
     otherwise({
         redirectTo: '/usersTable'
     });
+
+
+    ngToastProvider.configure({
+        animation: 'fade',
+        dismissButton: 'true',
+        verticalPosition: 'bottom'
+    });
 }]);
 
 
@@ -51,9 +85,9 @@ dbServices.factory('User', ['$resource',
     return $resource('/api/user/:userId', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
-      'save': {method:'POST', isArray:false},
+      'create': {method:'POST', isArray:false},
       'delete': {method:'DELETE', params:{userId:'users'}, isArray:false},
-      'put': {method:'PUT', isArray:false}
+      'update': {method:'PUT', isArray:false}
     });
   }]);
 
@@ -63,9 +97,9 @@ dbServices.factory('Bill', ['$resource',
     return $resource('/api/bill/:billId', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{billId:'bills'}, isArray:false},
-      'save': {method:'POST', isArray:false},
+      'create': {method:'POST', isArray:false},
       'delete': {method:'DELETE', params:{billId:'bills'}, isArray:false},
-      'put': {method:'PUT', isArray:false}
+      'update': {method:'PUT', isArray:false}
     });
   }]);
 
@@ -87,4 +121,9 @@ loginServices.factory('Login', ['$resource',
     });
   }]);
 
-
+loginServices.factory('LoginCheck', ['$resource',
+  function($resource){
+    return $resource('/api/login_check/', {}, {
+      'get': {method:'GET', isArray:false}
+    });
+  }]);

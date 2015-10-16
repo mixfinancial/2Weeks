@@ -14,7 +14,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.animationsEnabled = true
     $scope.paymentPlanBills = [];
 
-
     $scope.editBill = function (index) {
         //console.log(index);
         //console.log($scope.bills.indexOf(index));
@@ -577,13 +576,13 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', 'ngToast', function($scope, $http, $location, $modal, Me, Feedback, ngToast) {
+menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', 'ngToast', '$cookies', function($scope, $http, $location, $modal, Me, Feedback, ngToast, $cookies) {
 
     $scope.isActive = function (viewLocation) {
         return viewLocation === $location.path();
     };
-
-
+    console.log('~~~Cookie~~~');
+    console.log($cookies.getAll());
     Me.query(function(data) {
         console.log(data.data[0]);
         $scope.me = data.data[0];

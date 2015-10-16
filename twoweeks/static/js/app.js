@@ -10,19 +10,14 @@ var billsApp = angular.module('billsApp', [
     'ui.bootstrap',
     'formly',
     'formlyBootstrap',
-    'xeditable',
     'ngAnimate',
-    'ngToast'
+    'ngToast',
+    'ngCookies'
 ]);
 
 
 billsApp.run(function() {
     FastClick.attach(document.body);
-});
-
-
-billsApp.run(function(editableOptions) {
-  editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 });
 
 
