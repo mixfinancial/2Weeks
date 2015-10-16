@@ -132,8 +132,9 @@ class User(Base, UserMixin):
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
     role_id = Column(Integer, ForeignKey('role.id'))
-    bill = relationship("Bill")
+    account_balance_amount = Column(Float(2), default=0);
 
+    bill = relationship("Bill")
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
 
     #TODO: This needs to be changed to an Indicator...
@@ -230,6 +231,7 @@ class User(Base, UserMixin):
            'confirmed_at'            : self.confirmed_at,
            'next_pay_date'           : dump_datetime(self.next_pay_date),
            'pay_recurrance_flag'     : self.pay_recurrance_flag,
+           'account_balance_amount'  : self.account_balance_amount,
            'average_paycheck_amount' : self.average_paycheck_amount,
            'date_created'            : dump_datetime(self.date_created),
            'last_updated'            : dump_datetime(self.last_updated)

@@ -40,27 +40,19 @@
         ga('send', 'pageview');
       </script>
   </head>
-  <body ng-app="myApp">
+  <body ng-app="loginApp">
+      <toast></toast>
       <div class="container" role="main">
           <div class="row vertical-center-row">
               <!-- ANGULAR APP -->
-              <div class="col-md-offset-3 col-md-6" ng-app="myApp">
+              <div class="col-md-offset-3 col-md-6">
                   <div class="panel panel-default login-panel">
                       <div class="panel-heading">
                           <h3 class="panel-title">2Weeks Administration Console</h3>
                       </div>
                       <div class="panel-body">
-                          <section ng-controller="loginAppLoginController">
-                              <form ng-submit="submit()" novalidate name="loginForm">
-                                  <formly-form model="model" form="loginForm" id="loginForm" fields="formFields" novalidate>
-                                      <hr/>
-                                      <div class="centered">
-                                          <button type="submit" class="btn btn-default" ng-click="submit()">Login</button> &nbsp;or&nbsp;
-                                          <a href="#Register" class="btn btn-default" disabled>Register</a>
-                                      </div>
-                                  </formly-form>
-                              </form>
-                          </section>
+                          <!-- ANGULAR VIEW-FRAME -->
+                          <div ng-view class="view-frame"></div>
                       </div>
                   </div>
               </div>

@@ -3,8 +3,6 @@
 var myApp = angular.module('myApp', [
     'ngRoute',
     'userControllers',
-    'loginAppControllers',
-    'loginServices',
     'dbServices',
     'ui.bootstrap',
     'formly',
@@ -68,6 +66,41 @@ myApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, ngTo
         verticalPosition: 'bottom'
     });
 }]);
+
+
+
+
+
+
+var loginApp = angular.module('loginApp', [
+    'ngRoute',
+    'loginAppControllers',
+    'loginServices',
+    'formly',
+    'formlyBootstrap',
+    'ngToast'
+]);
+
+
+loginApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, ngToastProvider) {
+    $routeProvider.
+    when('/login', {
+        templateUrl: '/static/partials/loginAppLoginView.html',
+        controller: 'loginAppLoginController'
+    }).
+    otherwise({
+        templateUrl: '/static/partials/loginAppLoginView.html',
+        controller: 'loginAppLoginController'
+    });
+
+
+    ngToastProvider.configure({
+        animation: 'fade',
+        dismissButton: 'true',
+        verticalPosition: 'bottom'
+    });
+}]);
+
 
 
 

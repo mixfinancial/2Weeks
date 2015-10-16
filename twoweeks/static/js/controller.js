@@ -536,7 +536,7 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
                 if(data.error == null){
                     window.location.href = '/home/';
                 }else{
-                    ngToast.danger(data.error)
+                    ngToast.danger(data.error);
                     console.log(data.error);
                 }
             });
