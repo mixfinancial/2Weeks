@@ -324,6 +324,8 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
         $scope.model.due_date = new Date(data.due_date);
     }else{
         $scope.title = "Create New Bill"
+        $scope.model = {};
+        $scope.model.payment_type_ind = "M";
     }
 
     $scope.formFields = [
