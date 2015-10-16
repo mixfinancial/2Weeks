@@ -1048,8 +1048,10 @@ class ApiPaymentPlan(Resource):
 
         if request.args.get('accepted_flag') is not None:
             if request.args.get('accepted_flag').upper() == 'TRUE':
+                app.logger.info('accepted_flag is true')
                 accepted_flag = True
             elif request.args.get('accepted_flag').upper() == 'FALSE':
+                app.logger.info('accepted_flag is false')
                 accepted_flag = False
 
 
@@ -1061,25 +1063,29 @@ class ApiPaymentPlan(Resource):
             if payment_plan is None:
                 return {"meta":buildMeta(), 'data':[]}
             else:
-
                 return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
         else:
             if accepted_flag is not None:
+                #There should only be 1 record with accepted_flag of false...if there are no records, create one
                 if accepted_flag is False:
-                    payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
-                    if payment_plans is None:
+                    payment_plan = Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag).first()
+                    if payment_plan is None:
                         #User does not have a working payment plan...creating new one
                         app.logger.info('User does not have a working payment plan...creating new one')
                         newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=accepted_flag, base_flag=False, amount=0)
                         db_session.add(newPaymentPlan)
                         db_session.commit()
-                        return {"meta":buildMeta(), "data":newPaymentPlan}
+                        payment_plan = newPaymentPlan.serialize
+                        return {"meta":buildMeta(), "data":payment_plan}
+                    else:
+                        return {"meta":buildMeta(), "data":payment_plan.serialize}
                 else:
                     payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
+                    return {"meta":buildMeta(), "data":payment_plans}
             else:
                 payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
+                return {"meta":buildMeta(), "data":payment_plans}
 
-            return {"meta":buildMeta(), "data":payment_plans}
 
 
     @login_required

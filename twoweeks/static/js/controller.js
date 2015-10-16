@@ -104,36 +104,34 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             console.log('~~~Bills~~~');
             console.log($scope.bills);
 
-            PaymentPlan.query(function(data){
+            PaymentPlan.query({accepted_flag:false}, function(data){
                 if(data.error == null){
-                    $scope.paymentPlans = data.data;
+                    $scope.paymentPlan = data.data;
                     console.log('~~~Payment Plans~~~');
-                    console.log($scope.paymentPlans);
-                    angular.forEach($scope.paymentPlans,function(value,index){
-                        $scope.paymentPlans[index].transfer_date = new Date($scope.paymentPlans[index].transfer_date);
-                        if ($scope.paymentPlans[index].accepted_flag == false && $scope.paymentPlans[index].base_flag == false){
-                            $scope.ActivePaymentPlan = $scope.paymentPlans[index];
-                            console.log('~~~Active Payment Plan~~~');
-                            console.log($scope.paymentPlans[index]);
-
-                            //Pushing any bills to ActivePaymentPlan object that are in users active payment plan
-                            for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
-                                for(var j = $scope.bills.length; j--;){
-                                    if($scope.bills[j].id == $scope.ActivePaymentPlan.payment_plan_items[i].bill_id){
-                                        $scope.bills[j].amount = parseFloat($scope.ActivePaymentPlan.payment_plan_items[i].amount);
-                                        $scope.paymentPlanBills.push($scope.bills[j]);
-                                        $scope.bills.splice(j, 1);
-                                    }
+                    console.log($scope.paymentPlan);
+                    $scope.paymentPlan.transfer_date = new Date($scope.paymentPlan.transfer_date);
+                    if ($scope.paymentPlan.accepted_flag == false && $scope.paymentPlan.base_flag == false){
+                        $scope.ActivePaymentPlan = $scope.paymentPlan;
+                        console.log('~~~Active Payment Plan~~~');
+                        console.log($scope.paymentPlan);
+                        
+                        //Pushing any bills to ActivePaymentPlan object that are in users active payment plan
+                        for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
+                            for(var j = $scope.bills.length; j--;){
+                                if($scope.bills[j].id == $scope.ActivePaymentPlan.payment_plan_items[i].bill_id){
+                                    $scope.bills[j].amount = parseFloat($scope.ActivePaymentPlan.payment_plan_items[i].amount);
+                                    $scope.paymentPlanBills.push($scope.bills[j]);
+                                    $scope.bills.splice(j, 1);
                                 }
                             }
-
-
-                            $scope.differenceBetweenBillAndPlan = function(paymentPlanBill){
-                                return (paymentPlanBill.amount/paymentPlanBill.total_due)*100;
-                            }
-
                         }
-                    });
+
+
+                        $scope.differenceBetweenBillAndPlan = function(paymentPlanBill){
+                            return (paymentPlanBill.amount/paymentPlanBill.total_due)*100;
+                        }
+
+                    }
                 }else{
                     ngToast.danger("Error: "+data.error);
                 }
