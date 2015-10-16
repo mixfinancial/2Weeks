@@ -226,6 +226,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                         $scope.bills.splice(i, 1);
                     }
                 }
+                $scope.amount = paymentPlanTotal();
 
                 ngToast.info("Plan Reset");
 
@@ -260,7 +261,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             paymentPlanItems.push(paymentPlanItem);
         });
         console.log(paymentPlanItems);
-        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems}), function(data){
+
+        PaymentPlan.update({'payment_plan_id': $scope.ActivePaymentPlan.id}, JSON.stringify({'payment_plan_items':paymentPlanItems, 'amount':paymentPlanTotal()}), function(data){
             if(data.error == null){
                  if(data.data == null){
                     ngToast.danger('No Data');
@@ -279,17 +281,23 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     }
 
 
-    $scope.paymentPlanTotal = function(){
-    var total = 0;
-    if($scope.paymentPlanBills.length > 0){
-        for(var i = 0; i < $scope.paymentPlanBills.length; i++){
-            if($scope.paymentPlanBills[i].amount){
-                total += parseFloat($scope.paymentPlanBills[i].amount);
+    function paymentPlanTotal(){
+        var total = 0;
+        if($scope.paymentPlanBills.length > 0){
+            for(var i = 0; i < $scope.paymentPlanBills.length; i++){
+                if($scope.paymentPlanBills[i].amount){
+                    total += parseFloat($scope.paymentPlanBills[i].amount);
+                }
             }
         }
+        return total;
     }
-    return total;
+
+    $scope.paymentPlanTotal = function(){
+        return  paymentPlanTotal();
     };
+
+
 
     $scope.executePaymentPlan = function() {
 

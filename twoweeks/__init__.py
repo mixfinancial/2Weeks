@@ -1166,7 +1166,9 @@ class ApiPaymentPlan(Resource):
             Payment_Plan_Item.query.filter_by(payment_plan_id=payment_plan_id).delete()
             db_session.commit()
 
+            payment_plan.last_updated = datetime.utcnow;
             payment_plan.payment_plan_items = new_payment_plan_items
+            
             db_session.commit()
 
 
