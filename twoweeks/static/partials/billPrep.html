@@ -43,7 +43,7 @@
                                     <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) <= 7, 'badge-warning':differenceInDays(bill.due_date) <= 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) >= 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
                                     &nbsp;{{bill.due_date | date : 'EEE, MMM d'}} - {{bill.name}}</span>
                                 <span style="color:darkblue;" class="pull-right">
-                                    ${{bill.total_due | number:2}}
+                                    ${{getBillRemainingDue(bill) | number:2}}
                                 </span>
                             </td>
                             <td class="col-xs-2 centered">
@@ -71,8 +71,8 @@
                     <tbody>
                         <tr ng-repeat="paymentPlanBill in paymentPlanBills | orderBy: 'due_date' track by paymentPlanBill.id">
                             <td ng-click="removeFromPaymentPlan(paymentPlanBill)">
-                                <span class="pull-left">{{paymentPlanBill.name}}&nbsp;<small>(${{paymentPlanBill.total_due | number:2}})</small></span>
-                                <span style="color:darkblue;" class="pull-right">${{paymentPlanBill.amount | number:2}}<span>&nbsp;({{differenceBetweenBillAndPlan(paymentPlanBill) | number:2}}%)</span></span>
+                                <span class="pull-left">{{paymentPlanBill.name}}&nbsp;<small>(${{getBillRemainingDue(paymentPlanBill) | number:2}})</small></span>
+                                <span style="color:darkblue;" class="pull-right">${{paymentPlanBill.amount | number:2}}</span>
                             </td>
                             <td class="col-xs-1 centered">
                                 <p class="list-group-item-text centered">

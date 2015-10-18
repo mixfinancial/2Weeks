@@ -353,7 +353,7 @@ class Bill(Base):
            'paid_date'          : dump_datetime(self.paid_date),
            'check_number'       : self.check_number,
            'payment_type_ind'   : self.payment_type_ind,
-           'payment_plan_item'  : [ item.serialize for item in self.payment_plan_items],
+           'payment_plan_items'  : [ item.serialize for item in self.payment_plan_items],
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }
@@ -399,7 +399,7 @@ class Payment_Plan(Base):
            'user_id'            : self.user_id,
            'base_flag'          : self.base_flag,
            'accepted_flag'      : self.accepted_flag,
-           'amount'             : str(self.amount),
+           'amount'             : self.amount,
            'payment_plan_items' : [ item.serialize for item in self.payment_plan_items],
            'transfer_date'      : dump_datetime(self.transfer_date),
            'date_created'       : dump_datetime(self.date_created),
@@ -446,7 +446,7 @@ class Payment_Plan_Item(Base):
            'id'                 : self.id,
            'bill_id'            : self.bill_id,
            'payment_plan_id'    : self.payment_plan_id,
-           'amount'             : str(self.amount),
+           'amount'             : self.amount,
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }

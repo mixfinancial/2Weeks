@@ -1034,6 +1034,7 @@ class ApiPaymentPlan(Resource):
     def get(self, payment_plan_id=None):
         paymentPlanId = None
         accepted_flag = None
+        bill_id = None
 
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
@@ -1054,6 +1055,9 @@ class ApiPaymentPlan(Resource):
                 app.logger.info('accepted_flag is false')
                 accepted_flag = False
 
+        if request.args.get('bill_id') is not None:
+            bill_id = request.args.get('bill_id')
+
         #TODO: Add some logic for "Base_flag" filtering
         if paymentPlanId is not None:
             app.logger.info("looking for payment plan:" + paymentPlanId)
@@ -1072,19 +1076,29 @@ class ApiPaymentPlan(Resource):
                     if payment_plan is None:
                         #User does not have a working payment plan...creating new one
                         app.logger.info('User does not have a working payment plan...creating new one')
-                        newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=accepted_flag, base_flag=False, amount=0)
+                        newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=False, base_flag=False, amount=0)
                         db_session.add(newPaymentPlan)
                         db_session.commit()
                         payment_plan = newPaymentPlan.serialize
                         return {"meta":buildMeta(), "data":payment_plan}
                     else:
                         return {"meta":buildMeta(), "data":payment_plan.serialize}
+                #Get existing payment plans
                 else:
-                    payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
-                    return {"meta":buildMeta(), "data":payment_plans}
+                    if bill_id is not None:
+                        items = Payment_Plan_Item.query.filter_by(bill_id=bill_id)
+                        idList = list();
+                        for item in items:
+                            idList.append(item.payment_plan_id)
+
+                        payment_plans = [i.serialize for i in Payment_Plan.query.filter(Payment_Plan.id.in_(idList)).all()]
+
+                    else:
+                        payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag)]
             else:
                 payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
-                return {"meta":buildMeta(), "data":payment_plans}
+
+            return {"meta":buildMeta(), "data":payment_plans}
 
 
 
@@ -1166,9 +1180,8 @@ class ApiPaymentPlan(Resource):
             Payment_Plan_Item.query.filter_by(payment_plan_id=payment_plan_id).delete()
             db_session.commit()
 
-            payment_plan.last_updated = datetime.utcnow;
             payment_plan.payment_plan_items = new_payment_plan_items
-            
+
             db_session.commit()
 
 
@@ -1182,15 +1195,12 @@ class ApiPaymentPlan(Resource):
 
             if accepted_flag is True:
                 payment_plan.accepted_flag = True
-                #TODO: Process existing payment plan
-                app.logger.info('creating new working payment plan')
-                newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=accepted_flag, base_flag=False, amount=0)
-                db_session.add(newPaymentPlan)
+                #TODO: NEED TO CHECK TO SEE IF WE HAVE OVER PAID A BILL?
 
             elif accepted_flag is False:
                 payment_plan.accepted_flag = False
 
-
+        payment_plan.last_updated = datetime.utcnow;
         app.logger.info('Saving Payment Plan')
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan.serialize}

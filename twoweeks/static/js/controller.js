@@ -22,7 +22,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         //console.log($scope.bills.indexOf(index));
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
-          templateUrl: '/static/partials/modalForm.html',
+          templateUrl: '/static/partials/Prepare-EditBillModalForm.html',
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
@@ -99,7 +99,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             angular.forEach($scope.bills,function(value,index){
                 $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
                 $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
-                $scope.bills[index].amount = parseFloat($scope.bills[index].total_due);
+                $scope.bills[index].amount = parseFloat(getBillRemainingDue($scope.bills[index]));
             });
 
             console.log('~~~Bills~~~');
@@ -132,7 +132,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                         }
 
                         $scope.differenceBetweenBillAndPlan = function(paymentPlanBill){
-                            return (paymentPlanBill.amount/paymentPlanBill.total_due)*100;
+                            return (paymentPlanBill.amount/getBillRemainingDue(paymentPlanBill))*100;
                         }
 
                     }
@@ -172,7 +172,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
             $scope.addToPaymentPlan = function(bill){
                 if(bill.amount == null){
-                    bill.amount = parseFloat(bill.total_due);
+                    bill.amount = parseFloat(getBillRemainingDue(bill));
                 }
                 $scope.paymentPlanBills.push(bill);
                 $scope.bills.splice($scope.bills.indexOf(bill), 1);
@@ -280,6 +280,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         });
     }
 
+    $scope.getBillRemainingDue = function(bill){
+       return getBillRemainingDue(bill);
+    }
 
     function paymentPlanTotal(){
         var total = 0;
@@ -386,71 +389,42 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 /*****************************
 * BILL FORM MODAL CONTROLLER *
 ******************************/
-billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'data', 'ngToast', function ($scope, $modalInstance, Bill, data, ngToast) {
+billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInstance', 'Bill', 'data', 'ngToast', 'PaymentPlan', function ($scope, $modalInstance, Bill, data, ngToast, PaymentPlan) {
     var action = 'new';
-
+    $scope.showPaymentPlans = false;
 
     if(data != null){
         var action = 'edit';
         $scope.title = "Edit Bill"
         $scope.model = data;
         $scope.model.due_date = new Date(data.due_date);
+        $scope.model.remaining_due = getBillRemainingDue(data);
+
+        PaymentPlan.query({accepted_flag:true, base_flag:false, bill_id:data.id}, function(data){
+            if(data.error == null){
+
+                $scope.paymentPlans = data.data;
+                if($scope.paymentPlans.length > 0){
+                    angular.forEach($scope.paymentPlans,function(value,index){
+                        $scope.paymentPlans[index].transfer_date = new Date($scope.paymentPlans[index].transfer_date);
+                    });
+                    $scope.showPaymentPlans = true;
+                }
+
+            }else{
+               ngToast.danger("Error: "+data.error);
+            }
+        }, function(error){
+            console.log(error);
+            ngToast.danger("Received error status '"+error.status+"': "+error.statusText);
+        });
+
+
     }else{
         $scope.title = "Create New Bill"
         $scope.model = {};
         $scope.model.payment_type_ind = "M";
     }
-
-    $scope.formFields = [
-                            {
-                                key: 'name',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'text',
-                                    label: 'name',
-                                    placeholder: 'Name of Bill',
-                                    required: true
-                                }
-                            },
-                            {
-                                key: 'total_due',
-                                type: 'input',
-                                templateOptions: {
-                                    addonLeft: {
-                                        text:'$'
-                                    },
-                                    type: 'number',
-                                    label: 'Total Due',
-                                    required: true
-                                }
-                            },
-                            {
-                                key: 'due_date',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'date',
-                                    label: 'Due Date',
-                                    required: true
-                                }
-                            },
-                            {
-                                key: 'payment_type_ind',
-                                type: 'radio',
-                                templateOptions: {
-                                    label: 'Payment Type',
-                                    "options": [
-                                    {
-                                        "name": "Manual",
-                                        "value": "M"
-                                        },
-                                        {
-                                        "name": "Automatic",
-                                        "value": "A"
-                                      }
-                                    ]
-                                }
-                            }
-                        ];
 
 
     var backup = data;
@@ -498,9 +472,10 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
     };
 
 
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 
 
 }]);
@@ -521,22 +496,23 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 
 
     $scope.addTenPercent = function(){
-        var tenPercent = Math.round(($scope.model.total_due/10)*100)/100;
-        if((tenPercent + $scope.model.amount) >= $scope.model.total_due){
-            $scope.model.amount = $scope.model.total_due;
+        var tenPercent = Math.round(($scope.model.remaining_due/10)*100)/100;
+        if((tenPercent + $scope.model.amount) >= $scope.model.remaining_due){
+            $scope.model.amount = $scope.model.remaining_due;
         }else{
             $scope.model.amount = Math.round(($scope.model.amount + tenPercent)*100)/100;
         }
     }
 
     $scope.makeAmountTotal = function(){
-        $scope.model.amount = $scope.model.total_due;
+        $scope.model.amount = $scope.model.remaining_due;
     }
 
+    $scope.model.remaining_due = getBillRemainingDue(data);
 
 
     $scope.subtractTenPercent = function(){
-        var tenPercent = Math.round(($scope.model.total_due/10)*100)/100;
+        var tenPercent = Math.round(($scope.model.remaining_due/10)*100)/100;
         if(($scope.model.amount - tenPercent) <= 0){
             $scope.model.amount = 0
         }else{
@@ -545,12 +521,12 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
     }
 
     $scope.differencePercent = function() {
-       return Math.floor(($scope.model.amount/$scope.model.total_due)*100);
+       return Math.floor(($scope.model.amount/$scope.model.remaining_due)*100);
 
     }
 
      $scope.differenceInAmount = function() {
-       return $scope.model.total_due - $scope.model.amount;
+       return $scope.model.remaining_due - $scope.model.amount;
     };
 
     $scope.submitModalForm = function(data) {
@@ -1022,5 +998,25 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
 
 
 }]);
+
+
+
+
+//Global function to help with getting updated bill amounts
+function getBillRemainingDue(bill){
+    if(bill != null && bill.payment_plan_items != null && bill.payment_plan_items.length > 0){
+        //console.log('getting Remaining due for: ' + bill.name);
+        //console.log(bill);
+        var adjusted_total_due = 0;
+        angular.forEach(bill.payment_plan_items,function(value,index){
+            adjusted_total_due += bill.payment_plan_items[index].amount;
+        });
+        return bill.total_due - adjusted_total_due;
+    }else{
+        return bill.total_due;
+    }
+}
+
+
 
 
