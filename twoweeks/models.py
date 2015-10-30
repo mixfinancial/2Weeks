@@ -433,7 +433,7 @@ class Payment_Plan_Item(Base):
     bill_id = Column(Integer, ForeignKey("bill.id"), nullable=False)
     payment_plan_id = Column(Integer, ForeignKey("payment_plan.id"), nullable=False)
     amount = Column(Float(2))
-
+    accepted_flag = Column(Boolean, default=False)
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
 
@@ -447,6 +447,7 @@ class Payment_Plan_Item(Base):
            'bill_id'            : self.bill_id,
            'payment_plan_id'    : self.payment_plan_id,
            'amount'             : self.amount,
+           'accepted_flag'      : self.accepted_flag,
            'date_created'       : dump_datetime(self.date_created),
            'last_updated'       : dump_datetime(self.last_updated)
        }

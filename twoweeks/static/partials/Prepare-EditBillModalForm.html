@@ -43,7 +43,7 @@
         <h5>Approved Funding History</h5>
         <ul class="list-group">
           <li class="list-group-item" ng-repeat="paymentPlan in paymentPlans">
-              {{paymentPlan.transfer_date | date : 'EEE, MMM d'}} - <span style="color:darkblue;">${{paymentPlan.payment_plan_items[0].amount | number:2}}</span>
+              {{paymentPlan.transfer_date | date : 'EEE, MMM d'}} - <span style="color:darkblue;">${{getPaymentPlanItemAmount(paymentPlan, model.id) | number:2}}</span>
           </li>
         </ul>
     </div>

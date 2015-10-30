@@ -16,6 +16,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
     $scope.disableSave = true;
     $scope.disableReset = true;
+    $scope.disableExecute = true;
 
     $scope.editBill = function (index) {
         //console.log(index);
@@ -60,6 +61,7 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             }
           });
           $scope.paymentPlanBills.push(newPaymentPlanItem);
+          $scope.disableSave = false;
         }, function () {
           console.log('Modal dismissed at: ' + new Date());
         });
@@ -115,6 +117,10 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                         $scope.ActivePaymentPlan = $scope.paymentPlan;
                         console.log('~~~Active Payment Plan~~~');
                         console.log($scope.paymentPlan);
+
+                        if ($scope.ActivePaymentPlan.payment_plan_items.length >= 1){
+                            $scope.disableExecute = false;
+                        }
 
                         //Pushing any bills to ActivePaymentPlan object that are in users active payment plan
                         for(var i = $scope.ActivePaymentPlan.payment_plan_items.length; i--;){
@@ -266,12 +272,19 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
             if(data.error == null){
                  if(data.data == null){
                     ngToast.danger('No Data');
+                    //TODO: UPDATE buttons (Execute/Save/Reset);
                  }else{
                     console.log(data.data);
                     ngToast.success("Plan Saved");
                     $scope.ActivePaymentPlan = data.data;
                     $scope.disableSave = true;
-                    $scope.disableExecute = false;
+
+                    if ($scope.paymentPlanBills.length >= 1){
+                        $scope.disableExecute = false;
+                    }else{
+                        $scope.disableExecute = true;
+                    }
+
                     $scope.disableReset = true;
                  }
             }else{
@@ -410,6 +423,17 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
                     });
                     $scope.showPaymentPlans = true;
                 }
+
+                $scope.getPaymentPlanItemAmount = function(paymentPlan, bill_id){
+                    var amount = 0;
+                    angular.forEach(paymentPlan.payment_plan_items,function(value,index){
+                        if(paymentPlan.payment_plan_items[index].bill_id == bill_id){
+                            amount = paymentPlan.payment_plan_items[index].amount;
+                        }
+                    });
+                    return amount;
+                }
+
 
             }else{
                ngToast.danger("Error: "+data.error);
@@ -1009,7 +1033,9 @@ function getBillRemainingDue(bill){
         //console.log(bill);
         var adjusted_total_due = 0;
         angular.forEach(bill.payment_plan_items,function(value,index){
-            adjusted_total_due += bill.payment_plan_items[index].amount;
+            if(bill.payment_plan_items[index].accepted_flag == true){
+                adjusted_total_due += bill.payment_plan_items[index].amount;
+            }
         });
         return bill.total_due - adjusted_total_due;
     }else{

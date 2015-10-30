@@ -1181,7 +1181,6 @@ class ApiPaymentPlan(Resource):
             db_session.commit()
 
             payment_plan.payment_plan_items = new_payment_plan_items
-
             db_session.commit()
 
 
@@ -1196,6 +1195,18 @@ class ApiPaymentPlan(Resource):
             if accepted_flag is True:
                 payment_plan.accepted_flag = True
                 #TODO: NEED TO CHECK TO SEE IF WE HAVE OVER PAID A BILL?
+
+                #TODO: NEED TO UPDATE PAYMENT PLAN ITEMS ACCEPTED FLAG
+                payment_plan_items = Payment_Plan_Item.query.filter_by(user_id=user.id, payment_plan_id=payment_plan_id)
+                payment_plan_items_list = payment_plan_items.all()
+                for payment_plan_item in payment_plan_items_list:
+                    payment_plan_item.accepted_flag = True
+
+                payment_plan.payment_plan_items = payment_plan_items_list
+                db_session.commit()
+
+
+
 
             elif accepted_flag is False:
                 payment_plan.accepted_flag = False
