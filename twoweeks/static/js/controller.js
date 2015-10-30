@@ -556,6 +556,7 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
     $scope.submitModalForm = function(data) {
        //console.log($scope.model);
        $scope.model.amount = parseFloat($scope.model.amount);
+       $scope.model.amount = Math.floor($scope.model.amount*100)/100;
        $modalInstance.close($scope.model);
     };
 
@@ -1037,9 +1038,9 @@ function getBillRemainingDue(bill){
                 adjusted_total_due += bill.payment_plan_items[index].amount;
             }
         });
-        return bill.total_due - adjusted_total_due;
+        return Math.floor((bill.total_due - adjusted_total_due)*100)/100;
     }else{
-        return bill.total_due;
+        return Math.floor(bill.total_due*100)/100;
     }
 }
 
