@@ -46,7 +46,8 @@ billsApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, n
     ngToastProvider.configure({
         animation: 'fade',
         dismissButton: 'true',
-        verticalPosition: 'bottom'
+        verticalPosition: 'bottom',
+        horizontalPosition: 'left'
     });
 }]);
 

@@ -43,14 +43,15 @@
                             <td class="" ng-click="addToPaymentPlan(bill)">
                                 <span class="pull-left">
                                     <span class="badge" ng-class="{'badge-danger':differenceInDays(bill.due_date) <= 7, 'badge-warning':differenceInDays(bill.due_date) <= 14 && differenceInDays(bill.due_date) > 7, 'badge-info': differenceInDays(bill.due_date) >= 14}">{{differenceInDays(bill.due_date) | number:0}}</span>
-                                    &nbsp;{{bill.due_date | date : 'EEE, MMM d'}} - {{bill.name}}</span>
+                                    &nbsp;{{bill.due_date | date : 'EEE, MMM d'}} - {{bill.name}}
+                                </span>
                                 <span style="color:darkblue;" class="pull-right">
                                     ${{getBillRemainingDue(bill) | number:2}}
                                 </span>
                             </td>
                             <td class="col-xs-2 centered">
                                 <p class="list-group-item-text centered">
-                                    <button class="btn btn-warning btn-xs hidden-xs hidden-sm" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
+                                    <button class="btn btn-warning btn-xs" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
                                     <button class="btn btn-danger btn-xs" ng-really-message="Are you sure you want to delete this bill?" ng-really-click="deleteBill(bill)"><span class="glyphicon glyphicon-trash"></span></button>
                                 </p>
                             </td>

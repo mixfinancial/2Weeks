@@ -831,6 +831,7 @@ class ApiBill(Resource):
         check_number = None
         payment_type = None
         payment_type_ind = None
+        payment_processing_flag = None
         user = None
 
         if 'username' in session:
@@ -875,6 +876,8 @@ class ApiBill(Resource):
                             payment_type = value
                         elif key == 'payment_type_ind':
                             payment_type_ind = value
+                        elif key == 'payment_processing_flag':
+                            payment_processing_flag = value
             elif request_is_form_urlencode():
                 app.logger.info('Updating bill #'+bill_id)
                 requestData = json.loads(request.form['data'])
@@ -889,6 +892,7 @@ class ApiBill(Resource):
                 check_number = requestData['check_number']
                 payment_type = requestData['payment_type']
                 payment_type_ind = requestData['payment_type_ind']
+                payment_processing_flag = requestData['payment_processing_flag']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
         else:
@@ -904,16 +908,26 @@ class ApiBill(Resource):
             bill.billing_period = billing_period
         if total_due:
             bill.total_due = total_due
-        if paid_flag:
+
+
+        if paid_flag is not None:
             bill.paid_flag = paid_flag
+            if paid_flag and paid_date is None:
+                bill.paid_date = datetime.utcnow()
+
         if paid_date:
             bill.paid_date = paid_date
+            bill.paid_flag = True
+
+
         if check_number:
             bill.check_number = check_number
         if payment_type:
             bill.payment_type = payment_type
         if payment_type_ind:
             bill.payment_type_ind = payment_type_ind
+        if payment_processing_flag is not None:
+            bill.payment_processing_flag = payment_processing_flag
 
         if bill.name is None or bill.name =='' or not bill.name:
             return {"meta":buildMeta(), "error":"Name is required", "data":None}
@@ -939,6 +953,7 @@ class ApiBill(Resource):
         check_number = None
         payment_type = None
         payment_type_ind = None
+        payment_processing_flag = None
 
 
 
@@ -974,6 +989,8 @@ class ApiBill(Resource):
                     payment_type = value
                 elif key == 'payment_type_ind':
                     payment_type = value
+                elif key == 'payment_processing_flag':
+                    payment_processing_flag = value
         elif request_is_form_urlencode():
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
@@ -987,13 +1004,14 @@ class ApiBill(Resource):
             check_number = requestData['check_number']
             payment_type = requestData['payment_type']
             payment_type_ind = requestData['payment_type_ind']
+            payment_processing_flag = requestData['payment_processing_flag']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
         if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
             return {"meta":buildMeta(), "error":"Bill already exists"}
 
-        newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type_ind=payment_type_ind, check_number=check_number)
+        newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type_ind=payment_type_ind, check_number=check_number, payment_processing_flag=payment_processing_flag)
 
         db_session.add(newBill)
         db_session.commit()
@@ -1263,9 +1281,9 @@ api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/ap
 
 
 
-####################
-# PAYMENT PLAN API #
-####################
+#########################
+# PAYMENT PLAN ITEM API #
+#########################
 
 class ApiPaymentPlanItem(Resource):
     @login_required
@@ -1361,6 +1379,37 @@ class ApiPaymentPlanItem(Resource):
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan_item.serialize}
 
+    @login_required
+    def delete(self, payment_plan_item_id=None):
+        app.logger.info('Accessing PaymentPlanItem.delete')
+        bill_id = request.args.get('bill_id')
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+
+        if payment_plan_item_id is None:
+            if bill_id is not None:
+                bill = Bill.query.filter_by(id=bill_id, user_id=user.id).first()
+                if bill is not None:
+                    app.logger.info("Deleting all Payment_plan_items from bill #" + str(bill_id))
+                    bill.funded_flag = False;
+                    bill.payment_processing_flag = False;
+                    Payment_Plan_Item.query.filter_by(bill_id=bill_id).delete()
+                    db_session.commit()
+                    return {"meta":buildMeta(), "data" : None}
+                else:
+                    return {"meta":buildMeta(), "error":"Bill #" + str(bill_id) + " Could not be found", "data" : None}
+        else:
+            payment_plan_item = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
+            if payment_plan_item is not None:
+                app.logger.info("Deleting Payment_plan_item #" + str(payment_plan_item_id))
+                db_session.delete(payment_plan_item)
+                db_session.commit()
+                return {"meta":buildMeta(), "data" : None}
+            else:
+                return {"meta":buildMeta(), "error":"Payment Plan Item #" + str(payment_plan_item_id) + " Could not be found", "data" : None}
 
 
 api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_plan_item/', '/api/payment_plan_item/<string:payment_plan_item_id>')

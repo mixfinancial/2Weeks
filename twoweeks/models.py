@@ -323,10 +323,19 @@ class Bill(Base):
     billing_period = Column(DateTime(120))
     total_due = Column(Float(2))
     paid_flag = Column(Boolean(), default=False)
+    payment_processing_flag = Column(Boolean(), default=False)
     funded_flag = Column(Boolean(), default=False)
     paid_date = Column(DateTime())
     check_number = Column(Integer)
     payment_plan_items = relationship("Payment_Plan_Item", backref="bill",cascade="all, save-update, merge, delete")
+
+
+
+    #CC: Credit Card
+    #CH: Cash
+    #CK: Check
+    #DD: Direct Deposit
+    payment_method_ind = Column(String(2), default="CC")
 
     #A: Automatic
     #M: Manual
@@ -339,23 +348,25 @@ class Bill(Base):
     def serialize(self):
        """Return object data in easily serializeable format"""
        return {
-           'type'               : 'bills',
-           'id'                 : self.id,
-           'user_id'            : self.user_id,
-           'payee_id'           : self.payee_id,
-           'name'               : self.name,
-           'description'        : self.description,
-           'due_date'           : dump_date(self.due_date),
-           'billing_period'     : dump_date(self.billing_period),
-           'total_due'          : self.total_due,
-           'paid_flag'          : self.paid_flag,
-           'funded_flag'        : self.funded_flag,
-           'paid_date'          : dump_datetime(self.paid_date),
-           'check_number'       : self.check_number,
-           'payment_type_ind'   : self.payment_type_ind,
-           'payment_plan_items'  : [ item.serialize for item in self.payment_plan_items],
-           'date_created'       : dump_datetime(self.date_created),
-           'last_updated'       : dump_datetime(self.last_updated)
+           'type'                    : 'bills',
+           'id'                      : self.id,
+           'user_id'                 : self.user_id,
+           'payee_id'                : self.payee_id,
+           'name'                    : self.name,
+           'description'             : self.description,
+           'due_date'                : dump_date(self.due_date),
+           'billing_period'          : dump_date(self.billing_period),
+           'total_due'               : self.total_due,
+           'paid_flag'               : self.paid_flag,
+           'payment_processing_flag' : self.payment_processing_flag,
+           'funded_flag'             : self.funded_flag,
+           'paid_date'               : dump_datetime(self.paid_date),
+           'check_number'            : self.check_number,
+           'payment_method_ind'      : self.payment_method_ind,
+           'payment_type_ind'        : self.payment_type_ind,
+           'payment_plan_items'      : [ item.serialize for item in self.payment_plan_items],
+           'date_created'            : dump_datetime(self.date_created),
+           'last_updated'            : dump_datetime(self.last_updated)
        }
 
     @property
