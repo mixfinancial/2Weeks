@@ -527,7 +527,7 @@ class ApiMe(Resource):
         email = None
         first_name = None
         last_name = None
-
+        account_balance_amount = None
 
         average_paycheck_amount = None
         next_pay_date = None
@@ -571,6 +571,8 @@ class ApiMe(Resource):
                             pay_recurrance_flag = value
                         elif key == 'average_paycheck_amount':
                             average_paycheck_amount = value
+                        elif key == 'account_balance_amount':
+                            account_balance_amount = value
                 else:
                     return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
             elif request_is_form_urlencode():
@@ -588,6 +590,7 @@ class ApiMe(Resource):
                 next_pay_date = requestData['next_pay_date']
                 pay_recurrance_flag = requestData['pay_recurrance_flag']
                 average_paycheck_amount = requestData['average_paycheck_amount']
+                account_balance_amount = requestData['account_balance_amount']
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
@@ -609,7 +612,8 @@ class ApiMe(Resource):
             user.next_pay_date = next_pay_date;
         if average_paycheck_amount:
             user.average_paycheck_amount = average_paycheck_amount
-
+        if account_balance_amount:
+            user.account_balance_amount = account_balance_amount
 
         #Password Change Logic
         if current_password and new_password and confirm_new_password:
@@ -654,7 +658,7 @@ class ApiMe(Resource):
         email = None
         first_name = None
         last_name = None
-
+        account_balance_amount = None
 
         average_paycheck_amount = None
         next_pay_date = None
@@ -686,6 +690,8 @@ class ApiMe(Resource):
                         pay_recurrance_flag = value
                     elif key == 'average_paycheck_amount':
                         average_paycheck_amount = value
+                    elif key == 'account_balance_amount':
+                        account_balance_amount = value
             else:
                 return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
         elif request_is_form_urlencode():
@@ -703,8 +709,11 @@ class ApiMe(Resource):
             next_pay_date = requestData['next_pay_date']
             pay_recurrance_flag = requestData['pay_recurrance_flag']
             average_paycheck_amount = requestData['average_paycheck_amount']
+            account_balance_amount = requestData['account_balance_amount']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -713,7 +722,7 @@ class ApiMe(Resource):
         if User.query.filter_by(username = username).first() is not None:
             return {"meta":buildMeta(), "error":"Username already exists", "data": None}
 
-        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name, account_balance_amount=account_balance_amount)
 
         db_session.add(newUser)
         db_session.commit()

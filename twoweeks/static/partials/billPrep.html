@@ -9,16 +9,18 @@
                             <h6><span style="color:darkblue;"><strong>{{daysBeforeNextPaycheck()}}</strong></span> days till your next paycheck</h6>
                         </div>
                         <div class="col-xs-4">
-                            <form class="form-inline">
+                            <form class="form">
                                 <div class="form-group">
                                     <span for="account_balance_amount" style="text-align:left;color:#333;font-size: 12px;font-weight: 500;" class="">Account Balance:</span>
-                                    <div class="input-group">
+                                    <div class="input-group col-md-9 col-sm-9 col-lg-6">
                                         <div class="input-group-addon">$</div>
-                                        <input type="number" class="form-control input-sm" min="0" id="account_balance_amount" ng-model="me.account_balance_amount">
+                                        <input type="number" class="form-control input-sm" min="0" id="account_balance_amount" ng-model="fld_account_balance_amount">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-sm btn-success" ng-click="setAccountBalance()" type="button">SET</button>
+                                        </span>
                                     </div>
                                 </div>
                             </form>
-                            <h6>Bills pending: <span style="color:darkblue;"><strong>xxx.xxx</strong></span></h6>
                         </div>
                         <div class="col-xs-4">
                             <h6 ng-show="dueBeforeNextPaycheck(bills,me) >= 0" ng-cloak><span style="color:darkblue;"><strong>${{dueBeforeNextPaycheck() | number:2}}</strong></span>&nbsp;is due before your next paycheck</h6>
@@ -85,8 +87,8 @@
                 <div class="panel-body">
                     <div style="text-align:right">
                         Total: <span style="color:darkblue;">${{paymentPlanTotal() | number:2}}</span><br/>
-                        Bills pending: <span style="color:darkblue;"><strong>xxx.xxx</strong></span><br/>
-                        Balance: <span style="color:darkblue;"><strong>xxx.xx</strong></span>
+                        Bills funded: <span style="color:darkblue;">${{fundedBillsTotal | number:2}}</span><br/>
+                        Balance: <span style="color:darkblue;"><strong>${{paymentPlanBalance() | number:2}}</strong></span>
                     </div>
                 </div>
                 <div class="panel-body">

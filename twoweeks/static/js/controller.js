@@ -13,10 +13,12 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
     $scope.date = new Date();
     $scope.animationsEnabled = true
     $scope.paymentPlanBills = [];
+    $scope.fundedBillsTotal = 0;
 
     $scope.disableSave = true;
     $scope.disableReset = true;
     $scope.disableExecute = true;
+
 
     $scope.editBill = function (index) {
         //console.log(index);
@@ -97,6 +99,25 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         $scope.me = angular.copy(data.data[0]);
         $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
 
+        $scope.fld_account_balance_amount = $scope.me.account_balance_amount;
+        $scope.account_balance_amount = $scope.me.account_balance_amount;
+
+        $scope.setAccountBalance = function(){
+            Me.update({userId: $scope.me.id}, JSON.stringify({"id":$scope.me.id, "account_balance_amount":$scope.fld_account_balance_amount}), function(data) {
+                if(data.error == null){
+                    ngToast.success("Account Balance Set");
+                    $scope.account_balance_amount = data.data[0].account_balance_amount;
+                    $scope.me.account_balance_amount = data.data[0].account_balance_amount;
+                }else{
+                    $scope.fld_account_balance_amount = $scope.me.account_balance_amount;
+                    ngToast.danger("Error: " + data.error);
+                }
+            }, function(error){
+                console.log(error);
+                $scope.fld_account_balance_amount = $scope.me.account_balance_amount;
+                ngToast.danger("Error Setting Account Balance '" + error.status + "': " + error.statusText);
+            });
+        }
 
         Bill.query({'paid_flag': false, 'funded_flag': false}, function(data) {
             $scope.bills = data.data;
@@ -108,6 +129,33 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
             console.log('~~~Bills~~~');
             console.log($scope.bills);
+
+            //GET HOW MANY AND MUCH BILLS THAT ARE FUNDED
+            Bill.query({'paid_flag': false, 'funded_flag': true}, function(data) {
+                var prepFundedBillsTotal = 0;
+                console.log('~~~Checking for funded bills~~~')
+                if(data.error == null){
+                    console.log(data.data);
+                    console.log(data.data.length);
+
+                    if (data.data.length > 0){
+                        angular.forEach(data.data,function(value,index){
+                            console.log("Adding $" + data.data[index].total_due + " to total");
+                            prepFundedBillsTotal += data.data[index].total_due;
+                        });
+                    }
+                }else{
+                    ngToast.danger("Error: " + error.error);
+                }
+                $scope.fundedBillsTotal = prepFundedBillsTotal;
+            },
+            function (error){
+                console.log(error);
+                ngToast.danger('Error ' + error.status + ': ' + error.statusText);
+            });
+
+
+
 
             PaymentPlan.query({accepted_flag:false, base_flag:false}, function(data){
                 if(data.error == null){
@@ -315,7 +363,17 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
         return  paymentPlanTotal();
     };
 
-
+    $scope.paymentPlanBalance = function(){
+        var total = 0;
+        if($scope.paymentPlanBills.length > 0){
+            for(var i = 0; i < $scope.paymentPlanBills.length; i++){
+                if($scope.paymentPlanBills[i].amount){
+                    total += parseFloat($scope.paymentPlanBills[i].amount);
+                }
+            }
+        }
+        return $scope.account_balance_amount - (total + $scope.fundedBillsTotal);
+    };
 
     $scope.executePaymentPlan = function() {
         if ($scope.paymentPlanBills.length > 0){
