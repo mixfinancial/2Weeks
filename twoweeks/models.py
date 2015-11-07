@@ -347,7 +347,7 @@ class Bill(Base):
            'description'        : self.description,
            'due_date'           : dump_date(self.due_date),
            'billing_period'     : dump_date(self.billing_period),
-           'total_due'          : str(self.total_due),
+           'total_due'          : self.total_due,
            'paid_flag'          : self.paid_flag,
            'funded_flag'        : self.funded_flag,
            'paid_date'          : dump_datetime(self.paid_date),

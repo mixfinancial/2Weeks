@@ -69,13 +69,15 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
 
     $scope.newBill = function () {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
         var modalInstance = $modal.open({
           animation: $scope.animationsEnabled,
-          templateUrl: '/static/partials/modalForm.html',
+          templateUrl: '/static/partials/Prepare-EditBillModalForm.html',
           controller: 'BillFormModalController',
           resolve: {
             data: function () {
-              return null;
+              null;
             }
           }
         });
@@ -316,7 +318,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
 
     $scope.executePaymentPlan = function() {
-
         if ($scope.paymentPlanBills.length > 0){
             console.log('Saving Payment Plan');
             var paymentPlanItems = [];
@@ -350,13 +351,16 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                             }else{
                                 ngToast.danger('Error: ' + data.error);
                             }
+                        }, function(error){
+                            console.log(error);
+                            ngToast.danger('Error ' + error.status + ': ' + error.statusText);
                         });
-
-
                      }
                 }else{
                     ngToast.danger('Error: ' + data.error);
                 }
+            }, function(data){
+                ngToast.danger('Error ' + error.status + ': ' + error.statusText);
             });
         }else{
             ngToast.warning('You must select a bill to pay to execute a funding plan')
@@ -395,7 +399,198 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
 
 
+/**************************
+* BILL EXECUTE CONTROLLER *
+***************************/
+billsAppControllers.controller("billExecuteController",['$scope', '$http', '$routeParams', '$location', 'Bill', '$modal', 'Me', 'PaymentPlan', 'PaymentPlanItem', 'ngToast', function($scope, $http, transformRequestAsFormPost, $location, Bill, $modal, Me, PaymentPlan, PaymentPlanItem, ngToast) {
 
+    $scope.date = new Date();
+    $scope.animationsEnabled = true
+    $scope.paymentPlanBills = [];
+
+    $scope.editBill = function (index) {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/Prepare-EditBillModalForm.html',
+          controller: 'BillFormModalController',
+          resolve: {
+            data: function () {
+              return angular.copy($scope.bills[$scope.bills.indexOf(index)]);
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newBill) {
+          $scope.bills.splice($scope.bills.indexOf(index), 1);
+          $scope.bills.push(newBill);
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+    $scope.editPaymentPlanItem = function (item) {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/Prepare-EditPaymentPlanItemModalForm.html',
+          controller: 'EditPaymentPlanItemModalController',
+          resolve: {
+            data: function () {
+              return angular.copy($scope.paymentPlanBills[$scope.paymentPlanBills.indexOf(item)]);
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newPaymentPlanItem) {
+          angular.forEach($scope.paymentPlanBills,function(value,index){
+            if($scope.paymentPlanBills[index].id == newPaymentPlanItem.id){
+                $scope.paymentPlanBills.splice(index, 1);
+            }
+          });
+          $scope.paymentPlanBills.push(newPaymentPlanItem);
+          $scope.disableSave = false;
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+
+Me.query(function(data) {
+        $scope.me = angular.copy(data.data[0]);
+        $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
+
+
+
+        PaymentPlan.query({accepted_flag:false, base_flag:false}, function(data){
+            if(data.error == null){
+                $scope.paymentPlan = data.data;
+                console.log('~~~Payment Plans~~~');
+                console.log($scope.paymentPlan);
+                $scope.paymentPlan.transfer_date = new Date($scope.paymentPlan.transfer_date);
+            }else{
+                ngToast.danger("Error: "+data.error);
+            }
+        });
+
+        Bill.query({'paid_flag': false, 'funded_flag': true}, function(data) {
+            $scope.bills = data.data;
+            angular.forEach($scope.bills,function(value,index){
+                $scope.bills[index].due_date = new Date($scope.bills[index].due_date);
+                $scope.bills[index].total_due = parseFloat($scope.bills[index].total_due);
+                $scope.bills[index].amount = parseFloat(getBillRemainingDue($scope.bills[index]));
+            });
+
+            console.log('~~~Bills~~~');
+            console.log($scope.bills);
+
+
+            $scope.dueBeforeNextPaycheck = function() {
+            var total = 0;
+            for(var i = 0; i < $scope.bills.length; i++){
+                if ($scope.bills[i].due_date.getTime() < $scope.me.next_pay_date.getTime()){
+                    if($scope.bills[i].total_due){
+                        total += $scope.bills[i].total_due;
+                    }
+                }
+            }
+            return total;
+            };
+
+            $scope.dueBeforeNext30 = function() {
+                var total = 0;
+                for(var i = 0; i < $scope.bills.length; i++){
+                    if ($scope.differenceInDays($scope.bills[i].due_date) < 30){
+                        if($scope.bills[i].total_due){
+                            total += $scope.bills[i].total_due;
+                        }
+                    }
+                }
+                return total;
+            };
+
+            $scope.daysBeforeNextPaycheck = function() {
+                return $scope.differenceInDays($scope.me.next_pay_date);
+            };
+
+            $scope.addToPaymentPlan = function(bill){
+                if(bill.amount == null){
+                    bill.amount = parseFloat(getBillRemainingDue(bill));
+                }
+                $scope.paymentPlanBills.push(bill);
+                $scope.bills.splice($scope.bills.indexOf(bill), 1);
+                ngToast.create(bill.name+" added to Plan");
+
+                $scope.disableSave = false;
+                $scope.disableExecute = true;
+                $scope.disableReset = false;
+            }
+
+
+            $scope.removeFromPaymentPlan = function(paymentPlanBill){
+                $scope.bills.push(paymentPlanBill);
+                $scope.paymentPlanBills.splice($scope.paymentPlanBills.indexOf(paymentPlanBill), 1);
+                ngToast.create(paymentPlanBill.name+" removed from Plan");
+
+                $scope.disableSave = false;
+                $scope.disableExecute = true;
+                $scope.disableReset = false;
+            }
+
+
+            $scope.resetBillPrep = function(){
+                console.log("resetting");
+                var deleteList = [];
+
+                //Moving Payment Plan To Bills
+                for(var i = $scope.paymentPlanBills.length; i--;){
+                    var found = false;
+                    for(var j = 0; j < $scope.ActivePaymentPlan.payment_plan_items.length; j++){
+                        if($scope.paymentPlanBills[i].id == $scope.ActivePaymentPlan.payment_plan_items[j].bill_id){
+                            found = true;
+                        }
+                    }
+                    if (!found){
+                        $scope.bills.push($scope.paymentPlanBills[i]);
+                        $scope.paymentPlanBills.splice(i, 1);
+                    }
+                }
+
+                //Moving Bills to Payment Plan
+                for(var i = $scope.bills.length; i--;){
+                    var found = false;
+                    for(var j = 0; j < $scope.ActivePaymentPlan.payment_plan_items.length; j++){
+                        if($scope.bills[i].id == $scope.ActivePaymentPlan.payment_plan_items[j].bill_id){
+                            found = true;
+                        }
+                    }
+                    if (found){
+                        $scope.paymentPlanBills.push($scope.bills[i]);
+                        $scope.bills.splice(i, 1);
+                    }
+                }
+                $scope.amount = paymentPlanTotal();
+
+                ngToast.info("Plan Reset");
+
+                $scope.disableSave = true;
+
+                if($scope.paymentPlanBills.length > 0){
+                    $scope.disableExecute = false;
+                }else{
+                    $scope.disableExecute = true;
+                }
+
+                $scope.disableReset = true;
+            }
+
+
+         });
+     });
+
+}]);
 
 
 
@@ -569,6 +764,9 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 
 
 
+/*******************
+* LOGIN CONTROLLER *
+*******************/
 loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, ngToast, LoginCheck) {
 
     LoginCheck.get(function(data) {
@@ -621,11 +819,9 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
 
 
 
-
-
-
-
-
+/**********************
+* REGISTER CONTROLLER *
+**********************/
 loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location) {
     $scope.submit = function($window, $location) {
         $http({
@@ -642,13 +838,9 @@ loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', 
 
 
 
-
-
-
-
-
-
-
+/**************************
+* MENU BAR APP CONTROLLER *
+**************************/
 menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$location', '$modal', 'Me', 'Feedback', 'ngToast', '$cookies', function($scope, $http, $location, $modal, Me, Feedback, ngToast, $cookies) {
 
     $scope.isActive = function (viewLocation) {
@@ -698,7 +890,9 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 
-
+/**************************
+* USER ACCOUNT CONTROLLER *
+**************************/
 menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'ngToast', function($scope, $http, $location, $modal, Me, ngToast) {
     $scope.uNameCollapse = true;
     $scope.uUserNameCollapse = true;
@@ -946,9 +1140,6 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 
 
 
-
-
-
 /*********************************
 * FEEDBACK FORM MODAL CONTROLLER *
 *********************************/
@@ -1023,7 +1214,6 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
 
 
 }]);
-
 
 
 

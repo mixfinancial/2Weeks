@@ -32,6 +32,7 @@ api = Api(app)
 from twoweeks.database import init_db
 from twoweeks.database import db_session
 from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, Feedback
+from sqlalchemy.sql import func
 
 init_db()
 
@@ -1171,8 +1172,8 @@ class ApiPaymentPlan(Resource):
             payment_plan.amount = amount
 
         if payment_plan_items is not None:
-            print "Payment_Plan_Items"
-            print payment_plan_items
+            #print "Payment_Plan_Items"
+            #print payment_plan_items
             new_payment_plan_items = list()
             for payment_plan_item in payment_plan_items:
                 new_payment_plan_items.append(Payment_Plan_Item(payment_plan_id=payment_plan_id, user_id=payment_plan_item['user_id'], bill_id=payment_plan_item['bill_id'], amount=payment_plan_item['amount']))
@@ -1206,6 +1207,26 @@ class ApiPaymentPlan(Resource):
                 db_session.commit()
 
 
+                #CHECKING TO SEE IF BILL IS FULLY FUNDED
+                #1. Loop through submitted payment plan items
+                #2. Query each bill in the payment plan
+                #3. sum all funded payment plan items for the bill
+                #4. If the amounts match....set bill a "funded"
+                for payment_plan_item in payment_plan.payment_plan_items:
+                    paid_amount = 0
+                    bill = Bill.query.filter_by(id = payment_plan_item.bill_id, user_id = user.id).first()
+                    total_paid = db_session.query(func.sum(Payment_Plan_Item.amount).label('sum_amount')).filter(Payment_Plan_Item.bill_id == payment_plan_item.bill_id).filter(Payment_Plan_Item.accepted_flag == True).first()
+                    if total_paid is not None:
+                        if total_paid.sum_amount is not None:
+                            paid_amount = float(total_paid.sum_amount)
+                    app.logger.info("Bill Amount = $" + str(bill.total_due))
+                    app.logger.info("total_paid = $" + str(round(paid_amount,2)))
+                    if round(paid_amount,2) == float(bill.total_due):
+                        app.logger.info("Bill '" +bill.name+ "' is fully paid!")
+                        bill.funded_flag = True
+                        db_session.commit()
+                    else:
+                        app.logger.info("Bill '" +bill.name+ "' is not fully paid")
 
 
             elif accepted_flag is False:

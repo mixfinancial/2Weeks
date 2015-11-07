@@ -1,6 +1,6 @@
 __author__ = 'davidlarrimore'
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from twoweeks import config

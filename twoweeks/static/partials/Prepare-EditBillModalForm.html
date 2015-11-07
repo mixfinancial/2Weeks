@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group form-group-sm">
+            <div class="form-group form-group-sm" ng-show="showPaymentPlans">
                 <label for="remaining_due" class="col-sm-3 control-label">Remaining Due:</label>
                 <div class="col-sm-3">
                     <p id="remaining_due" style="color:darkblue;" class="form-control-static">${{model.remaining_due | number:2}}</p>
