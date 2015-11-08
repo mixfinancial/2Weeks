@@ -82,7 +82,7 @@ var loginApp = angular.module('loginApp', [
 ]);
 
 
-loginApp.config(['$routeProvider', function($routeProvider) {
+loginApp.config(['$routeProvider','ngToastProvider', function($routeProvider, ngToastProvider) {
     $routeProvider.
     when('/login', {
         templateUrl: '/static/partials/loginAppLoginView.html',
@@ -95,6 +95,14 @@ loginApp.config(['$routeProvider', function($routeProvider) {
     otherwise({
         templateUrl: '/static/partials/loginAppLoginView.html',
         controller: 'loginAppLoginController'
+    });
+
+
+    ngToastProvider.configure({
+        animation: 'fade',
+        dismissButton: 'true',
+        verticalPosition: 'bottom',
+        horizontalPosition: 'left'
     });
 }]);
 

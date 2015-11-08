@@ -445,6 +445,9 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
 
 
+
+
+
 /**************************
 * BILL EXECUTE CONTROLLER *
 ***************************/
@@ -648,6 +651,11 @@ billsAppControllers.controller("billExecuteController",['$scope', '$http', '$rou
         return differenceInDays(first_date);
     };
 }]);
+
+
+
+
+
 
 
 /************************
@@ -935,6 +943,10 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
 
+
+
+
+
 /*************************************
 * EDIT PAYMENT PLAN MODAL CONTROLLER *
 *************************************/
@@ -998,10 +1010,13 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 
 
 
+
+
+
 /*******************
 * LOGIN CONTROLLER *
 *******************/
-loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, ngToast, LoginCheck) {
+loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, $location, Login, ngToast, LoginCheck) {
 
     LoginCheck.get(function(data) {
         console.log(data);
@@ -1013,26 +1028,26 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
      $scope.model = {};
 
      $scope.formFields = [
-                            {
-                                key: 'username',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'text',
-                                    label: 'username',
-                                    placeholder: 'your@email.com',
-                                    required: true
-                                }
-                            },
-                            {
-                                key: 'password',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'password',
-                                    label: 'password',
-                                    required: true
-                                }
-                            }
-                        ];
+                {
+                    key: 'username',
+                    type: 'input',
+                    templateOptions: {
+                        type: 'text',
+                        label: 'username',
+                        placeholder: 'your@email.com',
+                        required: true
+                    }
+                },
+                {
+                    key: 'password',
+                    type: 'input',
+                    templateOptions: {
+                        type: 'password',
+                        label: 'password',
+                        required: true
+                    }
+                }
+            ];
 
      $scope.submit = function() {
         if($scope.model.username == null || $scope.model.password == null){
@@ -1050,6 +1065,9 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
         }
     }
 }]);
+
+
+
 
 
 
