@@ -219,7 +219,6 @@
     }
 
     .bill-prep-table>tbody>tr>td{
-        width: auto !important;
         border-top:1px dotted lightgrey;
         border-right:1px dotted lightgrey;
     }
