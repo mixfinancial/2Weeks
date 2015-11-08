@@ -1,0 +1,79 @@
+<section ng-switch="sectionFlag">
+    <div ng-switch-when="login">
+        <h5 class="centered">login to existing account</h5>
+        <hr>
+        <form ng-submit="submit()" novalidate name="loginForm" >
+            <div class="form-group">
+                <label for="username" class=" control-label">Email address</label>
+                <input type="text" id="username" class="form-control" required ng-required="true" ng-model="model.username" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="password" class=" control-label">password</label>
+                <input type="password" id="password" class="form-control" ng-required="true" required ng-model="model.password">
+            </div>
+            <hr/>
+            <div class="centered">
+                <button type="submit" class="btn btn-success">Login</button> &nbsp;or&nbsp;
+                <button ng-click="switchSection()" class="btn btn-primary">Need to Register? Click Here!</button>
+            </div>
+        </form>
+    </div><!-- END LOGIN SECTION -->
+    <div ng-switch-when="register">
+        <h5 class="centered">Register new account</h5>
+        <hr>
+        <form ng-submit="submitModalForm()" name="registerForm" novalidate class="form">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label class="sr-only" for="uFirstName">first name</label>
+                        <input type="text" id="uFirstName" class="form-control" required ng-required="true" ng-model="model.first_name" placeholder="first name">
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="sr-only" for="uLastName">last name</label>
+                        <input type="text" id="uLastName" class="form-control" ng-required="true" required ng-model="model.last_name" placeholder="last name">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="uEmail">email address</label>
+                <input type="email" id="uEmail" class="form-control" ng-required="true" required ng-model="model.email" placeholder="email address">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="uConfirmEmail">confirm email address</label>
+                <input type="email" id="uConfirmEmail" class="form-control" ng-required="true" required ng-model="model.confirm_email" placeholder="re-enter email address">
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label class="control-label" for="uPayRecurrence">Pay Recurrance</label>
+                        <select class="form-control" name="pay_recurrance_flag" id="uPayRecurrence" ng-options="option.name for option in uPayRecurrenceSelectOptions track by option.id" ng-model="model.pay_recurrence" placeholder="How often are you paid?">
+                            <option value="" disabled>How often are you paid?</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="control-label" for="uNextPayDate">Next Paydate</label>
+                        <input type="date" id="uNextPayDate" class="form-control" ng-model="model.next_pay_date">
+
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+            <div class="centered">
+                <button type="submit" class="btn btn-success">Register</button> &nbsp;or&nbsp;
+                <button ng-click="switchSection()" class="btn btn-primary">Already have an account? Click here!</button>
+            </div>
+        </form>
+    </div><!-- END REGISTER SECTION -->
+</section>
+
+
+<!--
+<ul>
+    <li>email</li>
+    <li>password</li>
+    <li>confirm password</li>
+    <li>Pay frequency</li>
+    <li>next pay date</li>
+</ul>
+-->

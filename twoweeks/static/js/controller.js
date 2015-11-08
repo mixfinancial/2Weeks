@@ -1017,6 +1017,16 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 * LOGIN CONTROLLER *
 *******************/
 loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, $location, Login, ngToast, LoginCheck) {
+    $scope.sectionFlag = 'register';
+    $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
+
+    $scope.switchSection = function(){
+        if($scope.sectionFlag == 'register'){
+            $scope.sectionFlag = 'login';
+        }else{
+            $scope.sectionFlag = 'register';
+        }
+    }
 
     LoginCheck.get(function(data) {
         console.log(data);
@@ -1027,27 +1037,6 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
 
      $scope.model = {};
 
-     $scope.formFields = [
-                {
-                    key: 'username',
-                    type: 'input',
-                    templateOptions: {
-                        type: 'text',
-                        label: 'username',
-                        placeholder: 'your@email.com',
-                        required: true
-                    }
-                },
-                {
-                    key: 'password',
-                    type: 'input',
-                    templateOptions: {
-                        type: 'password',
-                        label: 'password',
-                        required: true
-                    }
-                }
-            ];
 
      $scope.submit = function() {
         if($scope.model.username == null || $scope.model.password == null){
@@ -1065,29 +1054,6 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
         }
     }
 }]);
-
-
-
-
-
-
-/**********************
-* REGISTER CONTROLLER *
-**********************/
-loginAppControllers.controller("loginAppRegisterController",['$scope', '$http', '$routeParams', '$location','$window', function($scope, $http, transformRequestAsFormPost, $location) {
-    $scope.submit = function($window, $location) {
-        $http({
-          url: "/api/login/",
-          method: "POST",
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-           data: $.param({username: $scope.username, password: $scope.password})
-        }).success(function(data) {
-          console.log(data)
-          window.location.href = '/home/';
-        });
-    };
-}]);
-
 
 
 /**************************
@@ -1154,12 +1120,7 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
     $scope.uPayRecurrence = true;
     $scope.uAveragePaycheckAmount = true;
 
-    $scope.uPayRecurrenceSelectOptions = [
-            {id: '1', value: "W",  name: 'Weekly'},
-            {id: '2', value: "B",  name: 'Bi-Weekly'},
-            {id: '3', value: "T",  name: 'Twice Monthly'},
-            {id: '4', value: "M",  name: 'Monthly'}
-        ];
+    $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
 
 
     Me.query(function(data) {
@@ -1567,3 +1528,11 @@ function convertBillToJSObjects(bill){
 
     return bill;
 }
+
+
+    var uPayRecurrenceSelectOptions = [
+            {id: '1', value: "W",  name: 'Weekly'},
+            {id: '2', value: "B",  name: 'Bi-Weekly'},
+            {id: '3', value: "T",  name: 'Twice Monthly'},
+            {id: '4', value: "M",  name: 'Monthly'}
+        ];
