@@ -35,6 +35,10 @@ billsApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, n
         templateUrl: '/static/partials/billExecute.html',
         controller: ''
     }).
+    when('/billTrack', {
+        templateUrl: '/static/partials/billTrack.html',
+        controller: ''
+    }).
     when('/userAccount', {
         templateUrl: '/static/partials/userAccount.html',
         controller: ''

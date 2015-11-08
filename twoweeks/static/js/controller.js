@@ -650,6 +650,174 @@ billsAppControllers.controller("billExecuteController",['$scope', '$http', '$rou
 }]);
 
 
+/************************
+* BILL TRACK CONTROLLER *
+*************************/
+billsAppControllers.controller("billTrackController",['$scope', '$http', '$routeParams', '$location', 'Bill', '$modal', 'Me', 'PaymentPlan', 'PaymentPlanItem', 'ngToast', function($scope, $http, transformRequestAsFormPost, $location, Bill, $modal, Me, PaymentPlan, PaymentPlanItem, ngToast) {
+
+    $scope.date = new Date();
+    $scope.animationsEnabled = true
+
+    $scope.editBill = function (index) {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/Prepare-EditBillModalForm.html',
+          controller: 'BillFormModalController',
+          resolve: {
+            data: function () {
+              return angular.copy($scope.bills[$scope.bills.indexOf(index)]);
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newBill) {
+          $scope.bills.splice($scope.bills.indexOf(index), 1);
+          $scope.bills.push(newBill);
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+    $scope.editPaymentPlanItem = function (item) {
+        //console.log(index);
+        //console.log($scope.bills.indexOf(index));
+        var modalInstance = $modal.open({
+          animation: $scope.animationsEnabled,
+          templateUrl: '/static/partials/Prepare-EditPaymentPlanItemModalForm.html',
+          controller: 'EditPaymentPlanItemModalController',
+          resolve: {
+            data: function () {
+              return angular.copy($scope.paymentPlanBills[$scope.paymentPlanBills.indexOf(item)]);
+            }
+          }
+        });
+
+        modalInstance.result.then(function (newPaymentPlanItem) {
+          angular.forEach($scope.paymentPlanBills,function(value,index){
+            if($scope.paymentPlanBills[index].id == newPaymentPlanItem.id){
+                $scope.paymentPlanBills.splice(index, 1);
+            }
+          });
+          $scope.paymentPlanBills.push(newPaymentPlanItem);
+          $scope.disableSave = false;
+        }, function () {
+          console.log('Modal dismissed at: ' + new Date());
+        });
+      };
+
+
+    Me.query(function(data) {
+        $scope.me = angular.copy(data.data[0]);
+        $scope.me.next_pay_date = new Date($scope.me.next_pay_date);
+
+
+        Bill.query(function(data) {
+            $scope.bills = convertBillsToJSObjects(data.data);
+
+            console.log('~~~Bills~~~');
+            console.log($scope.bills);
+
+
+            $scope.dueBeforeNextPaycheck = function() {
+            var total = 0;
+            for(var i = 0; i < $scope.bills.length; i++){
+                if ($scope.bills[i].due_date.getTime() < $scope.me.next_pay_date.getTime()){
+                    if($scope.bills[i].total_due){
+                        total += $scope.bills[i].total_due;
+                    }
+                }
+            }
+            return total;
+            };
+
+            $scope.dueBeforeNext30 = function() {
+                var total = 0;
+                for(var i = 0; i < $scope.bills.length; i++){
+                    if ($scope.differenceInDays($scope.bills[i].due_date) < 30){
+                        if($scope.bills[i].total_due){
+                            total += $scope.bills[i].total_due;
+                        }
+                    }
+                }
+                return total;
+            };
+
+            $scope.daysBeforeNextPaycheck = function() {
+                return $scope.differenceInDays($scope.me.next_pay_date);
+            };
+
+
+            $scope.fundedBillsTotal = function(){
+                var tmpAmount = 0;
+
+                angular.forEach($scope.bills,function(value,index){
+                    if ($scope.bills[index].payment_processing_flag == false){
+                        tmpAmount += $scope.bills[index].total_due;
+                    }
+                });
+                return tmpAmount;
+            }
+
+            $scope.processedBillsTotal = function(){
+                var tmpAmount = 0;
+                angular.forEach($scope.bills,function(value,index){
+                    if ($scope.bills[index].payment_processing_flag == true){
+                        tmpAmount += $scope.bills[index].total_due;
+                    }
+                });
+                return tmpAmount;
+            }
+
+            $scope.payBill = function(bill){
+                Bill.update({billId: bill.id}, {id:bill.id, paid_flag:true}, function(data) {
+                    if(data.error == null){
+                        $scope.bills.splice($scope.bills.indexOf(bill), 1);
+                        ngToast.success("Bill '"+bill.name+"' marked as paid!");
+                    }else{
+                        ngToast.danger("Error: "+data.error);
+                    }
+                }, function(error){
+                    console.log(error);
+                    ngToast.danger("Received error status '"+error.status+"': "+error.statusText);
+                });
+
+            }
+
+         });
+     });
+
+
+    $scope.deletePaymentPlanItem = function(index, $window, $location) {
+       //TODO: Add logic to check for already approved bill payment items
+       //TODO: Add logic to delete bill pay items
+       console.log('Attempting to unfund Bill '+index.name);
+       var data = $scope.bills[$scope.bills.indexOf(index)];
+       PaymentPlanItem.delete({payment_plan_id: null, bill_id:data.id}, function(data) {
+           if(data.error == null){
+                $scope.bills.splice($scope.bills.indexOf(index), 1);
+                ngToast.create("Bill has been unfunded");
+           }else{
+                ngToast.danger("Error: "+ data.error);
+           }
+       },
+       function (error){
+        console.log(error);
+        ngToast.danger('Error ' + error.status + ': ' + error.statusText);
+       });
+    };
+
+    $scope.differenceInDays = function(first_date) {
+        return differenceInDays(first_date);
+    };
+}]);
+
+
+
+
+
+
 
 /*****************************
 * BILL FORM MODAL CONTROLLER *
@@ -659,7 +827,7 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
     $scope.showPaymentPlans = false;
     $scope.showRemainingDue = false;
-    console.log(data.funded_flag);
+
 
     if(data != null){
         var action = 'edit';
@@ -1322,9 +1490,13 @@ function convertBillsToJSObjects(bills){
 
 //Global function to process bills and convert object types
 function convertBillToJSObjects(bill){
+    var payments = 0;
+
     bill.due_date = new Date(bill.due_date);
     bill.total_due = parseFloat(bill.total_due);
     bill.amount = parseFloat(getBillRemainingDue(bill));
+    bill.current_due = parseFloat(getBillRemainingDue(bill));
+    bill.current_funded = bill.total_due - getBillRemainingDue(bill);
 
     if(bill.payment_processing_flag == "true" || bill.payment_processing_flag == true){
         bill.payment_processing_flag = true;
@@ -1337,5 +1509,24 @@ function convertBillToJSObjects(bill){
     }else {
         bill.funded_flag = false;
     }
+
+    if(bill.paid_flag == "true" || bill.paid_flag == true){
+        bill.paid_flag = true;
+    }else {
+        bill.paid_flag = false;
+    }
+
+    /* EXPERIMENTAL: LOGIC TO HELP WITH SORTING/ORDERING IN TRACK PAGE
+    *
+    * PAID = 5
+    * PROCESSING = 4
+    * FULLY FUNDED = 3
+    * PARTIALLY FUNDED = 2
+    * UNFUNDED = 1
+    */
+    if(bill.paid_flag){
+        bill.status = 4;
+    }
+
     return bill;
 }
