@@ -749,6 +749,7 @@ billsAppControllers.controller("billTrackController",['$scope', '$http', '$route
             };
 
 
+
             $scope.fundedBillsTotal = function(){
                 var tmpAmount = 0;
 
@@ -1525,7 +1526,25 @@ function convertBillToJSObjects(bill){
     * UNFUNDED = 1
     */
     if(bill.paid_flag){
+        bill.status = 5;
+        bill.status_text = "Paid";
+        bill.status_icon = "ok";
+    }else if (!bill.paid_flag && bill.payment_processing_flag){
         bill.status = 4;
+        bill.status_text = "Processing";
+        bill.status_icon = "send"
+    }else if (bill.funded_flag){
+        bill.status = 3;
+        bill.status_text = "Fully Funded";
+        bill.status_icon = "star";
+    }else if (!bill.funded_flag && bill.current_due < bill.total_due){
+        bill.status = 2;
+        bill.status_text = "Partially Funded";
+        bill.status_icon = "star-empty";
+    }else{
+        bill.status = 1;
+        bill.status_text = "Unfunded";
+        bill.status_icon = "leaf";
     }
 
     return bill;

@@ -908,7 +908,7 @@ class ApiBill(Resource):
             bill.billing_period = billing_period
         if total_due:
             bill.total_due = total_due
-
+        #TODO: Prevent amount changes if bill is funded or paid
 
         if paid_flag is not None:
             bill.paid_flag = paid_flag

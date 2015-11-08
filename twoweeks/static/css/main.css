@@ -188,17 +188,44 @@
         border-color: #46b8da;
     }
 
+    .badge-success{
+        color: #fff;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+    }
+
+    .badge-primary{
+        color: #fff;
+        background-color: #337ab7;
+        border-color: #2e6da4;
+    }
+
+
 
     .bill-prep-table{
 
     }
 
-    .bill-prep-table>tbody>tr>td{
-        border-top:1px dotted lightgrey;
+    .bill-prep-table>thead>tr>th{
+        border-bottom:0px;
     }
 
-    .bill-prep-table>tbody>tr>td:first-child {
+    .bill-prep-table>thead>tr>th {
         border-right:1px dotted lightgrey;
+    }
+
+    .bill-prep-table>thead>tr>th:last-child{
+        border-right:0px;
+    }
+
+    .bill-prep-table>tbody>tr>td{
+        width: auto !important;
+        border-top:1px dotted lightgrey;
+        border-right:1px dotted lightgrey;
+    }
+
+    .bill-prep-table>tbody>tr>td:last-child{
+        border-right:0px;
     }
 
 
