@@ -72,38 +72,6 @@ billsApp.directive('ngReallyClick', [function() {
 
 
 
-var loginApp = angular.module('loginApp', [
-    'ngRoute',
-    'loginAppControllers',
-    'loginServices',
-    'dbServices',
-    'formly',
-    'formlyBootstrap',
-    'ngToast'
-]);
-
-
-loginApp.config(['$routeProvider','ngToastProvider', function($routeProvider, ngToastProvider) {
-    $routeProvider.
-    when('/:sectionFlag', {
-        templateUrl: '/static/partials/Login-LoginForm.html',
-        controller: 'loginAppLoginController'
-    }).
-    otherwise({
-        templateUrl: '/static/partials/Login-LoginForm.html',
-        controller: 'loginAppLoginController'
-    });
-
-    ngToastProvider.configure({
-        animation: 'fade',
-        dismissButton: 'true',
-        verticalPosition: 'bottom',
-        horizontalPosition: 'left'
-    });
-}]);
-
-
-
 /*********************
 *  Database Services *
 **********************/
