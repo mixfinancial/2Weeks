@@ -1016,8 +1016,16 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 /*******************
 * LOGIN CONTROLLER *
 *******************/
-loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, $location, Login, ngToast, LoginCheck) {
-    $scope.sectionFlag = 'register';
+loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', function($scope, $location, Login, ngToast, LoginCheck, $routeParams) {
+
+    if($routeParams.sectionFlag == null){
+        $scope.sectionFlag = 'register';
+    }else if($routeParams.sectionFlag == 'register' || $routeParams.sectionFlag == 'login'){
+        $scope.sectionFlag = $routeParams.sectionFlag;
+    }else{
+        $scope.sectionFlag = 'register';
+    }
+
     $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
 
     $scope.switchSection = function(){
@@ -1075,7 +1083,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
         console.log('logging out');
             $http.get('/api/logout/').
                 success(function(data, status, headers, config) {
-                    window.location.href = '/';
+                    window.location.href = '/#/login';
                 }).
                 error(function(data, status, headers, config) {
                     console.log('could not logout');
@@ -1532,7 +1540,7 @@ function convertBillToJSObjects(bill){
 
     var uPayRecurrenceSelectOptions = [
             {id: '1', value: "W",  name: 'Weekly'},
-            {id: '2', value: "B",  name: 'Bi-Weekly'},
-            {id: '3', value: "T",  name: 'Twice Monthly'},
+            {id: '2', value: "B",  name: 'Bi-Weekly (Every Other Week)'},
+            {id: '3', value: "T",  name: 'Twice Monthly (1st and 15th)'},
             {id: '4', value: "M",  name: 'Monthly'}
         ];

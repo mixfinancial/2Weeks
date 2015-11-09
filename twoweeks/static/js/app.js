@@ -84,7 +84,7 @@ var loginApp = angular.module('loginApp', [
 
 loginApp.config(['$routeProvider','ngToastProvider', function($routeProvider, ngToastProvider) {
     $routeProvider.
-    when('/', {
+    when('/:sectionFlag', {
         templateUrl: '/static/partials/Login-LoginForm.html',
         controller: 'loginAppLoginController'
     }).
