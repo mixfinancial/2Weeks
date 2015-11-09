@@ -515,6 +515,12 @@ class ApiMe(Resource):
             return jsonify(meta=buildMeta(), data=[user.serialize])
 
 
+
+
+
+    ####################
+    # EDIT USER ACTION #
+    ####################
     @login_required
     def put(self, user_id=None):
         app.logger.info('Accessing User.put')
@@ -532,10 +538,6 @@ class ApiMe(Resource):
         average_paycheck_amount = None
         next_pay_date = None
         pay_recurrance_flag = None
-
-
-
-
 
         if user_id is not None:
             id = user_id
@@ -597,9 +599,7 @@ class ApiMe(Resource):
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
 
-        #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         #TODO: Prevent Username or Email Change without confirmation token!?!
-
 
 
         if first_name:
@@ -645,9 +645,13 @@ class ApiMe(Resource):
         return {"meta":buildMeta(), "data": [user.serialize]}
 
 
-    @login_required
+
+
+    ########################
+    # REGISTER USER ACTION #
+    ########################
     def post(self, user_id=None):
-        app.logger.info('Accessing User.post')
+        app.logger.info('Accessing Me.post (Registering New User)')
 
         id = ''
         username = None
@@ -659,6 +663,7 @@ class ApiMe(Resource):
         first_name = None
         last_name = None
         account_balance_amount = None
+        confirm_email = None
 
         average_paycheck_amount = None
         next_pay_date = None
@@ -692,6 +697,8 @@ class ApiMe(Resource):
                         average_paycheck_amount = value
                     elif key == 'account_balance_amount':
                         account_balance_amount = value
+                    elif key == 'confirm_email':
+                        confirm_email = value
             else:
                 return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
         elif request_is_form_urlencode():
@@ -710,22 +717,42 @@ class ApiMe(Resource):
             pay_recurrance_flag = requestData['pay_recurrance_flag']
             average_paycheck_amount = requestData['average_paycheck_amount']
             account_balance_amount = requestData['account_balance_amount']
+            confirm_email = requestData['confirm_email']
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
 
 
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
-        if email is None or password is None:
-            return {"meta":buildMeta(), "error":"Email and Password is required", "data": None}
+
+        # REQUIRED FIELD CHECKS
+        if email is None or confirm_email is None:
+            return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
+        if new_password is None:
+            return {"meta":buildMeta(), "error":"Password is required", "data": None}
+        if first_name is None or last_name is None:
+            return {"meta":buildMeta(), "error":"First and last name is required", "data": None}
+        if  pay_recurrance_flag is None or next_pay_date is None:
+            return {"meta":buildMeta(), "error":"Pay Recurrance and Next Pay Date is Required", "data": None}
+
+
+        if email != confirm_email:
+            return {"meta":buildMeta(), "error":"Email and confirmation email do not match", "data": None}
+
+
+
+
 
         if User.query.filter_by(username = username).first() is not None:
             return {"meta":buildMeta(), "error":"Username already exists", "data": None}
 
-        newUser = User(username=username, password=password, email=email, first_name=first_name, last_name=last_name, account_balance_amount=account_balance_amount)
+        newUser = User(username=email, password=new_password, email=email, first_name=first_name, last_name=last_name, next_pay_date = next_pay_date, pay_recurrance_flag = pay_recurrance_flag,  account_balance_amount=account_balance_amount)
 
         db_session.add(newUser)
         db_session.commit()
+
+        #TODO: SEND NEW USER REGISTRATION EMAIL
+
 
         return {"meta":buildMeta()}
 

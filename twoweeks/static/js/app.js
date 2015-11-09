@@ -76,6 +76,7 @@ var loginApp = angular.module('loginApp', [
     'ngRoute',
     'loginAppControllers',
     'loginServices',
+    'dbServices',
     'formly',
     'formlyBootstrap',
     'ngToast'
@@ -149,7 +150,8 @@ dbServices.factory('Me', ['$resource',
     return $resource('/api/me/:userId', {}, {
       'query': {method:'GET', isArray:false},
       'get': {method:'GET', params:{userId:'users'}, isArray:false},
-      'update': {method:'PUT', isArray:false}
+      'update': {method:'PUT', isArray:false},
+      'register': {method:'POST', isArray:false}
     });
   }]);
 

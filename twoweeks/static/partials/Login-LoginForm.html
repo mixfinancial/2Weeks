@@ -2,7 +2,7 @@
     <div ng-switch-when="login">
         <h5 class="centered">login</h5>
         <hr>
-        <form ng-submit="submit()" name="loginForm" >
+        <form ng-submit="submit()" name="loginForm">
             <div class="form-group">
                 <label for="username" class="sr-only">Email address</label>
                 <input type="text" id="username" class="form-control" required ng-required="true" ng-model="model.username" placeholder="Email address">
@@ -14,15 +14,15 @@
             </div>
             <hr/>
             <div class="centered">
-                <button type="submit" class="btn btn-success">Login</button> &nbsp;or&nbsp;
-                <button ng-click="switchSection()" class="btn btn-primary">Need to Register? Click Here!</button>
+                <button type="submit" class="btn btn-success">&nbsp;&nbsp;Login&nbsp;&nbsp;</button> &nbsp;or&nbsp;
+                <button ng-click="switchSection()" class="btn btn-primary">Click here to Register!</button>
             </div>
         </form>
     </div><!-- END LOGIN SECTION -->
     <div ng-switch-when="register">
         <h5 class="centered">Register new account</h5>
         <hr>
-        <form ng-submit="submitModalForm()" name="registerForm" class="form">
+        <form ng-submit="submit()" name="registerForm" class="form">
             <div class="form-group">
                 <div class="row">
                     <div class="col-sm-5">
@@ -44,25 +44,28 @@
                 <input type="email" id="uConfirmEmail" class="form-control" required ng-model="model.confirm_email" placeholder="re-enter email address">
             </div>
             <div class="form-group">
+                <label class="sr-only" for="uNewPassword" required>password</label>
+                <input type="password" id="uNewPassword" class="form-control" required ng-model="model.new_password" placeholder="password">
+            </div>
+            <div class="form-group">
                 <div class="row">
                     <div class="col-sm-7">
                         <label class="control-label" for="uPayRecurrence" required>Pay Recurrance</label>
-                        <select class="form-control" name="pay_recurrance_flag" id="uPayRecurrence" ng-options="option.name for option in uPayRecurrenceSelectOptions track by option.id" ng-model="model.pay_recurrence" placeholder="How often are you paid?">
+                        <select class="form-control" name="pay_recurrance_flag" id="uPayRecurrence" ng-options="option.name for option in uPayRecurrenceSelectOptions track by option.id" ng-model="model.pay_recurrance" placeholder="How often are you paid?">
                             <option value="" disabled>How often are you paid?</option>
                         </select>
                     </div>
                     <div class="col-sm-5">
                         <label class="control-label" for="uNextPayDate" required>Next Paydate</label>
                         <input type="date" id="uNextPayDate" class="form-control" ng-model="model.next_pay_date">
-
                     </div>
                 </div>
             </div>
 
             <hr/>
             <div class="centered">
-                <button type="submit" class="btn btn-success">Register</button> &nbsp;or&nbsp;
-                <button ng-click="switchSection()" class="btn btn-primary">Already have an account? Login Here!</button>
+                <button type="submit" class="btn btn-success">&nbsp;&nbsp;Register&nbsp;&nbsp;</button> &nbsp;or&nbsp;
+                <button ng-click="switchSection()" class="btn btn-primary">Click here to Login!</button>
             </div>
         </form>
     </div><!-- END REGISTER SECTION -->

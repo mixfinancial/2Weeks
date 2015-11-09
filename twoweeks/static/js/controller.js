@@ -1016,7 +1016,7 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 /*******************
 * LOGIN CONTROLLER *
 *******************/
-loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', function($scope, $location, Login, ngToast, LoginCheck, $routeParams) {
+loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
 
     if($routeParams.sectionFlag == null){
         $scope.sectionFlag = 'register';
@@ -1043,14 +1043,35 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
         }
      });
 
-     $scope.model = {};
+    $scope.model = {};
+
+    $scope.submit = function() {
+        console.log("Performing " + $scope.sectionFlag);
+        if($scope.sectionFlag == 'login'){
+        //LOGGING USER IN
+            if($scope.model.username == null || $scope.model.password == null){
+                ngToast.warning("Please Enter username and password")
+            }else{
+                Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
+                    console.log(data)
+                    if(data.error == null){
+                        window.location.href = '/home/';
+                    }else{
+                        ngToast.danger(data.error);
+                        console.log(data.error);
+                    }
+                });
+            }
+        }else if($scope.sectionFlag == 'register'){
+        //REGISTERING NEW USER
+
+        //Need to update pay_recurrance_flag...comes in as a json object
+
+        $scope.model.pay_recurrance_flag = $scope.model.pay_recurrance.value
 
 
-     $scope.submit = function() {
-        if($scope.model.username == null || $scope.model.password == null){
-             ngToast.create("Please Enter username and password")
-        }else{
-            Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
+            console.log("REGISTERING NEW USER");
+            Me.register(JSON.stringify($scope.model), function(data){
                 console.log(data)
                 if(data.error == null){
                     window.location.href = '/home/';
@@ -1059,6 +1080,10 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
                     console.log(data.error);
                 }
             });
+
+        }else{
+            ngToast.warning("There was an issue, refreshing...");
+            window.location.href = '/';
         }
     }
 }]);
