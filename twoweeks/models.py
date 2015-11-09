@@ -133,9 +133,14 @@ class User(Base, UserMixin):
     confirmed_at = Column(DateTime())
     role_id = Column(Integer, ForeignKey('role.id'))
     account_balance_amount = Column(Float(2), default=0);
-
-    bill = relationship("Bill")
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
+
+    bills = relationship("Bill",  cascade="all, save-update, merge, delete")
+    payment_plans = relationship("Payment_Plan",  cascade="all, save-update, merge, delete")
+    payment_plan_items = relationship("Payment_Plan_Item",  cascade="all, save-update, merge, delete")
+    payees = relationship("Payee",  cascade="all, save-update, merge, delete")
+
+
 
     #TODO: This needs to be changed to an Indicator...
     #W: Weekly
@@ -327,8 +332,7 @@ class Bill(Base):
     funded_flag = Column(Boolean(), default=False)
     paid_date = Column(DateTime())
     check_number = Column(Integer)
-    payment_plan_items = relationship("Payment_Plan_Item", backref="bill",cascade="all, save-update, merge, delete")
-
+    payment_plan_items = relationship("Payment_Plan_Item", backref="bill", cascade="all, save-update, merge, delete")
 
 
     #CC: Credit Card

@@ -65,7 +65,19 @@
 
 
 
-loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParams', '$location', 'Login', 'ngToast', 'LoginCheck', function($scope, transformRequestAsFormPost, $location, Login, ngToast, LoginCheck) {
+/*******************
+* LOGIN CONTROLLER *
+*******************/
+loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', function($scope, $location, Login, ngToast, LoginCheck, $routeParams) {
+    $scope.sectionFlag = 'login';
+
+    $scope.switchSection = function(){
+        if($scope.sectionFlag == 'register'){
+            $scope.sectionFlag = 'login';
+        }else{
+            $scope.sectionFlag = 'register';
+        }
+    }
 
     LoginCheck.get(function(data) {
         console.log(data);
@@ -74,43 +86,31 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$routeParam
         }
      });
 
-     $scope.model = {};
+    $scope.model = {};
 
-     $scope.formFields = [
-                            {
-                                key: 'username',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'text',
-                                    label: 'username',
-                                    placeholder: 'your@email.com',
-                                    required: true
-                                }
-                            },
-                            {
-                                key: 'password',
-                                type: 'input',
-                                templateOptions: {
-                                    type: 'password',
-                                    label: 'password',
-                                    required: true
-                                }
-                            }
-                        ];
+    $scope.submit = function() {
+        console.log("Performing " + $scope.sectionFlag);
+        if($scope.sectionFlag == 'login'){
+        //LOGGING USER IN
+            if($scope.model.username == null || $scope.model.password == null){
+                ngToast.warning("Please Enter username and password")
+            }else{
+                Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
+                    console.log(data)
+                    if(data.error == null){
+                        window.location.href = '/admin/home/';
+                    }else{
+                        ngToast.danger(data.error);
+                        console.log(data.error);
+                    }
+                });
+            }
+        }else if($scope.sectionFlag == 'register'){
 
-     $scope.submit = function() {
-        if($scope.model.username == null || $scope.model.password == null){
-             ngToast.create("Please Enter username and password")
+
         }else{
-            Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
-                console.log(data)
-                if(data.error == null){
-                    window.location.href = '/admin/home/';
-                }else{
-                    ngToast.danger(data.error)
-                    console.log(data.error);
-                }
-            });
+            ngToast.warning("There was an issue, refreshing...");
+            window.location.href = '/';
         }
     }
 }]);

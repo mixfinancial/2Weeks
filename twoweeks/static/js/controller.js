@@ -1069,7 +1069,6 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
 
         $scope.model.pay_recurrance_flag = $scope.model.pay_recurrance.value
 
-
             console.log("REGISTERING NEW USER");
             Me.register(JSON.stringify($scope.model), function(data){
                 console.log(data)
