@@ -88,20 +88,23 @@ var loginAppControllers = angular.module("loginAppControllers", []);
 loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
 
     var location = ""
+    $scope.isAdmin = false;
+    $scope.sectionFlag = 'login';
 
     if($location.absUrl().indexOf("admin") > -1){
         console.log("Admin Home");
         location = "/admin";
+        $scope.isAdmin = true;
     }else{
         console.log("Main Home");
-    }
 
-    if($routeParams.sectionFlag == null){
-        $scope.sectionFlag = 'register';
-    }else if($routeParams.sectionFlag == 'register' || $routeParams.sectionFlag == 'login'){
-        $scope.sectionFlag = $routeParams.sectionFlag;
-    }else{
-        $scope.sectionFlag = 'register';
+        if($routeParams.sectionFlag == null){
+            $scope.sectionFlag = 'register';
+        }else if($routeParams.sectionFlag == 'register' || $routeParams.sectionFlag == 'login'){
+            $scope.sectionFlag = $routeParams.sectionFlag;
+        }else{
+            $scope.sectionFlag = 'register';
+        }
     }
 
     $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;

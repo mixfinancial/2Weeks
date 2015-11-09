@@ -14,8 +14,11 @@
             </div>
             <hr/>
             <div class="centered">
-                <button type="submit" class="btn btn-success">&nbsp;&nbsp;Login&nbsp;&nbsp;</button> &nbsp;or&nbsp;
-                <button ng-click="switchSection()" class="btn btn-primary">Click here to Register!</button>
+                <button type="submit" class="btn btn-success">&nbsp;&nbsp;Login&nbsp;&nbsp;</button>
+                <span ng-show="!isAdmin">
+                    &nbsp;or&nbsp;
+                    <button ng-click="switchSection()" class="btn btn-primary">Click here to Register!</button>
+                </span>
             </div>
         </form>
     </div><!-- END LOGIN SECTION -->
