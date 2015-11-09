@@ -25,7 +25,7 @@
         $scope.delete = function(text, $window, $location) {
             User.delete({userId: text});
             ngToast.success('User #'+text+' has been successfully deleted')
-            //TODO: Check for successful $promise before sending notification
+            $scope.users.splice($scope.users.indexOf(text), 1);
         }
 
     }]);
