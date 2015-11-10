@@ -7,7 +7,9 @@ All required Python libraries can be installed by leveraging the included requir
 
     sudo pip install -r requirements.txt
     
-    
+    For Windows: http://stackoverflow.com/questions/30408340/python-django-installing-mysql-easy-install-and-pip-errors
+   
+   
 Run newrelic-admin run-program python runserver.py
 
   

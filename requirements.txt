@@ -1,12 +1,12 @@
 # Python Requirements.txt file to install all required python modules for the 2Weeks Application
 # sudo pip install -r requirements.txt
 
+pymysql
 Flask
 Flask-SQLAlchemy
 Flask-login
 Flask-Mail
 Flask-RESTful
-sqlalchemy-migrate
 pylint
 selenium
 werkzeug
