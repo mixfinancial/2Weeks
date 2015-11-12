@@ -13,6 +13,7 @@ HOST = os.environ['HOST']
 NEW_RELIC_CONFIG_FILE = os.environ['NEW_RELIC_CONFIG_FILE']
 
 SECRET_KEY = os.environ['FLASK_AUTH_SECRET_KEY']
+SECURITY_PASSWORD_SALT = os.environ['SECURITY_PASSWORD_SALT']
 
 
 ###################
@@ -26,7 +27,6 @@ DATABASE_PORT = '3306'
 ADMIN_USERNAME = os.environ['ADMIN_USERNAME']
 ADMIN_PASSWORD = os.environ['ADMIN_PASSWORD']
 ADMIN_EMAIL = os.environ['ADMIN_EMAIL']
-
 
 TEST_DATABASE_HOSTNAME = 'dev.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com'
 DEV_DATABASE_HOSTNAME = 'mixfindb.c6uo5ewdeq5k.us-east-1.rds.amazonaws.com'

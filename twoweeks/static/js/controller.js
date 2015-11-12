@@ -446,8 +446,6 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
 
 
 
-
-
 /**************************
 * BILL EXECUTE CONTROLLER *
 ***************************/
@@ -655,9 +653,6 @@ billsAppControllers.controller("billExecuteController",['$scope', '$http', '$rou
 
 
 
-
-
-
 /************************
 * BILL TRACK CONTROLLER *
 *************************/
@@ -825,9 +820,6 @@ billsAppControllers.controller("billTrackController",['$scope', '$http', '$route
 
 
 
-
-
-
 /*****************************
 * BILL FORM MODAL CONTROLLER *
 ******************************/
@@ -946,7 +938,6 @@ billsAppControllers.controller('BillFormModalController', ['$scope', '$modalInst
 
 
 
-
 /*************************************
 * EDIT PAYMENT PLAN MODAL CONTROLLER *
 *************************************/
@@ -1013,6 +1004,20 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 
 
 
+/***************************
+* CONFIRM EMAIL CONTROLLER *
+***************************/
+billsAppControllers.controller("confirmEmailController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
+
+}]);
+
+
+
+
+
+
+
+
 /**************************
 * MENU BAR APP CONTROLLER *
 **************************/
@@ -1062,6 +1067,9 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 
 
 }]);
+
+
+
 
 
 
@@ -1384,6 +1392,9 @@ menuBarAppControllers.controller('FeedbackFormModalController', ['$scope', '$mod
 
 
 }]);
+
+
+
 
 
 

@@ -31,6 +31,10 @@ billsApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, n
         templateUrl: '/static/partials/billPrep.html',
         controller: ''
     }).
+    when('/confirm_email/:confirmation_code', {
+        templateUrl: '/static/partials/confirm_email.html',
+        controller: ''
+    }).
     when('/billExecute', {
         templateUrl: '/static/partials/billExecute.html',
         controller: ''

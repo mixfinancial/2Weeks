@@ -6,6 +6,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session, make_response
 import twoweeks.config as config
 from datetime import timedelta
+from twoweeks.token import generate_confirmation_token, confirm_token
 
 
 ######################
@@ -741,12 +742,14 @@ class ApiMe(Resource):
 
 
 
-
-
         if User.query.filter_by(username = username).first() is not None:
             return {"meta":buildMeta(), "error":"Username already exists", "data": None}
 
-        newUser = User(username=email, password=new_password, email=email, first_name=first_name, last_name=last_name, next_pay_date = next_pay_date, pay_recurrance_flag = pay_recurrance_flag,  account_balance_amount=account_balance_amount)
+        confirm_token = generate_confirmation_token(email)
+
+        #app.logger.info(confirm_token);
+
+        newUser = User(username=email, password=new_password, email=email, first_name=first_name, last_name=last_name, next_pay_date = next_pay_date, pay_recurrance_flag = pay_recurrance_flag,  account_balance_amount=account_balance_amount,  confirm_token=confirm_token)
 
         db_session.add(newUser)
         db_session.commit()

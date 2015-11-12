@@ -131,6 +131,8 @@ class User(Base, UserMixin):
 
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
+    confirm_token = Column(String(120))
+
     role_id = Column(Integer, ForeignKey('role.id'))
     account_balance_amount = Column(Float(2), default=0);
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
@@ -179,6 +181,8 @@ class User(Base, UserMixin):
                 self.pay_recurrance_flag = value
             elif key=="next_pay_date":
                 self.next_pay_date = value
+            elif key=="confirm_token":
+                self.confirm_token = value
 
 
         self.role_id = role_id
@@ -228,7 +232,6 @@ class User(Base, UserMixin):
            'id'                      : self.id,
            'username'                : self.username,
            'email'                   : self.email,
-           #'password'               : self.password,
            'first_name'              : self.first_name,
            'last_name'               : self.last_name,
            'active'                  : self.active,
