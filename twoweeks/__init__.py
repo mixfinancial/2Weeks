@@ -306,7 +306,7 @@ def home():
 
 @app.route('/admin/')
 def adminLogin():
-    return render_template('adminLogin.html')
+    return render_template('index.html')
 
 
 @app.route('/admin/home/')

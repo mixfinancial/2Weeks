@@ -1,6 +1,7 @@
 <section ng-switch="sectionFlag">
     <div ng-switch-when="login">
-        <h5 class="centered">login</h5>
+        <h5 class="centered" ng-show="!isAdmin">login</h5>
+        <h5 class="centered" ng-show="isAdmin">ADMIN INTERFACE LOGIN</h5>
         <hr>
         <form ng-submit="submit()" name="loginForm">
             <div class="form-group">
