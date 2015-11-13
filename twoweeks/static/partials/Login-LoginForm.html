@@ -1,7 +1,6 @@
 <section ng-switch="sectionFlag">
     <div ng-switch-when="login">
-        <h5 class="centered" ng-show="!isAdmin">login</h5>
-        <h5 class="centered" ng-show="isAdmin">ADMIN INTERFACE LOGIN</h5>
+        <h5 class="centered" ng-show="!disableRegister">{{title}}</h5>
         <hr>
         <form ng-submit="submit()" name="loginForm">
             <div class="form-group">
@@ -16,7 +15,7 @@
             <hr/>
             <div class="centered">
                 <button type="submit" class="btn btn-success">&nbsp;&nbsp;Login&nbsp;&nbsp;</button>
-                <span ng-show="!isAdmin">
+                <span ng-show="!disableRegister">
                     &nbsp;or&nbsp;
                     <button ng-click="switchSection()" class="btn btn-primary">Click here to Register!</button>
                 </span>

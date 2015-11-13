@@ -277,7 +277,14 @@ def unauthorized_callback():
     elif '/admin' in str(request):
         return redirect('/admin/#/login')
     else:
-        return redirect('/#/login')
+        theURL = str(request.url)
+        #app.logger.info('theURL: ' + theURL)
+        urlParams = theURL[theURL.index('?'):len(theURL)]
+        if urlParams is not None:
+            app.logger.info('urlParams: ' + urlParams)
+            return redirect('/#/'+urlParams+'&auth_check=true')
+        else:
+            return redirect('/#/login/')
 
 
 
@@ -644,6 +651,9 @@ class ApiMe(Resource):
         elif current_password and not confirm_new_password or new_password:
             return {"meta":buildMeta(), "error":"All required information was not provided to change password"}
 
+
+
+        user.last_updated = datetime.utcnow
         db_session.commit()
         return {"meta":buildMeta(), "data": [user.serialize]}
 

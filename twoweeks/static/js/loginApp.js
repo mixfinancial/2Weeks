@@ -18,6 +18,10 @@ loginApp.config(['$routeProvider','ngToastProvider', function($routeProvider, ng
         templateUrl: '/static/partials/Login-LoginForm.html',
         controller: 'loginAppLoginController'
     }).
+    when('/', {
+        templateUrl: '/static/partials/Login-LoginForm.html',
+        controller: 'loginAppLoginController'
+    }).
     otherwise({
         templateUrl: '/static/partials/Login-LoginForm.html',
         controller: 'loginAppLoginController'
@@ -88,17 +92,32 @@ var loginAppControllers = angular.module("loginAppControllers", []);
 loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
 
     var location = ""
-    $scope.isAdmin = false;
+    $scope.disableRegister = false;
     $scope.sectionFlag = 'login';
+
+    var searchObject = $location.search();
+    if (searchObject != null){
+        console.log('~~~URL Parameters~~~');
+        console.log(searchObject);
+        if (searchObject.auth_check != null && searchObject.auth_check == "true"){
+            searchObject.auth_check = true;
+            $scope.disableRegister = true;
+        }else{
+            searchObject.auth_check = false;
+        }
+    }
 
     if($location.absUrl().indexOf("admin") > -1){
         console.log("Admin Home");
         location = "/admin";
-        $scope.isAdmin = true;
+        $scope.disableRegister = true;
     }else{
         console.log("Main Home");
 
-        if($routeParams.sectionFlag == null){
+        if (searchObject != null && searchObject.auth_check == true){
+            console.log('setting sectionFlag as login');
+            $scope.sectionFlag = 'login';
+        }else if($routeParams.sectionFlag == null){
             $scope.sectionFlag = 'register';
         }else if($routeParams.sectionFlag == 'register' || $routeParams.sectionFlag == 'login'){
             $scope.sectionFlag = $routeParams.sectionFlag;
@@ -107,7 +126,10 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
         }
     }
 
+
     $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
+
+
 
     $scope.switchSection = function(){
         if($scope.sectionFlag == 'register'){
