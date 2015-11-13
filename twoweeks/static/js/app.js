@@ -135,7 +135,8 @@ dbServices.factory('Me', ['$resource',
 dbServices.factory('ConfirmEmail', ['$resource',
   function($resource){
     return $resource('/api/confirm_email/:token', {}, {
-      'update': {method:'POST', isArray:false},
+      'create': {method:'POST', isArray:false},
+      'update': {method:'PUT', isArray:false}
     });
   }]);
 

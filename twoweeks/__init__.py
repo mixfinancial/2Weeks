@@ -1564,9 +1564,11 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 ##########################
 
 class ApiConfirmEmail(Resource):
+
+    #The PUT method is used to actually confirm the login email
     @login_required
-    def post(self, user_id=None):
-        app.logger.info('Accessing ConfirmEmail.post')
+    def put(self, user_id=None):
+        app.logger.info('Accessing ConfirmEmail.put')
 
         user = None
         user_id = None
@@ -1605,6 +1607,34 @@ class ApiConfirmEmail(Resource):
             return {"meta":buildMeta(), 'data':[user.serialize]}, 201
         else:
             return {"meta":buildMeta(), 'error':'Incorrect token was provided'}, 201
+
+    #The POST method is used to send new confirmation emails
+    #it creates a new token and sends it to the user
+    @login_required
+    def post(self, user_id=None):
+        app.logger.info('Accessing ConfirmEmail.post')
+
+        user = None
+        user_id = None
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+        else:
+            user_id = user.id;
+
+        if user.confirmed_at is None:
+            confirm_token = generate_confirmation_token(user.email)
+            #app.logger.info(confirm_token);
+            user.confirm_token = confirm_token;
+            db_session.commit()
+
+            send_email_confirmation_email(user.first_name, user.last_name, user.email, confirm_token)
+            return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+        else:
+            return {"meta":buildMeta(), "error":"User has already confirmed email"}
 
 api.add_resource(ApiConfirmEmail, '/api/confirm_email')
 

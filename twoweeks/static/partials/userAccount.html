@@ -16,7 +16,7 @@
                     <h3 class="panel-title">{{selected}}&nbsp;Settings</h3>
                 </div>
                 <ul class="list-group me-nav" ng-switch-when="General">
-                    <li class="list-group-item" ng-class="{'settings-form-open' : !uUserNameCollapse, 'settings-form-closed' : uUserNameCollapse}">
+                    <!--<li class="list-group-item" ng-class="{'settings-form-open' : !uUserNameCollapse, 'settings-form-closed' : uUserNameCollapse}">
                         <div class="row no-animate"  collapse="!uUserNameCollapse" ng-click="toggleCollapse('uUserNameCollapse')">
                             <div class="col-xs-3 col-md-2"><strong>Username</strong></div>
                             <div class="col-xs-9 col-md-10">
@@ -47,15 +47,14 @@
                                   </div>
                             </div>
                         </div>
-                    </li><!-- END USERNAME SECTION -->
-
+                    </li>--><!-- END USERNAME SECTION -->
                     <li class="list-group-item" ng-class="{'settings-form-open' : !uEmailCollapse, 'settings-form-closed' : uEmailCollapse}">
                         <div class="row no-animate"  collapse="!uEmailCollapse" ng-click="toggleCollapse('uEmailCollapse')">
-                            <div class="col-xs-3 col-md-2"><strong>Email</strong></div>
+                            <div class="col-xs-3 col-md-2"><strong>Email/Username</strong></div>
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{me.email}}</span>
+                                        <span style="word-wrap: break-word;">{{me.email}}</span><span style="color:orange;font-size:80%" ng-show="!me.confirmed_at">&nbsp;&nbsp;(NOT CONFIRMED)&nbsp;&nbsp;</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -64,20 +63,24 @@
                             </div>
                         </div>
                         <div class="row no-animate"  collapse="uEmailCollapse">
-                            <div class="col-xs-3 col-md-2"><strong>Email</strong></div>
+                            <div class="col-xs-3 col-md-2"><strong>Email/Username</strong></div>
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-12" >
                                         <form class="form-horizontal">
                                             <div class="form-group form-group-sm">
-                                                <label for="username" class="col-md-3 control-label">Change Email:</label>
+                                                <span class="help-block"><strong>Note<strong>: Changing your email will also change your login username.</span>
+                                                <span class="help-block" ng-show="!me.confirmed_at" style="color:orange;font-size:80%"><strong>Note<strong>: Your email has not been confirmed. Please confirm your email address by clicking the link in the confirmation email, or <a href="" ng-click="resendConfirmationEmail()">Resend your confirmation email</a></span>
+                                            </div>
+                                            <div class="form-group form-group-sm">
+                                                <label for="email" class="col-md-3 control-label">Change Email:</label>
                                                 <div class="col-md-9">
                                                     <input type="text" id="email" class="form-control" ng-model="model.email">
                                                 </div>
                                             </div>
                                             <div class="form-group form-group-sm">
                                                 <div class="col-sm-offset-2 col-sm-10">
-                                                    <button class="btn btn-xs btn-primary" type="button" ng-click="submitForm('uEmailCollapse')">Send Email Change Request</button>
+                                                    <button class="btn btn-xs btn-primary" type="button" ng-click="submitForm('uEmailCollapse')">Save Changes</button>
                                                     <button class="btn btn-xs btn-default" type="button" ng-click="toggleCollapse('uEmailCollapse')">Cancel</button>
                                                 </div>
                                               </div>

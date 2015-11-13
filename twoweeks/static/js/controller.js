@@ -1116,7 +1116,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
 /**************************
 * USER ACCOUNT CONTROLLER *
 **************************/
-menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'ngToast', function($scope, $http, $location, $modal, Me, ngToast) {
+menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$location', '$modal', 'Me', 'ngToast', 'ConfirmEmail', function($scope, $http, $location, $modal, Me, ngToast, ConfirmEmail) {
     $scope.uNameCollapse = true;
     $scope.uUserNameCollapse = true;
     $scope.uPasswordCollapse = true;
@@ -1223,6 +1223,21 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
 
 
 
+    $scope.resendConfirmationEmail = function(){
+        ConfirmEmail.create({userId: $scope.me.id}, null, function(data) {
+            if(data.error == null){
+                ngToast.success("Confirmation email sent successfully");
+                $scope.toggleCollapse(null);
+            }else{
+                ngToast.danger("Error: " + data.error);
+            }
+        }, function(error){
+            console.log(error);
+            ngToast.danger("Error: '" + error.status + "': " + error.statusText);
+        });
+    }
+
+
     $scope.submitForm = function(toggleName){
          var data = {};
          data.id = $scope.me.id;
@@ -1289,7 +1304,8 @@ menuBarAppControllers.controller('userAccountController',['$scope', '$http', '$l
             }
 
          }else if(toggleName == 'uEmailCollapse'){
-            ngToast.success('uEmailCollapse');
+            //TODO: SEND UPDATE
+
             $scope.toggleCollapse(null);
          }else if(toggleName == 'uPayRecurrence'){
             $scope.model.pay_recurrance_flag = $scope.model.selectedOption.value;
