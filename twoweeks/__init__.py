@@ -1559,6 +1559,54 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 
 
 
+##########################
+# EMAIL CONFIRMATION API #
+##########################
+
+class ApiConfirmEmail(Resource):
+    @login_required
+    def post(self, user_id=None):
+        app.logger.info('Accessing ConfirmEmail.post')
+
+        user = None
+        user_id = None
+        email_token = None
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
+        else:
+            user_id = user.id;
+
+        if request_is_json():
+            app.logger.info('Creating new feedback based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'email_token':
+                        email_token = value
+        elif request_is_form_urlencode():
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            email_token = requestData['email_token']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+        if email_token is not None and email_token == user.confirm_token:
+            app.logger.info('correct token provided, activating account')
+            user.active = True;
+            user.confirmed_at = datetime.utcnow()
+            db_session.commit()
+
+            return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+        else:
+            return {"meta":buildMeta(), 'error':'Incorrect token was provided'}, 201
+
+api.add_resource(ApiConfirmEmail, '/api/confirm_email')
 
 
 
@@ -1606,7 +1654,7 @@ def send_email_confirmation_email(first_name, last_name, email, confirm_token):
     html_message = '''
     <p>Hello '''+first_name+''',</p>
     <p>Thank you for registering with 2Weeks. In order to full activate your account, you need to click the below link:</p>
-    <p><a href="http://localhost:5000/home/#/confirm-email/'''+confirm_token+'''/" target="_blank">http://localhost/home/#/confirm-email/'''+confirm_token+'''/</a></p>
+    <p><a href="http://localhost:5000/#/?auth_check=true&action=confirm_email&token='''+confirm_token+'''" target="_blank">http://localhost:5000/home/#/?action=confirm_email&token='''+confirm_token+'''</a></p>
     <p>Thanks!</p>
     <p>the 2Weeks Admin Team<p>
     '''

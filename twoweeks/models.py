@@ -129,9 +129,10 @@ class User(Base, UserMixin):
     date_created = Column(DateTime(120), default=datetime.utcnow)
     last_updated = Column(DateTime(120), default=datetime.utcnow)
 
-    active = Column(Boolean())
+    active = Column(Boolean(), default=True)
     confirmed_at = Column(DateTime())
     confirm_token = Column(String(120))
+
 
     role_id = Column(Integer, ForeignKey('role.id'))
     account_balance_amount = Column(Float(2), default=0);
@@ -238,7 +239,7 @@ class User(Base, UserMixin):
            'last_name'               : self.last_name,
            'active'                  : self.active,
            'role_id'                 : self.role_id,
-           'confirmed_at'            : self.confirmed_at,
+           'confirmed_at'            : dump_datetime(self.confirmed_at),
            'next_pay_date'           : dump_datetime(self.next_pay_date),
            'pay_recurrance_flag'     : self.pay_recurrance_flag,
            'account_balance_amount'  : self.account_balance_amount,

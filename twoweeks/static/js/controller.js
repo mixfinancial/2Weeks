@@ -1006,7 +1006,48 @@ billsAppControllers.controller('EditPaymentPlanItemModalController', ['$scope', 
 /***************************
 * CONFIRM EMAIL CONTROLLER *
 ***************************/
-billsAppControllers.controller("confirmEmailController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
+billsAppControllers.controller("confirmEmailController",['$scope', '$location', 'ngToast', '$routeParams', 'Me', 'ConfirmEmail',  function($scope, $location, ngToast, $routeParams, Me, ConfirmEmail) {
+
+
+    $scope.alreadyConfirmed = false;
+    $scope.needToConfirm = false;
+    $scope.confirmed = false;
+
+    var searchObject = $location.search();
+    if (searchObject != null){
+        console.log('~~~URL Parameters~~~');
+        console.log(searchObject);
+        if (searchObject.token != null){
+            $scope.email_token = searchObject.token;
+        }
+    }
+
+    $scope.confirmAccount  = function(){
+        ConfirmEmail.update({userId:$scope.me.id, email_token:$scope.email_token}, function(data) {
+            if(data.error == null){
+                    $scope.confirmed = true
+                    $scope.needToConfirm = false;
+                }else{
+                    ngToast.danger("Error: " + data.error);
+                }
+        }, function(error){
+            console.log(error);
+            ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
+        });
+    }
+
+    Me.query(function(data) {
+        console.log(data.data[0]);
+        $scope.me = data.data[0];
+
+        if($scope.me.confirmed_at != null){
+            $scope.alreadyConfirmed = true;
+        }else{
+            $scope.needToConfirm = true;
+        }
+    });
+
+
 
 }]);
 

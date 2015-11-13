@@ -142,9 +142,21 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     LoginCheck.get(function(data) {
         console.log(data);
         if(data.error == null && data.data != null){
-            window.location.href = '/home/';
+            if(searchObject.action == null){
+                window.location.href = location+'/home/';
+            }else{
+                window.location.href = location + '/home/#/' + searchObject.action + '/?' + jQuery.param(searchObject);
+            }
         }
      });
+
+
+
+
+
+
+
+
 
     $scope.model = {};
 
@@ -158,7 +170,11 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
                 Login.save(JSON.stringify({username: $scope.model.username, password: $scope.model.password}), function(data){
                     console.log(data)
                     if(data.error == null){
-                        window.location.href = location+'/home/';
+                        if(searchObject.action == null){
+                            window.location.href = location+'/home/';
+                        }else{
+                            window.location.href = location + '/home/#/' + searchObject.action + '/?' + jQuery.param(searchObject);
+                        }
                     }else{
                         ngToast.danger(data.error);
                         console.log(data.error);
