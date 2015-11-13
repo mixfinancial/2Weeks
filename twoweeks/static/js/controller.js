@@ -394,9 +394,8 @@ billsAppControllers.controller("billFormController",['$scope', '$http', '$routeP
                                  if(data.data == null){
                                     ngToast.danger('No Data');
                                  }else{
-                                    console.log(data.data);
-                                    ngToast.success("Plan Saved");
-                                    window.location.href = '/home/';
+                                    console.log("Executed Plan")
+                                    window.location.href = '/home/#/billExecute';
                                  }
                             }else{
                                 ngToast.danger('Error: ' + data.error);

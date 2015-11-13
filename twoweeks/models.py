@@ -183,6 +183,8 @@ class User(Base, UserMixin):
                 self.next_pay_date = value
             elif key=="confirm_token":
                 self.confirm_token = value
+            elif key=="confirmed_at":
+                self.confirmed_at = value
 
 
         self.role_id = role_id

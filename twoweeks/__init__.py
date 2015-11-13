@@ -75,6 +75,8 @@ def send_email(subject, recipients, text_body=None, html_body=None):
         thr = Thread(target=send_async_email, args=[app, msg])
         thr.start()
 
+    app.logger.info("Sent Email")
+
 
 
 #TODO: LOGGING
@@ -273,9 +275,9 @@ def unauthorized_callback():
     if '/api' in str(request):
         return {"meta":buildMeta(), "error":"User is not authenticated, please login"}, 401
     elif '/admin' in str(request):
-        return redirect('/admin/')
+        return redirect('/admin/#/login')
     else:
-        return redirect('/')
+        return redirect('/#/login')
 
 
 
@@ -754,8 +756,10 @@ class ApiMe(Resource):
         db_session.add(newUser)
         db_session.commit()
 
-        #TODO: SEND NEW USER REGISTRATION EMAIL
+        send_email_confirmation_email(first_name, last_name, email, confirm_token)
 
+        login_user(newUser)
+        session['username']=email
 
         return {"meta":buildMeta()}
 
@@ -1533,7 +1537,7 @@ class ApiFeedback(Resource):
             html_message = "<p>Rating: " + str(rating) + "</p><p>Feedback: "+ feedback + "</p>"
             text_message = "Rating: " + str(rating) + "\r\nFeedback: "+ feedback
 
-            send_email('New Feedback', ['"Robert Donovan" <admin@mixfin.com>', '"David Larrimore" <david.larrimore@mixfin.com'], text_message, html_message)
+            send_email('New Feedback', ['"Robert Donovan" <admin@mixfin.com>', '"David Larrimore" <david.larrimore@mixfin.com'], None, html_message)
 
             return {"meta":buildMeta(), 'data':newFeedback.serialize}, 201
         else:
@@ -1586,6 +1590,18 @@ def buildMeta():
     return [{"authors":["David Larrimore", "Robert Donovan"], "copyright": "Copyright 2015 MixFin LLC.", "version": "0.1"}]
 
 
+def send_email_confirmation_email(first_name, last_name, email, confirm_token):
+
+    app.logger.info("Sending Welcome Email")
+    html_message = '''
+    <p>Hello '''+first_name+''',</p>
+    <p>Thank you for registering with 2Weeks. In order to full activate your account, you need to click the below link:</p>
+    <p><a href="http://localhost:5000/home/#/confirm-email/'''+confirm_token+'''/" target="_blank">http://localhost/home/#/confirm-email/'''+confirm_token+'''/</a></p>
+    <p>Thanks!</p>
+    <p>the 2Weeks Admin Team<p>
+    '''
+
+    send_email('2Weeks Email Confirmation', ['"'+first_name+' '+last_name+'" <'+email+'>',"David Larrimore <davidlarrimore@gmail.com>"], html_message, html_message)
 
 
 
