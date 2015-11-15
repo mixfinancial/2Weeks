@@ -1,6 +1,6 @@
 <section ng-switch="sectionFlag">
+    <h5 class="centered">{{title}}</h5>
     <div ng-switch-when="login">
-        <h5 class="centered" ng-show="!disableRegister">{{title}}</h5>
         <hr>
         <form ng-submit="submit()" name="loginForm">
             <div class="form-group">
@@ -23,7 +23,6 @@
         </form>
     </div><!-- END LOGIN SECTION -->
     <div ng-switch-when="register">
-        <h5 class="centered">Register new account</h5>
         <hr>
         <form ng-submit="submit()" name="registerForm" class="form">
             <div class="form-group">

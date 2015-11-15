@@ -54,7 +54,7 @@
                             <div class="col-xs-9 col-md-10">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <span style="word-wrap: break-word;">{{me.email}}</span><span style="color:orange;font-size:80%" ng-show="!me.confirmed_at">&nbsp;&nbsp;(NOT CONFIRMED)&nbsp;&nbsp;</span>
+                                        <span style="word-wrap: break-word;"><strong>{{me.email}}</strong></span><span style="color:orange;font-size:80%" ng-show="!me.confirmed_at">&nbsp;&nbsp;(NOT CONFIRMED)&nbsp;&nbsp;</span>
                                     </div>
                                     <div class="col-xs-3 centered">
                                         <button class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit</button>
@@ -68,10 +68,12 @@
                                 <div class="row">
                                     <div class="col-xs-12" >
                                         <form class="form-horizontal">
-                                            <div class="form-group form-group-sm">
-                                                <span class="help-block"><strong>Note<strong>: Changing your email will also change your login username.</span>
-                                                <span class="help-block" ng-show="!me.confirmed_at" style="color:orange;font-size:80%"><strong>Note<strong>: Your email has not been confirmed. Please confirm your email address by clicking the link in the confirmation email, or <a href="" ng-click="resendConfirmationEmail()">Resend your confirmation email</a></span>
-                                            </div>
+                                            <span class="form-group form-group-sm help-block">
+                                                <ul style="list-style:none;">
+                                                    <li><strong>Note</strong>: Changing your email will also change your login username</li>
+                                                    <li><strong>Note</strong>: You are required to confirm your email address before it will change in the system</li>
+                                                </ul>
+                                            </span>
                                             <div class="form-group form-group-sm">
                                                 <label for="email" class="col-md-3 control-label">Change Email:</label>
                                                 <div class="col-md-9">
@@ -83,7 +85,14 @@
                                                     <button class="btn btn-xs btn-primary" type="button" ng-click="submitForm('uEmailCollapse')">Save Changes</button>
                                                     <button class="btn btn-xs btn-default" type="button" ng-click="toggleCollapse('uEmailCollapse')">Cancel</button>
                                                 </div>
-                                              </div>
+                                            </div>
+                                            <span class="form-group form-group-sm help-block">
+                                                <ul style="list-style:none;">
+                                                    <li ng-show="!me.confirmed_at" style="color:orange;">
+                                                        Your email has not been confirmed. Please confirm your email address by clicking the link in the confirmation email, or <a href="" ng-click="resendConfirmationEmail()">Resend your confirmation email</a>
+                                                    </li>
+                                                </ul>
+                                            </span>
                                           </form>
                                       </div>
                                   </div>

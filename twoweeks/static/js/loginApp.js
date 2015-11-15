@@ -91,10 +91,17 @@ var loginAppControllers = angular.module("loginAppControllers", []);
 
 loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
 
-    var location = ""
+    var location = '';
+    $scope.title = '';
     $scope.disableRegister = false;
     $scope.sectionFlag = 'login';
 
+
+    /*This section checks for url parameters
+    * If URL parameters are found, it sees if the "auth_check" variable is set to true.
+    * If "auth_check" is set to true, it forces the login screen to show
+    * URL parameters are tacked on to the end of the login redirect
+    */
     var searchObject = $location.search();
     if (searchObject != null){
         console.log('~~~URL Parameters~~~');
@@ -107,6 +114,11 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
         }
     }
 
+
+
+
+    //This logic sets what shows...either login or Register
+    //as well as where the user will be logged into (Admin/Main Site)
     if($location.absUrl().indexOf("admin") > -1){
         console.log("Admin Home");
         location = "/admin";
@@ -114,31 +126,41 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     }else{
         console.log("Main Home");
 
-        if (searchObject != null && searchObject.auth_check == true){
+        if (searchObject != null && searchObject.auth_check){
             console.log('setting sectionFlag as login');
             $scope.sectionFlag = 'login';
-        }else if($routeParams.sectionFlag == null){
-            $scope.sectionFlag = 'register';
-        }else if($routeParams.sectionFlag == 'register' || $routeParams.sectionFlag == 'login'){
+            $scope.title = "Please login first";
+        }else if($routeParams.sectionFlag == 'login'){
+            $scope.title = "Login";
             $scope.sectionFlag = $routeParams.sectionFlag;
         }else{
+            $scope.title = "Register new account";
             $scope.sectionFlag = 'register';
         }
     }
+
+
 
 
     $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
 
 
 
+
+    //This function switches from register to login and vice versa
     $scope.switchSection = function(){
         if($scope.sectionFlag == 'register'){
+            $scope.title = "Login";
             $scope.sectionFlag = 'login';
         }else{
+            $scope.title = "Register new account";
             $scope.sectionFlag = 'register';
         }
     }
 
+
+
+    //This simple function auto-logs in users
     LoginCheck.get(function(data) {
         console.log(data);
         if(data.error == null && data.data != null){

@@ -278,11 +278,14 @@ def unauthorized_callback():
         return redirect('/admin/#/login')
     else:
         theURL = str(request.url)
-        #app.logger.info('theURL: ' + theURL)
-        urlParams = theURL[theURL.index('?'):len(theURL)]
-        if urlParams is not None:
-            app.logger.info('urlParams: ' + urlParams)
-            return redirect('/#/'+urlParams+'&auth_check=true')
+        app.logger.info('theURL: ' + theURL)
+        if "?" in theURL:
+            urlParams = theURL[theURL.index('?'):len(theURL)]
+            if urlParams is not None:
+                app.logger.info('urlParams: ' + urlParams)
+                return redirect('/#/'+urlParams+'&auth_check=true')
+            else:
+                return redirect('/#/login/')
         else:
             return redirect('/#/login/')
 
@@ -1683,7 +1686,7 @@ def send_email_confirmation_email(first_name, last_name, email, confirm_token):
     app.logger.info("Sending Welcome Email")
     html_message = '''
     <p>Hello '''+first_name+''',</p>
-    <p>Thank you for registering with 2Weeks. In order to full activate your account, you need to click the below link:</p>
+    <p>Thank you for registering with 2Weeks. In order to fully activate your account, you need to click the below link:</p>
     <p><a href="http://localhost:5000/#/?auth_check=true&action=confirm_email&token='''+confirm_token+'''" target="_blank">http://localhost:5000/home/#/?action=confirm_email&token='''+confirm_token+'''</a></p>
     <p>Thanks!</p>
     <p>the 2Weeks Admin Team<p>
