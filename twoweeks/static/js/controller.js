@@ -1,7 +1,6 @@
 'use strict';
 
 var billsAppControllers = angular.module("billsAppControllers", []);
-var loginAppControllers = angular.module("loginAppControllers", []);
 var menuBarAppControllers = angular.module("menuBarAppControllers", []);
 
 
@@ -1056,8 +1055,6 @@ billsAppControllers.controller("confirmEmailController",['$scope', '$location', 
 
 
 
-
-
 /**************************
 * MENU BAR APP CONTROLLER *
 **************************/
@@ -1077,7 +1074,7 @@ menuBarAppControllers.controller('menuBarAppController',['$scope', '$http', '$lo
         console.log('logging out');
             $http.get('/api/logout/').
                 success(function(data, status, headers, config) {
-                    window.location.href = '/#/login';
+                    window.location.href = '/#/?action=login';
                 }).
                 error(function(data, status, headers, config) {
                     console.log('could not logout');

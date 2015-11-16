@@ -1562,6 +1562,10 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 
 
 
+
+
+
+
 ##########################
 # EMAIL CONFIRMATION API #
 ##########################
@@ -1604,6 +1608,7 @@ class ApiConfirmEmail(Resource):
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
             user.active = True;
+            user.token = None;
             user.confirmed_at = datetime.utcnow()
             db_session.commit()
 
@@ -1648,6 +1653,114 @@ api.add_resource(ApiConfirmEmail, '/api/confirm_email')
 
 
 
+#########################
+# PASSWORD RECOVERY API #
+#########################
+#THIS API IS TO HANDLE WHEN USERS DON'T HAVE THEIR CURRENT PASSWORD
+
+class ApiPasswordRecovery(Resource):
+
+    #The PUT method is used to actually change the password
+    def put(self, email_address=None):
+        app.logger.info('Accessing ApiPasswordRecovery.put')
+
+        password_recovery_token = None
+        new_password = None
+        confirm_new_password = None
+
+
+        if request_is_json():
+            app.logger.info('Creating new feedback based upon JSON Request')
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'password_token':
+                        password_recovery_token = value
+                    elif key == 'confirm_new_password':
+                        confirm_new_password = value
+                    elif key == 'new_password':
+                        new_password = value
+                    elif key == 'email_address':
+                        data_email_address = value
+        elif request_is_form_urlencode():
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            password_recovery_token = requestData['password_token']
+            new_password = requestData['new_password']
+            confirm_new_password = requestData['confirm_new_password']
+            data_email_address = requestData['email_address']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+
+
+        if email_address is not None:
+            user = User.query.filter_by(email=email_address).first()
+        elif data_email_address in session:
+            user = User.query.filter_by(email=data_email_address).first()
+        else:
+            return {"meta":buildMeta(), "error":"Please provide an email address"}
+
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No account found with that email address"}
+
+
+        #TODO: ADD LOGIC TO CHECK password_recovery_date
+        if password_recovery_token is not None and password_recovery_token == user.confirm_token:
+            if new_password and confirm_new_password:
+                if new_password == confirm_new_password:
+                    app.logger.info("Everything checks out, creating new password")
+                    user.password = generate_password_hash(new_password)
+                    user.confirm_token = None;
+                    user.password_recovery_date = None
+                    db_session.commit()
+                    return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+                    #TODO: SEND A CONFIRMATION EMAIL
+                elif new_password != confirm_new_password:
+                    return {"meta":buildMeta(), "error":"New passwords do not match"}, 201
+                else:
+                    return {"meta":buildMeta(), "error":"Failed to update Password"}
+                #TODO: ADD LOGIC TO MEET PASSWORD COMPLEXITY REQUIREMENTS
+            elif not new_password or not confirm_new_password:
+                return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}, 201
+            else:
+                return {"meta":buildMeta(), "error":"Failed to update Password"}, 201
+        else:
+            return {"meta":buildMeta(), "error":"Failed to update Password"}, 201
+
+
+
+    #The POST method is used to send the password recovery email
+    #it creates a new token and sends it to the user
+    def post(self, email_address=None):
+        app.logger.info('Accessing ApiPasswordRecovery.post')
+
+
+        if email_address is None:
+            return {"meta":buildMeta(), "error":"Please provide an email address"}
+        user = User.query.filter_by(email=email_address).first()
+
+        if user is None:
+            return {"meta":buildMeta(), "error":"No account found with that email address"}
+
+        confirm_token = generate_confirmation_token(user.email)
+        #app.logger.info(confirm_token);
+        user.password_recovery_date = datetime.utcnow()
+        user.confirm_token = confirm_token;
+        db_session.commit()
+
+        send_password_recovery_email(user)
+        return {"meta":buildMeta(), 'data':None}, 201
+
+api.add_resource(ApiPasswordRecovery, '/api/recover_password', '/api/recover_password/<string:email_address>')
+
+
+
+
+
 
 
 
@@ -1670,6 +1783,10 @@ def request_is_json():
 
 
 
+
+
+
+
 def request_is_form_urlencode():
     if 'application/x-www-form-urlencoded' in request.accept_mimetypes:
         return True;
@@ -1677,8 +1794,18 @@ def request_is_form_urlencode():
         return False
 
 
+
+
+
+
+
 def buildMeta():
     return [{"authors":["David Larrimore", "Robert Donovan"], "copyright": "Copyright 2015 MixFin LLC.", "version": "0.1"}]
+
+
+
+
+
 
 
 def send_email_confirmation_email(first_name, last_name, email, confirm_token):
@@ -1686,13 +1813,44 @@ def send_email_confirmation_email(first_name, last_name, email, confirm_token):
     app.logger.info("Sending Welcome Email")
     html_message = '''
     <p>Hello '''+first_name+''',</p>
-    <p>Thank you for registering with 2Weeks. In order to fully activate your account, you need to click the below link:</p>
+    <p>Thank you for registering with 2Weeks. In order to fully activate your account, you need to click the link below:</p>
     <p><a href="http://localhost:5000/#/?auth_check=true&action=confirm_email&token='''+confirm_token+'''" target="_blank">http://localhost:5000/home/#/?action=confirm_email&token='''+confirm_token+'''</a></p>
     <p>Thanks!</p>
     <p>the 2Weeks Admin Team<p>
     '''
 
-    send_email('2Weeks Email Confirmation', ['"'+first_name+' '+last_name+'" <'+email+'>',"David Larrimore <davidlarrimore@gmail.com>"], html_message, html_message)
+    send_email('2Weeks Email Confirmation', ['"'+first_name+' '+last_name+'" <'+email+'>','"David Larrimore" <davidlarrimore@gmail.com>'], html_message, html_message)
+
+
+
+
+
+
+
+def send_password_recovery_email(user):
+
+    app.logger.info("Sending Password Recovery Email")
+    html_message = '''
+    <p>Hello '''+user.first_name+''',</p>
+    <p>We have received a request to recover the password for your account. In order to complete this action, you need to click the link below:</p>
+    <p><a href="http://localhost:5000/#/?email_address='''+user.email+'''&auth_check=true&action=recover_password&token='''+user.confirm_token+'''" target="_blank">http://localhost:5000/#/?email_address='''+user.email+'''&action=recover_password&token='''+user.confirm_token+'''</a></p>
+    <p>Thanks!</p>
+    <p>the 2Weeks Admin Team<p>
+    '''
+
+    send_email('2Weeks Password Recovery', ['"'+user.first_name+' '+user.last_name+'" <'+user.email+'>','"David Larrimore" <davidlarrimore@gmail.com>'], html_message, html_message)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

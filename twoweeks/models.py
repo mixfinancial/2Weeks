@@ -132,6 +132,7 @@ class User(Base, UserMixin):
     active = Column(Boolean(), default=True)
     confirmed_at = Column(DateTime())
     confirm_token = Column(String(120))
+    password_recovery_date = Column(DateTime())
 
 
     role_id = Column(Integer, ForeignKey('role.id'))

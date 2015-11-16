@@ -39,6 +39,10 @@ billsApp.config(['$routeProvider', 'ngToastProvider', function($routeProvider, n
         templateUrl: '/static/partials/confirm_email.html',
         controller: ''
     }).
+    when('/recover_password', {
+        templateUrl: '/static/partials/recover_password.html',
+        controller: ''
+    }).
     when('/billExecute', {
         templateUrl: '/static/partials/billExecute.html',
         controller: ''
@@ -139,7 +143,6 @@ dbServices.factory('ConfirmEmail', ['$resource',
       'update': {method:'PUT', isArray:false}
     });
   }]);
-
 
 
 /******************

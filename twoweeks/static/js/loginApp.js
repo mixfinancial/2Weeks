@@ -14,18 +14,25 @@ var loginApp = angular.module('loginApp', [
 
 loginApp.config(['$routeProvider','ngToastProvider', function($routeProvider, ngToastProvider) {
     $routeProvider.
-    when('/:sectionFlag', {
-        templateUrl: '/static/partials/Login-LoginForm.html',
-        controller: 'loginAppLoginController'
-    }).
     when('/', {
         templateUrl: '/static/partials/Login-LoginForm.html',
         controller: 'loginAppLoginController'
+    }).
+    when('/recover_password/', {
+        templateUrl: '/static/partials/recover_password.html',
+        controller: 'recoverPasswordController'
+    }).
+    when('/recover_password', {
+        templateUrl: '/static/partials/recover_password.html',
+        controller: 'recoverPasswordController'
     }).
     otherwise({
         templateUrl: '/static/partials/Login-LoginForm.html',
         controller: 'loginAppLoginController'
     });
+
+
+
 
     ngToastProvider.configure({
         animation: 'fade',
@@ -75,21 +82,25 @@ loginServices.factory('LoginCheck', ['$resource',
     });
   }]);
 
+loginServices.factory('RecoverPassword', ['$resource',
+  function($resource){
+    return $resource('/api/recover_password/:email_address', {email_address:'@email_address'}, {
+      'create': {method:'POST', isArray:false},
+      'update': {method:'PUT', isArray:false}
+    });
+  }]);
 
 
 
 
 
-
-/**************
-* CONTROLLERS *
-**************/
 
 var loginAppControllers = angular.module("loginAppControllers", []);
 
-
-
-loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me) {
+/*******************
+* LOGIN CONTROLLER *
+*******************/
+loginAppControllers.controller("loginAppLoginController",['$scope', '$location', 'Login', 'ngToast', 'LoginCheck', '$routeParams', 'Me', 'RecoverPassword', function($scope, $location, Login, ngToast, LoginCheck, $routeParams, Me, RecoverPassword) {
 
     var location = '';
     $scope.title = '';
@@ -115,24 +126,34 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     }
 
 
-
-
     //This logic sets what shows...either login or Register
     //as well as where the user will be logged into (Admin/Main Site)
     if($location.absUrl().indexOf("admin") > -1){
         console.log("Admin Home");
         location = "/admin";
         $scope.disableRegister = true;
+        $scope.sectionFlag = 'login';
     }else{
         console.log("Main Home");
 
-        if (searchObject != null && searchObject.auth_check){
+        //MAIN LOGIC FOR SWITCHING APP
+        if(searchObject.action != null){
+            if(searchObject.action == 'login'){
+                $scope.title = "Login";
+                $scope.sectionFlag = 'login';
+            }else if(searchObject.action == 'recover_password_form'){
+                $scope.title = "Recover Password";
+                $scope.sectionFlag = 'recover_password_form';
+            }else if(searchObject.action == 'recover_password'){
+                $location.path(searchObject.action);
+            }else{
+                $scope.title = "Register new account";
+                $scope.sectionFlag = 'register';
+            }
+        }else if(searchObject.auth_check != null && searchObject.auth_check){
             console.log('setting sectionFlag as login');
             $scope.sectionFlag = 'login';
             $scope.title = "Please login first";
-        }else if($routeParams.sectionFlag == 'login'){
-            $scope.title = "Login";
-            $scope.sectionFlag = $routeParams.sectionFlag;
         }else{
             $scope.title = "Register new account";
             $scope.sectionFlag = 'register';
@@ -140,11 +161,7 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     }
 
 
-
-
     $scope.uPayRecurrenceSelectOptions = uPayRecurrenceSelectOptions;
-
-
 
 
     //This function switches from register to login and vice versa
@@ -159,7 +176,6 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     }
 
 
-
     //This simple function auto-logs in users
     LoginCheck.get(function(data) {
         console.log(data);
@@ -171,13 +187,6 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
             }
         }
      });
-
-
-
-
-
-
-
 
 
     $scope.model = {};
@@ -220,7 +229,19 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
                     console.log(data.error);
                 }
             });
+        }else if($scope.sectionFlag == 'recover_password_form'){
 
+            RecoverPassword.create({email_address:$scope.model.email}, function(data) {
+            if(data.error == null){
+                    ngToast.success("Email sent. Please check your email box");
+                    $scope.sectionFlag = 'complete_recover_password';
+                }else{
+                    ngToast.danger("Error: " + data.error);
+                }
+            }, function(error){
+                console.log(error);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
+            });
         }else{
             ngToast.warning("There was an issue, refreshing...");
             window.location.href = location+'/';
@@ -228,6 +249,57 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
     }
 }]);
 
+
+
+
+/******************************
+* RECOVER PASSWORD CONTROLLER *
+******************************/
+loginAppControllers.controller("recoverPasswordController",['$scope', '$location', 'ngToast', '$routeParams', 'Me', 'RecoverPassword',  function($scope, $location, ngToast, $routeParams, Me, RecoverPassword) {
+
+    $scope.model= [];
+    $scope.alreadyConfirmed = false;
+    $scope.needToConfirm = false;
+    $scope.confirmed = false;
+
+    var searchObject = $location.search();
+    if (searchObject != null){
+        console.log('~~~URL Parameters~~~');
+        console.log(searchObject);
+        if (searchObject.token != null){
+            $scope.model.password_token = searchObject.token;
+            $scope.model.email_address = searchObject.email_address
+        }
+    }
+
+    $scope.submit  = function(){
+        RecoverPassword.update({email_address:$scope.model.email_address},JSON.stringify($scope.model), function(data) {
+            if(data.error == null){
+                    $scope.confirmed = true
+                    $scope.needToConfirm = false;
+                }else{
+                    ngToast.danger("Error: " + data.error);
+                }
+        }, function(error){
+            console.log(error);
+            ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
+        });
+    }
+
+    Me.query(function(data) {
+        console.log(data.data[0]);
+        $scope.me = data.data[0];
+
+        if($scope.me.confirmed_at != null){
+            $scope.alreadyConfirmed = true;
+        }else{
+            $scope.needToConfirm = true;
+        }
+    });
+
+
+
+}]);
 
 
 
