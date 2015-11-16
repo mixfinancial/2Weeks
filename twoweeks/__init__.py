@@ -173,9 +173,10 @@ def adminLogout():
 #APILOGIN
 class ApiLogin(Resource):
     def post(self):
+        app.logger.info('Attempting to login user')
         username = None
         password = None
-        app.logger.info(request.accept_mimetypes)
+        app.logger.info(str(request.content_type))
         if request_is_json():
             app.logger.info('Attempting to login using JSON')
             data = request.get_json()
@@ -192,7 +193,7 @@ class ApiLogin(Resource):
             username = requestData['email']
             password = requestData['password']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
 
         # validate username and password
@@ -202,7 +203,7 @@ class ApiLogin(Resource):
                 app.logger.info('Login Successful')
                 login_user(user)
                 session['username']=username
-                return {"meta":buildMeta(), "data": None}
+                return {"meta":buildMeta(), "data": None, "error":None}
             elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
                 app.logger.info('Attempting to login as Root User')
                 user = User.query.filter_by(username = username).first()
@@ -415,7 +416,7 @@ class ApiUser(Resource):
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
@@ -464,7 +465,7 @@ class ApiUser(Resource):
             first_name = requestData['first_name']
             confirm_password = requestData['confirm_password']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -607,7 +608,7 @@ class ApiMe(Resource):
                 average_paycheck_amount = requestData['average_paycheck_amount']
                 account_balance_amount = requestData['account_balance_amount']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
@@ -735,7 +736,7 @@ class ApiMe(Resource):
             account_balance_amount = requestData['account_balance_amount']
             confirm_email = requestData['confirm_email']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
 
 
@@ -941,7 +942,7 @@ class ApiBill(Resource):
                 payment_type_ind = requestData['payment_type_ind']
                 payment_processing_flag = requestData['payment_processing_flag']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
         else:
             return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
 
@@ -1053,7 +1054,7 @@ class ApiBill(Resource):
             payment_type_ind = requestData['payment_type_ind']
             payment_processing_flag = requestData['payment_processing_flag']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
             return {"meta":buildMeta(), "error":"Bill already exists"}
@@ -1239,7 +1240,7 @@ class ApiPaymentPlan(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
 
         if amount is not None:
@@ -1417,7 +1418,7 @@ class ApiPaymentPlanItem(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         if amount is not None:
             payment_plan_item.amount = amount
@@ -1539,7 +1540,7 @@ class ApiFeedback(Resource):
             rating = requestData['rating']
             feedback = requestData['feedback']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         if rating is not None and feedback is not None:
             newFeedback = Feedback(user_id=user_id, rating=int(rating), feedback=feedback)
@@ -1603,7 +1604,7 @@ class ApiConfirmEmail(Resource):
             requestData = json.loads(request.form['data'])
             email_token = requestData['email_token']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
@@ -1691,7 +1692,7 @@ class ApiPasswordRecovery(Resource):
             confirm_new_password = requestData['confirm_new_password']
             data_email_address = requestData['email_address']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
 
 
@@ -1757,7 +1758,7 @@ class ApiPasswordRecovery(Resource):
             requestData = json.loads(request.form['data'])
             data_email_address = requestData['email_address']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
 
 
 
@@ -1804,7 +1805,7 @@ api.add_resource(ApiPasswordRecovery, '/api/recover_password', '/api/recover_pas
 ####################
 
 def request_is_json():
-    if 'application/json' in request.accept_mimetypes:
+    if 'application/json' in request.content_type:
         return True;
     else:
         return False
@@ -1816,7 +1817,7 @@ def request_is_json():
 
 
 def request_is_form_urlencode():
-    if 'application/x-www-form-urlencoded' in request.accept_mimetypes:
+    if 'application/x-www-form-urlencoded' in request.content_type:
         return True;
     else:
         return False
