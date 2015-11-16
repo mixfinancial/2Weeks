@@ -132,6 +132,8 @@ class User(Base, UserMixin):
     active = Column(Boolean(), default=True)
     confirmed_at = Column(DateTime())
     confirm_token = Column(String(120))
+
+    #NOTE: THIS IS ACTUALLY THE EXPIRATION DATE
     password_recovery_date = Column(DateTime())
 
 

@@ -656,7 +656,7 @@ class ApiMe(Resource):
 
 
 
-        user.last_updated = datetime.utcnow
+        user.last_updated = datetime.utcnow()
         db_session.commit()
         return {"meta":buildMeta(), "data": [user.serialize]}
 
@@ -1306,7 +1306,7 @@ class ApiPaymentPlan(Resource):
             elif accepted_flag is False:
                 payment_plan.accepted_flag = False
 
-        payment_plan.last_updated = datetime.utcnow;
+        payment_plan.last_updated = datetime.utcnow()
         app.logger.info('Saving Payment Plan')
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan.serialize}
@@ -1607,8 +1607,8 @@ class ApiConfirmEmail(Resource):
 
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
-            user.active = True;
-            user.token = None;
+            user.active = True
+            user.token = None
             user.confirmed_at = datetime.utcnow()
             db_session.commit()
 
@@ -1670,7 +1670,6 @@ class ApiPasswordRecovery(Resource):
 
 
         if request_is_json():
-            app.logger.info('Creating new feedback based upon JSON Request')
             print json.dumps(request.get_json())
             data = request.get_json()
             if data is not None:
@@ -1698,7 +1697,7 @@ class ApiPasswordRecovery(Resource):
 
         if email_address is not None:
             user = User.query.filter_by(email=email_address).first()
-        elif data_email_address in session:
+        elif data_email_address is not None:
             user = User.query.filter_by(email=data_email_address).first()
         else:
             return {"meta":buildMeta(), "error":"Please provide an email address"}
@@ -1709,15 +1708,21 @@ class ApiPasswordRecovery(Resource):
 
 
         #TODO: ADD LOGIC TO CHECK password_recovery_date
+        if user.password_recovery_date is None:
+            return {"meta":buildMeta(), "error":"Failed to update Password. Process not started."}, 201
+        elif user.password_recovery_date < datetime.utcnow():
+            return {"meta":buildMeta(), "error":"Failed to update Password. Recovery process has expired."}, 201
+
+
         if password_recovery_token is not None and password_recovery_token == user.confirm_token:
             if new_password and confirm_new_password:
                 if new_password == confirm_new_password:
-                    app.logger.info("Everything checks out, creating new password")
+                    app.logger.info("Everything checks out, setting new password")
                     user.password = generate_password_hash(new_password)
                     user.confirm_token = None;
                     user.password_recovery_date = None
                     db_session.commit()
-                    return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+                    return {"meta":buildMeta(), 'data':None}, 201
                     #TODO: SEND A CONFIRMATION EMAIL
                 elif new_password != confirm_new_password:
                     return {"meta":buildMeta(), "error":"New passwords do not match"}, 201
@@ -1725,12 +1730,11 @@ class ApiPasswordRecovery(Resource):
                     return {"meta":buildMeta(), "error":"Failed to update Password"}
                 #TODO: ADD LOGIC TO MEET PASSWORD COMPLEXITY REQUIREMENTS
             elif not new_password or not confirm_new_password:
-                return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required"}, 201
+                return {"meta":buildMeta(), "error":"When changing passwords, both password and confirmation are required."}, 201
             else:
-                return {"meta":buildMeta(), "error":"Failed to update Password"}, 201
+                return {"meta":buildMeta(), "error":"Failed to update Password."}, 201
         else:
-            return {"meta":buildMeta(), "error":"Failed to update Password"}, 201
-
+            return {"meta":buildMeta(), "error":"Failed to update Password. Invalid token."}, 201
 
 
     #The POST method is used to send the password recovery email
@@ -1738,17 +1742,41 @@ class ApiPasswordRecovery(Resource):
     def post(self, email_address=None):
         app.logger.info('Accessing ApiPasswordRecovery.post')
 
+        email_address = None
 
-        if email_address is None:
+        if request_is_json():
+            print json.dumps(request.get_json())
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    print key+'-'+str(value)
+                    if key == 'email_address':
+                        data_email_address = value
+        elif request_is_form_urlencode():
+            app.logger.info('Creating new user based upon other Request')
+            requestData = json.loads(request.form['data'])
+            data_email_address = requestData['email_address']
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ request.accept_mimetypes}
+
+
+
+        if email_address is not None:
+            user = User.query.filter_by(email=email_address).first()
+        elif data_email_address is not None:
+            user = User.query.filter_by(email=data_email_address).first()
+        else:
             return {"meta":buildMeta(), "error":"Please provide an email address"}
-        user = User.query.filter_by(email=email_address).first()
+
 
         if user is None:
             return {"meta":buildMeta(), "error":"No account found with that email address"}
 
         confirm_token = generate_confirmation_token(user.email)
         #app.logger.info(confirm_token);
-        user.password_recovery_date = datetime.utcnow()
+
+        #SETTING EXPIRATION DATE
+        user.password_recovery_date = datetime.utcnow() + timedelta(days=1)
         user.confirm_token = confirm_token;
         db_session.commit()
 
@@ -1833,7 +1861,7 @@ def send_password_recovery_email(user):
     html_message = '''
     <p>Hello '''+user.first_name+''',</p>
     <p>We have received a request to recover the password for your account. In order to complete this action, you need to click the link below:</p>
-    <p><a href="http://localhost:5000/#/?email_address='''+user.email+'''&auth_check=true&action=recover_password&token='''+user.confirm_token+'''" target="_blank">http://localhost:5000/#/?email_address='''+user.email+'''&action=recover_password&token='''+user.confirm_token+'''</a></p>
+    <p><a href="http://localhost:5000/#/?email_address='''+user.email+'''&action=recover_password&token='''+user.confirm_token+'''" target="_blank">http://localhost:5000/#/?email_address='''+user.email+'''&action=recover_password&token='''+user.confirm_token+'''</a></p>
     <p>Thanks!</p>
     <p>the 2Weeks Admin Team<p>
     '''

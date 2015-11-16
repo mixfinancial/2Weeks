@@ -84,7 +84,7 @@ loginServices.factory('LoginCheck', ['$resource',
 
 loginServices.factory('RecoverPassword', ['$resource',
   function($resource){
-    return $resource('/api/recover_password/:email_address', {email_address:'@email_address'}, {
+    return $resource('/api/recover_password/:email_address', {}, {
       'create': {method:'POST', isArray:false},
       'update': {method:'PUT', isArray:false}
     });
@@ -231,7 +231,7 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
             });
         }else if($scope.sectionFlag == 'recover_password_form'){
 
-            RecoverPassword.create({email_address:$scope.model.email}, function(data) {
+            RecoverPassword.create({email_address:$scope.model.email},{email_address:$scope.model.email}, function(data) {
             if(data.error == null){
                     ngToast.success("Email sent. Please check your email box");
                     $scope.sectionFlag = 'complete_recover_password';
@@ -259,7 +259,7 @@ loginAppControllers.controller("recoverPasswordController",['$scope', '$location
 
     $scope.model= [];
     $scope.alreadyConfirmed = false;
-    $scope.needToConfirm = false;
+    $scope.needToConfirm = true;
     $scope.confirmed = false;
 
     var searchObject = $location.search();
@@ -273,36 +273,36 @@ loginAppControllers.controller("recoverPasswordController",['$scope', '$location
     }
 
     $scope.submit  = function(){
-        RecoverPassword.update({email_address:$scope.model.email_address},JSON.stringify($scope.model), function(data) {
-            if(data.error == null){
-                    $scope.confirmed = true
-                    $scope.needToConfirm = false;
-                }else{
-                    ngToast.danger("Error: " + data.error);
-                }
-        }, function(error){
-            console.log(error);
-            ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
-        });
+
+        if ($scope.model.new_password == $scope.model.confirm_new_password){
+            var JSONdata = {};
+            JSONdata.new_password = $scope.model.new_password;
+            JSONdata.confirm_new_password = $scope.model.confirm_new_password;
+            JSONdata.email_address = $scope.model.email_address;
+            JSONdata.password_token = $scope.model.password_token;
+
+
+            RecoverPassword.update({email_address:$scope.model.email_address}, JSON.stringify(JSONdata), function(data) {
+                if(data.error == null){
+                        $scope.confirmed = true
+                        $scope.needToConfirm = false;
+                        ngToast.success("Password has been changed");
+                    }else{
+                        ngToast.danger("Error: " + data.error);
+                    }
+            }, function(error){
+                console.log(error);
+                ngToast.danger("Error Saving User Updates '" + error.status + "': " + error.statusText);
+            });
+
+
+        }else{
+            ngToast.danger("Passwords do not match");
+        }
+
     }
 
-    Me.query(function(data) {
-        console.log(data.data[0]);
-        $scope.me = data.data[0];
-
-        if($scope.me.confirmed_at != null){
-            $scope.alreadyConfirmed = true;
-        }else{
-            $scope.needToConfirm = true;
-        }
-    });
-
-
-
 }]);
-
-
-
 
 
 var uPayRecurrenceSelectOptions = [
