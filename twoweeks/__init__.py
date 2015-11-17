@@ -180,7 +180,7 @@ class ApiLogin(Resource):
         if request_is_json():
             app.logger.info('Attempting to login using JSON')
             data = request.get_json()
-            app.logger.info(request.data)
+            #app.logger.debug(request.data)
             for key,value in data.iteritems():
                 print key+'-'+value
                 if key == 'username':
@@ -673,8 +673,6 @@ class ApiMe(Resource):
         id = ''
         username = None
         new_password = None
-        current_password = None
-        new_password = None
         confirm_new_password = None
         email = None
         first_name = None
@@ -695,8 +693,6 @@ class ApiMe(Resource):
                     #print key+'-'+str(value)
                     if key == 'new_password':
                         new_password = value
-                    elif key == 'current_password':
-                        current_password = value
                     elif key == 'confirm_new_password':
                         confirm_new_password = value
                     elif key == 'email':
@@ -728,7 +724,6 @@ class ApiMe(Resource):
             first_name = requestData['first_name']
             confirm_new_password = requestData['confirm_new_password']
             new_password = requestData['new_password']
-            current_password = requestData['current_password']
             password = requestData['password']
             next_pay_date = requestData['next_pay_date']
             pay_recurrance_flag = requestData['pay_recurrance_flag']
@@ -747,9 +742,12 @@ class ApiMe(Resource):
             return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
         if new_password is None:
             return {"meta":buildMeta(), "error":"Password is required", "data": None}
+        if new_password != confirm_new_password:
+            return {"meta":buildMeta(), "error":"Passwords do not match", "data": None}
         if first_name is None or last_name is None:
             return {"meta":buildMeta(), "error":"First and last name is required", "data": None}
         if  pay_recurrance_flag is None or next_pay_date is None:
+            #TODO: Verify pay_recurrance_flag is in list
             return {"meta":buildMeta(), "error":"Pay Recurrance and Next Pay Date is Required", "data": None}
 
 
