@@ -8,6 +8,15 @@ from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, F
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 
+DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
+DEFAULT_ALPHABET_NUMERIC = "0123456789"
+DEFAULT_ALPHABET_SPECIAL = "!#$%&'*+-/=?^_`{|}~"
+
+DEFAULT_ALPHABET_ALPHA = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER
+DEFAULT_ALPHABET_ALPHANUMERIC = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC
+DEFAULT_ALPHABET_ALL = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC+DEFAULT_ALPHABET_SPECIAL
+
 def random_string_generator(alphabet, string_length):
     mypw = ""
     for i in range(string_length):
@@ -16,7 +25,7 @@ def random_string_generator(alphabet, string_length):
     return mypw
 
 def random_password_generator():
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~@^%()<>.,0123456789"
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~@^%()<>.,"
     return random_string_generator(alphabet, 16)
 
 def random_name_generator():
@@ -24,7 +33,7 @@ def random_name_generator():
     return random_string_generator(alphabet, 12)+str('@mixfin.com')
 
 def random_email_generator():
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~0123456789"
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~"
     return random_string_generator(alphabet, 12)+str('@mixfin.com')
 
 def dump_datetime(value):
@@ -36,7 +45,6 @@ def dump_date(value):
     if value is None:
         return None
     return value.strftime("%Y-%m-%d")
-
 
 
 #DEFAULT VARIABLES TO BE RE-USED THROUGHOUT TEST CASES FOR CONSISTENCY
@@ -88,9 +96,10 @@ class FlaskrTestCase(unittest.TestCase):
 
 
     def test_api_me_post_success(self):
+        email = random_email_generator()
         rv = self.app.post('api/me/', data=json.dumps(
-            {'email':'d.a.vidlarrimore@gmail.com',
-             'confirm_email':'d.a.vidlarrimore@gmail.com',
+            {'email':email,
+             'confirm_email':email,
              'new_password':DEFAULT_TEST_PASSWORD,
              'confirm_new_password':DEFAULT_TEST_PASSWORD,
              'first_name': DEFAULT_TEST_NAME,
@@ -103,20 +112,20 @@ class FlaskrTestCase(unittest.TestCase):
 
 
 
-
     def test_api_me_post_fail_password_compare(self):
+        email = random_email_generator()
+        wrongPassword = random_password_generator()
         rv = self.app.post('api/me/', data=json.dumps(
-            {'email':'d.a.v.idlarrimore@gmail.com',
-             'confirm_email':'d.a.v.idlarrimore@gmail.com',
+            {'email':email,
+             'confirm_email':email,
              'new_password':DEFAULT_TEST_PASSWORD,
-             'confirm_new_password':'notthetestpassword1!;lkj',
+             'confirm_new_password':wrongPassword,
              'first_name': DEFAULT_TEST_NAME,
              'last_name': DEFAULT_TEST_NAME,
              'pay_recurrance_flag': 'B',
              'next_pay_date': datetime.utcnow().strftime("%Y-%m-%d")}), content_type='application/json')
         data = json.loads(rv.data)
         assert 'Passwords do not match' in data['error']
-
 
 
 
@@ -137,6 +146,7 @@ class FlaskrTestCase(unittest.TestCase):
 
 
     def test_api_me_post_fail_required(self):
+
         #NO CONFIRM EMAIL
         rv = self.app.post('api/me/', data=json.dumps(
             {'email':DEFAULT_TEST_USERNAME,
@@ -218,10 +228,29 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_me_put_change_password(self):
         password = random_password_generator()
+        wrongPassword = random_password_generator()
         username = random_email_generator()
         rv = self.creatNewUser(username, DEFAULT_TEST_PASSWORD)
 
         self.login(username, DEFAULT_TEST_PASSWORD)
+
+        rv = self.app.put('api/me/', data=json.dumps(
+            {'email':username,
+             'current_password': wrongPassword,
+             'new_password':password,
+             'confirm_new_password':password}), content_type='application/json')
+        data = json.loads(rv.data)
+        assert data['error'] is not None
+
+
+        rv = self.app.put('api/me/', data=json.dumps(
+            {'email':username,
+             'current_password': DEFAULT_TEST_PASSWORD,
+             'new_password':password,
+             'confirm_new_password':wrongPassword}), content_type='application/json')
+        data = json.loads(rv.data)
+        assert data['error'] is not None
+
 
         rv = self.app.put('api/me/', data=json.dumps(
             {'email':username,
@@ -246,13 +275,6 @@ class FlaskrTestCase(unittest.TestCase):
         assert data['error'] is None
 
         self.logout()
-
-
-
-
-
-
-
 
 
 
