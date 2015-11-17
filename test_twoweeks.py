@@ -5,17 +5,29 @@ from twoweeks.database import init_db
 from twoweeks.database import db_session
 import twoweeks.config as config
 from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, Feedback
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
+
+
+
+
+
+
 
 DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
 DEFAULT_ALPHABET_NUMERIC = "0123456789"
-DEFAULT_ALPHABET_SPECIAL = "!#$%&'*+-/=?^_`{|}~"
+DEFAULT_ALPHABET_SPECIAL = "!#$%&'*+-/=?^_`{|}~@^%()<>.,"
 
 DEFAULT_ALPHABET_ALPHA = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER
 DEFAULT_ALPHABET_ALPHANUMERIC = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC
 DEFAULT_ALPHABET_ALL = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC+DEFAULT_ALPHABET_SPECIAL
+
+
+
+
+
+
 
 def random_string_generator(alphabet, string_length):
     mypw = ""
@@ -25,16 +37,21 @@ def random_string_generator(alphabet, string_length):
     return mypw
 
 def random_password_generator():
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~@^%()<>.,"
+    alphabet = DEFAULT_ALPHABET_ALL
     return random_string_generator(alphabet, 16)
 
 def random_name_generator():
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return random_string_generator(alphabet, 12)+str('@mixfin.com')
+    alphabet = DEFAULT_ALPHABET_ALPHA
+    return random_string_generator(alphabet, 12)
 
 def random_email_generator():
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~"
+    alphabet = DEFAULT_ALPHABET_ALPHANUMERIC+"!#$%&'*+-/=?^_`{|}~"
     return random_string_generator(alphabet, 12)+str('@mixfin.com')
+
+def random_number_generator(max=None):
+    if max is None:
+        max = 1000
+    return random.randint(1,max)
 
 def dump_datetime(value):
     if value is None:
@@ -47,11 +64,20 @@ def dump_date(value):
     return value.strftime("%Y-%m-%d")
 
 
+
+
+
+
+
 #DEFAULT VARIABLES TO BE RE-USED THROUGHOUT TEST CASES FOR CONSISTENCY
 DEFAULT_TEST_PASSWORD=random_password_generator()
-DEFAULT_TEST_NAME='xxxTESTxxx'
+DEFAULT_TEST_NAME="~~~"+random_name_generator()+"~~~"
 DEFAULT_TEST_USERNAME=random_email_generator()
 DEFAULT_DATE = datetime.utcnow()
+
+
+
+
 
 
 
@@ -77,23 +103,37 @@ class FlaskrTestCase(unittest.TestCase):
              'pay_recurrance_flag': 'B',
              'next_pay_date': datetime.utcnow().strftime("%Y-%m-%d")}), content_type='application/json')
 
-
+    def creatNewBill(self, name, total_due=None):
+        due_date = datetime.utcnow() + timedelta(days=random_number_generator(45))
+        if total_due is None:
+            total_due = random_number_generator()
+        return self.app.post('api/bill/', data=json.dumps(
+            {'name':name,
+             'total_due': total_due,
+             'due_date': due_date.strftime("%Y-%m-%d")}), content_type='application/json')
 
     def tearDown(self):
-        User.query.filter_by(first_name=DEFAULT_TEST_NAME, last_name=DEFAULT_TEST_NAME).delete()
+        #Bill.query.filter(models.User.first_name=DEFAULT_TEST_NAME).delete()
+        for row in User.query.filter_by(first_name=DEFAULT_TEST_NAME, last_name=DEFAULT_TEST_NAME):
+            db_session.delete(row)
+
         db_session.commit()
         db_session.remove()
-
 
     def login(self, username, password):
         return self.app.post('/api/login',data=json.dumps({'username': username,'password': password}), content_type='application/json')
 
-
     def logout(self):
         return self.app.get('/api/logout', follow_redirects=True)
 
+    def test_api_login_and_logout(self):
+        rv = self.login(DEFAULT_TEST_USERNAME, DEFAULT_TEST_PASSWORD)
+        data = json.loads(rv.data)
+        assert data['error'] is None
 
-
+        rv = self.logout()
+        data = json.loads(rv.data)
+        assert data['error'] is None
 
     def test_api_me_post_success(self):
         email = random_email_generator()
@@ -109,8 +149,6 @@ class FlaskrTestCase(unittest.TestCase):
 
         data = json.loads(rv.data)
         assert data['error'] is None
-
-
 
     def test_api_me_post_fail_password_compare(self):
         email = random_email_generator()
@@ -278,9 +316,6 @@ class FlaskrTestCase(unittest.TestCase):
 
 
 
-
-
-
     def test_api_me_get(self):
         self.login(DEFAULT_TEST_USERNAME, DEFAULT_TEST_PASSWORD)
         rv = self.app.get('/api/me/')
@@ -326,14 +361,21 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
 
-    def test_api_login_and_logout(self):
-        rv = self.login(DEFAULT_TEST_USERNAME, DEFAULT_TEST_PASSWORD)
+
+
+    def test_api_bill_post_success(self):
+        username = random_email_generator()
+        bill_name = random_name_generator()
+        self.creatNewUser(username, DEFAULT_TEST_PASSWORD)
+        self.login(username, DEFAULT_TEST_PASSWORD)
+
+        rv = self.creatNewBill(bill_name, DEFAULT_TEST_PASSWORD)
+        assert rv.data is not None
         data = json.loads(rv.data)
         assert data['error'] is None
 
-        rv = self.logout()
-        data = json.loads(rv.data)
-        assert data['error'] is None
+        self.logout()
+
 
 
 

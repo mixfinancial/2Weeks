@@ -860,7 +860,9 @@ class ApiBill(Resource):
                 bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, funded_flag=funded_flag)]
             else:
                 bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
-            return {"meta":buildMeta(), "data":bills}
+            return {"meta":buildMeta(), "data":bills, "error":None}
+
+
 
     @login_required
     def put(self, bill_id=None):
@@ -944,7 +946,7 @@ class ApiBill(Resource):
             else:
                 return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
         else:
-            return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
+            return {"meta":buildMeta(), "error":"Could not find bill id #"+id, "data":None}
 
         if name:
             bill.name = name
@@ -981,7 +983,9 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"Name is required", "data":None}
         else:
             db_session.commit()
-            return {"meta":buildMeta(), "data": bill.serialize}, 201
+            return {"meta":buildMeta(), "data": bill.serialize, "error":None}, 201
+
+
 
     @login_required
     def post(self, bill_id=None):
@@ -1056,15 +1060,23 @@ class ApiBill(Resource):
         else:
             return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
+
+
+        if name is None or total_due is None:
+            return {"meta":buildMeta(), "error":"Bills require a name and Total amount due", "data":None}
+
+        #TODO: THIS SHOULD NOT BE A REQUIREMENT
         if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
-            return {"meta":buildMeta(), "error":"Bill already exists"}
+            return {"meta":buildMeta(), "error":"Bill already exists", "data":None}
+
+
 
         newBill = Bill(user_id=user.id, name=name, description=description, due_date=due_date, billing_period=billing_period, total_due=total_due, paid_flag=paid_flag, paid_date=paid_date, payment_type_ind=payment_type_ind, check_number=check_number, payment_processing_flag=payment_processing_flag)
 
         db_session.add(newBill)
         db_session.commit()
 
-        return {"meta":buildMeta(), 'data':newBill.serialize}, 201
+        return {"meta":buildMeta(), 'data':newBill.serialize, "error":None}, 201
 
     @login_required
     def delete(self, bill_id):

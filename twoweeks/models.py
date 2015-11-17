@@ -141,10 +141,10 @@ class User(Base, UserMixin):
     account_balance_amount = Column(Float(2), default=0);
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
 
-    bills = relationship("Bill",  cascade="all, save-update, merge, delete")
-    payment_plans = relationship("Payment_Plan",  cascade="all, save-update, merge, delete")
-    payment_plan_items = relationship("Payment_Plan_Item",  cascade="all, save-update, merge, delete")
-    payees = relationship("Payee",  cascade="all, save-update, merge, delete")
+    bills = relationship("Bill", cascade="all, delete-orphan")
+    payment_plans = relationship("Payment_Plan",  cascade="all, delete-orphan")
+    payment_plan_items = relationship("Payment_Plan_Item",  cascade="all, delete-orphan")
+    payees = relationship("Payee",  cascade="all, delete-orphan")
 
 
 
