@@ -170,6 +170,9 @@ class User(Base, UserMixin):
                 self.first_name = value
             elif key=="last_name":
                 self.last_name = value
+            elif key=="email":
+                self.email = value
+                self.username = value
             elif key=="username":
                 self.email = value
                 self.username = value

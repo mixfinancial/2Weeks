@@ -65,17 +65,20 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(subject, recipients, text_body=None, html_body=None):
-    msg = Message(subject, recipients=recipients)
-    if text_body is not None:
-        msg.body = text_body
-    if html_body is not None:
-        msg.html = html_body
+    if app.config['TESTING'] is not True:
+        msg = Message(subject, recipients=recipients)
+        if text_body is not None:
+            msg.body = text_body
+        if html_body is not None:
+            msg.html = html_body
 
-    if text_body is not None and html_body is not None:
-        thr = Thread(target=send_async_email, args=[app, msg])
-        thr.start()
+        if text_body is not None and html_body is not None:
+            thr = Thread(target=send_async_email, args=[app, msg])
+            thr.start()
 
-    app.logger.info("Sent Email")
+        app.logger.info("Sent Email")
+    else:
+        app.logger.debug("In Test mode. not sending email")
 
 
 
@@ -736,7 +739,7 @@ class ApiMe(Resource):
 
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
-
+        #TODO: CONFIRM EMAIL IS VALID EMAIL ADDRESS
         # REQUIRED FIELD CHECKS
         if email is None or confirm_email is None:
             return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
@@ -773,7 +776,7 @@ class ApiMe(Resource):
         login_user(newUser)
         session['username']=email
 
-        return {"meta":buildMeta()}
+        return {"meta":buildMeta(), "error":None, "data":None}
 
     @login_required
     def delete(self, user_id):
