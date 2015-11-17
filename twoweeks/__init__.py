@@ -181,27 +181,27 @@ class ApiLogin(Resource):
         password = None
         app.logger.info(str(request.content_type))
         if request_is_json():
-            app.logger.info('Attempting to login using JSON')
             data = request.get_json()
             #app.logger.debug(request.data)
             for key,value in data.iteritems():
-                print key+'-'+value
+                app.logger.debug(key+'-'+value)
                 if key == 'username':
                     username = value
                 if key == 'password':
                     password = value
         elif request_is_form_urlencode():
-            app.logger.info('Attempting to login using x-www-form-urlencoded')
             requestData = json.loads(request.form['data'])
             username = requestData['email']
             password = requestData['password']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
 
         # validate username and password
         if (username is not None and password is not None):
             user = User.query.filter_by(username = username).first()
+            if user is None:
+                app.logger.debug('User Not Found')
             if (user is not None and user.verify_password(password)):
                 app.logger.info('Login Successful')
                 login_user(user)
@@ -221,14 +221,14 @@ class ApiLogin(Resource):
                     login_user(user)
                     session['username']=username
             else:
-                app.logger.info('Username or password incorrect')
+                app.logger.info('User is None or Password did not verify')
                 return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}
         else:
             app.logger.info('Please provide a username and password')
             return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}
 
 
-        return {"meta":buildMeta()}
+        return {"meta":buildMeta(), "error":None, "data":None}, 201
 
 api.add_resource(ApiLogin, '/api/login')
 
@@ -389,10 +389,10 @@ class ApiUser(Resource):
         if user is not None:
             if request_is_json():
                 app.logger.info('Updating user based upon JSON Request')
-                print json.dumps(request.get_json())
+                app.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'new_password':
                         new_password = value
                     if key == 'confirm_password':
@@ -419,7 +419,7 @@ class ApiUser(Resource):
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
@@ -444,10 +444,10 @@ class ApiUser(Resource):
 
         if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
-                print key+'-'+str(value)
+                app.logger.debug(key+'-'+str(value))
                 if key == 'password':
                     password = value
                 if key == 'confirm_password':
@@ -468,7 +468,7 @@ class ApiUser(Resource):
             first_name = requestData['first_name']
             confirm_password = requestData['confirm_password']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -556,21 +556,20 @@ class ApiMe(Resource):
         next_pay_date = None
         pay_recurrance_flag = None
 
-        if user_id is not None:
-            id = user_id
-        elif request.args.get('user_id') is not None:
-            id = request.args.get('user_id')
 
-        user = User.query.filter_by(id=user_id).first()
+        if 'username' in session:
+            user=User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}
 
         if user is not None:
             if request_is_json():
                 app.logger.info('Updating user based upon JSON Request')
-                print json.dumps(request.get_json())
+                app.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 if data:
                     for key,value in data.iteritems():
-                        #print key+'-'+str(value)
+                        #app.logger.debug(key+'-'+str(value))
                         if key == 'new_password':
                             new_password = value
                         elif key == 'current_password':
@@ -611,7 +610,7 @@ class ApiMe(Resource):
                 average_paycheck_amount = requestData['average_paycheck_amount']
                 account_balance_amount = requestData['account_balance_amount']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
@@ -662,7 +661,7 @@ class ApiMe(Resource):
 
         user.last_updated = datetime.utcnow()
         db_session.commit()
-        return {"meta":buildMeta(), "data": [user.serialize]}
+        return {"meta":buildMeta(), "data": [user.serialize], "error":None}
 
 
 
@@ -689,11 +688,11 @@ class ApiMe(Resource):
 
         if request_is_json():
             app.logger.info('Updating user based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data:
                 for key,value in data.iteritems():
-                    #print key+'-'+str(value)
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'new_password':
                         new_password = value
                     elif key == 'confirm_new_password':
@@ -734,7 +733,7 @@ class ApiMe(Resource):
             account_balance_amount = requestData['account_balance_amount']
             confirm_email = requestData['confirm_email']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
 
 
@@ -900,11 +899,11 @@ class ApiBill(Resource):
         if bill is not None:
             if request_is_json():
                 app.logger.info('Updating bill based upon JSON Request')
-                print json.dumps(request.get_json())
+                app.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 if data:
                     for key,value in data.iteritems():
-                        #print key+'-'+str(value)
+                        #app.logger.debug(key+'-'+str(value))
                         if key == 'name':
                             name = value
                         if key == 'description':
@@ -943,7 +942,7 @@ class ApiBill(Resource):
                 payment_type_ind = requestData['payment_type_ind']
                 payment_processing_flag = requestData['payment_processing_flag']
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
         else:
             return {"meta":buildMeta(), "error":"Could not find bill id #"+id}
 
@@ -1014,10 +1013,10 @@ class ApiBill(Resource):
 
         if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
-                print key+'-'+str(value)
+                app.logger.debug(key+'-'+str(value))
                 if key == 'name':
                     name = value
                 if key == 'description':
@@ -1055,7 +1054,7 @@ class ApiBill(Resource):
             payment_type_ind = requestData['payment_type_ind']
             payment_processing_flag = requestData['payment_processing_flag']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         if Bill.query.filter_by(name = name, user_id = user_id).first() is not None:
             return {"meta":buildMeta(), "error":"Bill already exists"}
@@ -1215,11 +1214,11 @@ class ApiPaymentPlan(Resource):
 
         if request_is_json():
             app.logger.info('Updating Payment Plan based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'transfer_date':
                         transfer_date = value
                     elif key == 'accepted_flag':
@@ -1241,15 +1240,14 @@ class ApiPaymentPlan(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
 
         if amount is not None:
             payment_plan.amount = amount
 
         if payment_plan_items is not None:
-            #print "Payment_Plan_Items"
-            #print payment_plan_items
+            #app.logger.debug("Payment_Plan_Items")
             new_payment_plan_items = list()
             for payment_plan_item in payment_plan_items:
                 new_payment_plan_items.append(Payment_Plan_Item(payment_plan_id=payment_plan_id, user_id=payment_plan_item['user_id'], bill_id=payment_plan_item['bill_id'], amount=payment_plan_item['amount']))
@@ -1402,11 +1400,11 @@ class ApiPaymentPlanItem(Resource):
 
         if request_is_json():
             app.logger.info('Updating Payment Plan Item based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'amount':
                         amount = value
             else:
@@ -1419,7 +1417,7 @@ class ApiPaymentPlanItem(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         if amount is not None:
             payment_plan_item.amount = amount
@@ -1526,11 +1524,11 @@ class ApiFeedback(Resource):
 
         if request_is_json():
             app.logger.info('Creating new feedback based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'rating':
                         rating = value
                     if key == 'feedback':
@@ -1541,7 +1539,7 @@ class ApiFeedback(Resource):
             rating = requestData['rating']
             feedback = requestData['feedback']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         if rating is not None and feedback is not None:
             newFeedback = Feedback(user_id=user_id, rating=int(rating), feedback=feedback)
@@ -1593,11 +1591,11 @@ class ApiConfirmEmail(Resource):
 
         if request_is_json():
             app.logger.info('Creating new feedback based upon JSON Request')
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'email_token':
                         email_token = value
         elif request_is_form_urlencode():
@@ -1605,7 +1603,7 @@ class ApiConfirmEmail(Resource):
             requestData = json.loads(request.form['data'])
             email_token = requestData['email_token']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
@@ -1672,11 +1670,11 @@ class ApiPasswordRecovery(Resource):
 
 
         if request_is_json():
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'password_token':
                         password_recovery_token = value
                     elif key == 'confirm_new_password':
@@ -1693,7 +1691,7 @@ class ApiPasswordRecovery(Resource):
             confirm_new_password = requestData['confirm_new_password']
             data_email_address = requestData['email_address']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
 
 
@@ -1747,11 +1745,11 @@ class ApiPasswordRecovery(Resource):
         email_address = None
 
         if request_is_json():
-            print json.dumps(request.get_json())
+            app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    print key+'-'+str(value)
+                    app.logger.debug(key+'-'+str(value))
                     if key == 'email_address':
                         data_email_address = value
         elif request_is_form_urlencode():
@@ -1759,7 +1757,7 @@ class ApiPasswordRecovery(Resource):
             requestData = json.loads(request.form['data'])
             data_email_address = requestData['email_address']
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.accept_mimetypes)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
 
 
