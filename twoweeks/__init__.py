@@ -689,7 +689,6 @@ class ApiMe(Resource):
         pay_recurrance_flag = None
 
         if request_is_json():
-            app.logger.info('Updating user based upon JSON Request')
             #app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data:

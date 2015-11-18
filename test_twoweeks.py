@@ -117,9 +117,8 @@ class FlaskrTestCase(unittest.TestCase):
 
     def apiCreateNewUser(self, **kwargs):
         password = kwargs.get('password')
+        confirm_password = kwargs.get('confirm_password')
         email = kwargs.get('email')
-        first_name = self.default_test_name
-        last_name = self.default_test_name
         next_pay_date = kwargs.get('next_pay_date')
         pay_recurrance_flag = kwargs.get('pay_recurrance_flag')
         confirmed_at = kwargs.get('confirmed_at')
@@ -127,17 +126,22 @@ class FlaskrTestCase(unittest.TestCase):
         if email is None:
             email = random_name_generator()
 
-        if password is None:
-            password = random_password_generator()
+        if password is None and confirm_password is None:
+            val = random_password_generator()
+            password = val
+            confirm_password = val
+
+        if password == self.get_default_test_password() and confirm_password is None:
+            confirm_password = self.get_default_test_password()
 
         if isinstance(next_pay_date, datetime):
-            next_pay_date = next_pay_date.strftime("%Y-%m-%d")
+            next_pay_date = next_pay_date
         elif next_pay_date is True:
-            next_pay_date = self.get_default_test_date().strftime("%Y-%m-%d")
+            next_pay_date = self.get_default_test_date()
         elif next_pay_date is False:
             next_pay_date = None
         else:
-            next_pay_date = self.get_default_test_date().strftime("%Y-%m-%d")
+            next_pay_date = self.get_default_test_date()
 
         if pay_recurrance_flag is None:
             pay_recurrance_flag = "B"
@@ -153,18 +157,16 @@ class FlaskrTestCase(unittest.TestCase):
             {'email':email,
              'confirm_email':email,
              'new_password':password,
-             'confirm_new_password':password,
-             'first_name': first_name,
-             'last_name': last_name,
-             'confirmed_at': confirmed_at,
+             'confirm_new_password':confirm_password,
+             'first_name': self.get_default_test_name(),
+             'last_name': self.get_default_test_name(),
+             'confirmed_at': dump_date(confirmed_at),
              'pay_recurrance_flag': pay_recurrance_flag,
-             'next_pay_date': next_pay_date}), content_type='application/json')
+             'next_pay_date': dump_date(next_pay_date)}), content_type='application/json')
 
     def createNewUser(self, **kwargs):
         password = kwargs.get('password')
         email = kwargs.get('email')
-        first_name = self.default_test_name
-        last_name = self.default_test_name
         next_pay_date = kwargs.get('next_pay_date')
         pay_recurrance_flag = kwargs.get('pay_recurrance_flag')
         confirmed_at = kwargs.get('confirmed_at')
@@ -229,16 +231,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_me_post_success(self):
         email = random_email_generator()
-        rv = self.app.post('api/me/', data=json.dumps(
-            {'email':email,
-             'confirm_email':email,
-             'new_password':self.get_default_test_password(),
-             'confirm_new_password':self.get_default_test_password(),
-             'first_name': self.get_default_test_name(),
-             'last_name': self.get_default_test_name(),
-             'pay_recurrance_flag': 'B',
-             'next_pay_date': datetime.utcnow().strftime("%Y-%m-%d")}), content_type='application/json')
-
+        rv = self.apiCreateNewUser(email=email, password=self.get_default_test_password())
         data = json.loads(rv.data)
         assert data['error'] is None
 
