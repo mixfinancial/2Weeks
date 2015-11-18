@@ -124,7 +124,7 @@ def login_check():
         user = User.query.filter_by(username = request.form['username']).first()
         app.logger.info(user.id);
         if (user is not None and user.verify_password(request.form['password'])):
-            app.logger.info('Login Successful')
+            app.logger.info('User '+user.username+' is already logged in')
             login_user(user)
         else:
             app.logger.info('Username or password incorrect')
@@ -176,15 +176,15 @@ def adminLogout():
 #APILOGIN
 class ApiLogin(Resource):
     def post(self):
-        app.logger.info('Attempting to login user')
+        #app.logger.info('Attempting to login user')
         username = None
         password = None
-        app.logger.info(str(request.content_type))
+        #app.logger.info(str(request.content_type))
         if request_is_json():
             data = request.get_json()
             #app.logger.debug(request.data)
             for key,value in data.iteritems():
-                app.logger.debug(key+'-'+value)
+                #app.logger.debug(key+'-'+value)
                 if key == 'username':
                     username = value
                 if key == 'password':
@@ -203,21 +203,22 @@ class ApiLogin(Resource):
             if user is None:
                 app.logger.debug('User Not Found')
             if (user is not None and user.verify_password(password)):
-                app.logger.info('Login Successful')
+                app.logger.info('Successfully logged in as '+username)
                 login_user(user)
                 session['username']=username
                 return {"meta":buildMeta(), "data": None, "error":None}
             elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
-                app.logger.info('Attempting to login as Root User')
+                app.logger.info('Attempting to login as root user')
                 user = User.query.filter_by(username = username).first()
                 if (user is None):
-                    app.logger.info('No Admin User Found, Creating')
+                    app.logger.info('No root user found, creating '+ config.ADMIN_USERNAME)
                     newUser = User(username=config.ADMIN_USERNAME, password=config.ADMIN_PASSWORD, email=config.ADMIN_EMAIL, first_name='Admin', last_name='Admin')
                     db_session.add(newUser)
                     db_session.commit()
                     login_user(newUser)
                     session['username']=username
                 else:
+                    app.logger.info('Successfully logged in as '+username)
                     login_user(user)
                     session['username']=username
             else:
@@ -392,7 +393,7 @@ class ApiUser(Resource):
                 app.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'new_password':
                         new_password = value
                     if key == 'confirm_password':
@@ -447,7 +448,7 @@ class ApiUser(Resource):
             app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
-                app.logger.debug(key+'-'+str(value))
+                #app.logger.debug(key+'-'+str(value))
                 if key == 'password':
                     password = value
                 if key == 'confirm_password':
@@ -520,6 +521,7 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 class ApiMe(Resource):
     @login_required
     def get(self, user_id=None):
+        user = None
 
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
@@ -688,7 +690,7 @@ class ApiMe(Resource):
 
         if request_is_json():
             app.logger.info('Updating user based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            #app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data:
                 for key,value in data.iteritems():
@@ -844,13 +846,13 @@ class ApiBill(Resource):
 
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
-            bill = Bill.query.filter_by(id=billId, user_id=user.id, paid_flag=paid_flag).first()
-            app.logger.info(bill)
+            bill = Bill.query.filter_by(id=billId, user_id=user.id).first()
+            #app.logger.debug(bill)
 
             if bill is None:
-                return {"meta":buildMeta(), 'data':[]}
+                return {"meta":buildMeta(), "data":[], "error":None}
             else:
-                return jsonify(meta=buildMeta(), data=[bill.serialize])
+                return jsonify(meta=buildMeta(), data=[bill.serialize], error=None)
         else:
             if paid_flag is not None and funded_flag is not None:
                 bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag, funded_flag=funded_flag)]
@@ -1020,7 +1022,7 @@ class ApiBill(Resource):
             app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
-                app.logger.debug(key+'-'+str(value))
+                #app.logger.debug(key+'-'+str(value))
                 if key == 'name':
                     name = value
                 if key == 'description':
@@ -1230,7 +1232,7 @@ class ApiPaymentPlan(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'transfer_date':
                         transfer_date = value
                     elif key == 'accepted_flag':
@@ -1416,7 +1418,7 @@ class ApiPaymentPlanItem(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'amount':
                         amount = value
             else:
@@ -1540,7 +1542,7 @@ class ApiFeedback(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'rating':
                         rating = value
                     if key == 'feedback':
@@ -1586,18 +1588,17 @@ class ApiConfirmEmail(Resource):
 
     #The PUT method is used to actually confirm the login email
     @login_required
-    def put(self, user_id=None):
+    def put(self, email_token=None):
         app.logger.info('Accessing ConfirmEmail.put')
 
         user = None
         user_id = None
-        email_token = None
 
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
 
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}
         else:
             user_id = user.id;
 
@@ -1607,7 +1608,7 @@ class ApiConfirmEmail(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'email_token':
                         email_token = value
         elif request_is_form_urlencode():
@@ -1620,11 +1621,11 @@ class ApiConfirmEmail(Resource):
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
             user.active = True
-            user.token = None
+            user.confirm_token = None
             user.confirmed_at = datetime.utcnow()
             db_session.commit()
 
-            return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+            return {"meta":buildMeta(), 'data':None, 'error':None}, 201
         else:
             return {"meta":buildMeta(), 'error':'Incorrect token was provided'}, 201
 
@@ -1646,17 +1647,17 @@ class ApiConfirmEmail(Resource):
             user_id = user.id;
 
         if user.confirmed_at is None:
-            confirm_token = generate_confirmation_token(user.email)
-            #app.logger.info(confirm_token);
+            confirm_token = generate_confirmation_token(user.email+str(datetime.utcnow()))
+            app.logger.debug('created new confirmation token '+confirm_token+' for '+user.email);
             user.confirm_token = confirm_token;
             db_session.commit()
 
             send_email_confirmation_email(user.first_name, user.last_name, user.email, confirm_token)
-            return {"meta":buildMeta(), 'data':[user.serialize]}, 201
+            return {"meta":buildMeta(), 'data':[user.serialize], 'error':None}, 201
         else:
             return {"meta":buildMeta(), "error":"User has already confirmed email"}
 
-api.add_resource(ApiConfirmEmail, '/api/confirm_email')
+api.add_resource(ApiConfirmEmail, '/api/confirm_email', '/api/confirm_email/', '/api/confirm_email/<string:token>')
 
 
 
@@ -1686,7 +1687,7 @@ class ApiPasswordRecovery(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'password_token':
                         password_recovery_token = value
                     elif key == 'confirm_new_password':
@@ -1731,7 +1732,7 @@ class ApiPasswordRecovery(Resource):
                 if new_password == confirm_new_password:
                     app.logger.info("Everything checks out, setting new password")
                     user.password = generate_password_hash(new_password)
-                    user.confirm_token = None;
+                    user.confirm_token = None
                     user.password_recovery_date = None
                     db_session.commit()
                     return {"meta":buildMeta(), 'data':None}, 201
@@ -1761,7 +1762,7 @@ class ApiPasswordRecovery(Resource):
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
-                    app.logger.debug(key+'-'+str(value))
+                    #app.logger.debug(key+'-'+str(value))
                     if key == 'email_address':
                         data_email_address = value
         elif request_is_form_urlencode():
@@ -1784,7 +1785,8 @@ class ApiPasswordRecovery(Resource):
         if user is None:
             return {"meta":buildMeta(), "error":"No account found with that email address"}
 
-        confirm_token = generate_confirmation_token(user.email)
+        confirm_token = generate_confirmation_token(user.email+str(datetime.utcnow()))
+        app.logger.debug('created new confirmation token '+confirm_token+' for '+user.email);
         #app.logger.info(confirm_token);
 
         #SETTING EXPIRATION DATE
