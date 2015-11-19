@@ -136,17 +136,17 @@ def login_check():
 
 #APILOGIN
 class ApiLoginCheck(Resource):
+    @login_required
     def get(self):
         user = None
-
         if 'username' in session and session['username'] is not '':
             user=User.query.filter_by(username=session['username']).first()
             if user:
-                return {"meta":buildMeta(), "error": None, "data":[user.serialize]}
+                return {"meta":buildMeta(), "error": None, "data":[user.serialize]}, 200
             else:
-                return {"meta":buildMeta(), "error":"No Session Found for '"+session['username']+"'", "data":None}
+                return {"meta":buildMeta(), "error":"No Session Found for '"+session['username']+"'", "data":None}, 401
         else:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
 
 api.add_resource(ApiLoginCheck, '/api/login_check', '/api/login_check/')
 
@@ -175,6 +175,9 @@ def adminLogout():
 
 #APILOGIN
 class ApiLogin(Resource):
+    def get(self):
+        return {"meta":buildMeta(), "error":None, "data":None}, 200
+
     def post(self):
         #app.logger.info('Attempting to login user')
         username = None
@@ -206,7 +209,7 @@ class ApiLogin(Resource):
                 app.logger.info('Successfully logged in as '+username)
                 login_user(user)
                 session['username']=username
-                return {"meta":buildMeta(), "data": None, "error":None}
+                return {"meta":buildMeta(), "data": None, "error":None}, 200
             elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
                 app.logger.info('Attempting to login as root user')
                 user = User.query.filter_by(username = username).first()
@@ -217,16 +220,18 @@ class ApiLogin(Resource):
                     db_session.commit()
                     login_user(newUser)
                     session['username']=username
+                    return {"meta":buildMeta(), "data": None, "error":None}, 200
                 else:
                     app.logger.info('Successfully logged in as '+username)
                     login_user(user)
                     session['username']=username
+                    return {"meta":buildMeta(), "data": None, "error":None}, 200
             else:
                 app.logger.info('User is None or Password did not verify')
-                return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}
+                return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}, 403
         else:
             app.logger.info('Please provide a username and password')
-            return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}
+            return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}, 403
 
 
         return {"meta":buildMeta(), "error":None, "data":None}, 201
@@ -241,8 +246,8 @@ class ApiLogout(Resource):
     def get(self):
         logout_user()
         session['username']= ''
-        return {"meta":buildMeta(), "error":None, "data": None}
-api.add_resource(ApiLogout, '/api/logout/')
+        return {"meta":buildMeta(), "error":None, "data": None}, 200
+api.add_resource(ApiLogout, '/api/logout', '/api/logout/')
 
 
 
@@ -278,7 +283,7 @@ def load_user_from_request(request):
 def unauthorized_callback():
     app.logger.info(request)
     if '/api' in str(request):
-        return {"meta":buildMeta(), "error":"User is not authenticated, please login"}, 401
+        return {"meta":buildMeta(), "error":"User is not authenticated, please login", "data":None}, 401
     elif '/admin' in str(request):
         return redirect('/admin/#/login')
     else:
@@ -359,13 +364,11 @@ class ApiUser(Resource):
             app.logger.info(user)
 
             if user is None:
-                return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data": None}
+                return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data":None}, 200
             else:
                 return jsonify(meta=buildMeta(), data=[user.serialize])
         else:
-            users = [i.serialize for i in User.query.all()]
-            #TODO: DO NOT RETURN PASSWORDS
-            return {"meta":buildMeta(), "data":users}
+            return {"meta":buildMeta(), "data":[i.serialize for i in User.query.all()], "error":None}, 200
 
     @login_required
     def put(self, user_id=None):
@@ -526,14 +529,12 @@ class ApiMe(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if user is None:
-            return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data": None}
+            return {"meta":buildMeta(),"error": "No results returned for "+ session['username'], "data": None}
         else:
-            return jsonify(meta=buildMeta(), data=[user.serialize])
-
-
+            return {"meta":buildMeta(),"error": None, "data":[user.serialize]}, 200
 
 
 
@@ -562,7 +563,7 @@ class ApiMe(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if user is not None:
             if request_is_json():
@@ -663,7 +664,7 @@ class ApiMe(Resource):
 
         user.last_updated = datetime.utcnow()
         db_session.commit()
-        return {"meta":buildMeta(), "data": [user.serialize], "error":None}
+        return {"meta":buildMeta(), "data": [user.serialize], "error":None}, 200
 
 
 
@@ -742,21 +743,27 @@ class ApiMe(Resource):
         #TODO: CONFIRM EMAIL IS VALID EMAIL ADDRESS
         # REQUIRED FIELD CHECKS
         if email is None or confirm_email is None:
+            app.logger.debug("Registration Failed, email was not provied")
+            return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
+        if email is None or confirm_email is None:
+            app.logger.debug("User '"+email+"' Registration failed, Confirm password was not provided")
             return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
         if new_password is None:
+            app.logger.debug("User '"+email+"' Registration failed, password was not provided")
             return {"meta":buildMeta(), "error":"Password is required", "data": None}
         if new_password != confirm_new_password:
+            app.logger.debug("User '"+email+"' Registration failed, new_password does not match confirm_new_password")
             return {"meta":buildMeta(), "error":"Passwords do not match", "data": None}
         if first_name is None or last_name is None:
+            app.logger.debug("User '"+email+"' Registration failed, First and Last name is required")
             return {"meta":buildMeta(), "error":"First and last name is required", "data": None}
         if  pay_recurrance_flag is None or next_pay_date is None:
             #TODO: Verify pay_recurrance_flag is in list
+            app.logger.debug("User '"+email+"' Registration failed, Pay Recurrance and Next Pay Date is Required")
             return {"meta":buildMeta(), "error":"Pay Recurrance and Next Pay Date is Required", "data": None}
-
 
         if email != confirm_email:
             return {"meta":buildMeta(), "error":"Email and confirmation email do not match", "data": None}
-
 
 
         if User.query.filter_by(username = username).first() is not None:
@@ -817,7 +824,7 @@ class ApiBill(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
 
 
@@ -888,7 +895,7 @@ class ApiBill(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if bill_id is None:
             if request.args.get('bill_id') is not None:
@@ -1014,7 +1021,7 @@ class ApiBill(Resource):
             user = User.query.filter_by(username=session['username']).first()
 
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
@@ -1085,7 +1092,7 @@ class ApiBill(Resource):
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
 
         app.logger.info("Deleting Bill #: " + bill_id)
@@ -1128,7 +1135,7 @@ class ApiPaymentPlan(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         #TODO: BIND payment_plan with User ID based upon session
         if payment_plan_id is not None:
@@ -1210,7 +1217,7 @@ class ApiPaymentPlan(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if payment_plan_id is None:
             if request.args.get('payment_plan_id') is not None:
@@ -1354,7 +1361,7 @@ class ApiPaymentPlanItem(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if payment_plan_item_id is not None:
             paymentPlanId = payment_plan_item_id
@@ -1393,7 +1400,7 @@ class ApiPaymentPlanItem(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
 
         if payment_plan_item_id is None:
@@ -1447,7 +1454,7 @@ class ApiPaymentPlanItem(Resource):
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if payment_plan_item_id is None:
             if bill_id is not None:
@@ -1531,7 +1538,7 @@ class ApiFeedback(Resource):
             user = User.query.filter_by(username=session['username']).first()
 
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
         else:
             user_id = user.id;
 
@@ -1584,6 +1591,10 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 ##########################
 
 class ApiConfirmEmail(Resource):
+
+    @login_required
+    def get(self):
+        return {"meta":buildMeta(), "error":None, "data":None}
 
     #The PUT method is used to actually confirm the login email
     @login_required
@@ -1641,7 +1652,7 @@ class ApiConfirmEmail(Resource):
             user = User.query.filter_by(username=session['username']).first()
 
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
         else:
             user_id = user.id;
 
@@ -1671,6 +1682,10 @@ api.add_resource(ApiConfirmEmail, '/api/confirm_email', '/api/confirm_email/', '
 #THIS API IS TO HANDLE WHEN USERS DON'T HAVE THEIR CURRENT PASSWORD
 
 class ApiPasswordRecovery(Resource):
+
+    @login_required
+    def get(self):
+        return {"meta":buildMeta(), "error":None, "data":None}
 
     #The PUT method is used to actually change the password
     def put(self, email_address=None):

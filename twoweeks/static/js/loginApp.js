@@ -186,6 +186,8 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
                 window.location.href = location + '/home/#/' + searchObject.action + '/?' + jQuery.param(searchObject);
             }
         }
+     }, function(error){
+        null;
      });
 
 

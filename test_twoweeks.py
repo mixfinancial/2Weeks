@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
 
-
 DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
 DEFAULT_ALPHABET_NUMERIC = "0123456789"
@@ -18,8 +17,6 @@ DEFAULT_ALPHABET_SPECIAL = "!#$%&'*+-/=?^_`{|}~@^%()<>.,"
 DEFAULT_ALPHABET_ALPHA = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER
 DEFAULT_ALPHABET_ALPHANUMERIC = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC
 DEFAULT_ALPHABET_ALL = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC+DEFAULT_ALPHABET_SPECIAL
-
-
 
 
 
@@ -103,7 +100,7 @@ class FlaskrTestCase(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
         init_db()
-        newUser = self.createNewUser(email=self.get_default_test_username(), password=self.get_default_test_password(), first_name=self.get_default_test_name(), last_name=self.get_default_test_name(), active=True, confirmed_at=True, next_pay_date=True)
+        newUser = self.createNewUser(email=self.get_default_test_username(), new_password=self.get_default_test_password(), first_name=self.get_default_test_name(), last_name=self.get_default_test_name(), active=True, confirmed_at=True, next_pay_date=True)
         self.set_user_id(newUser.id)
 
     def tearDown(self):
@@ -116,8 +113,8 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
     def apiCreateNewUser(self, **kwargs):
-        password = kwargs.get('password')
-        confirm_password = kwargs.get('confirm_password')
+        password = kwargs.get('new_password')
+        confirm_password = kwargs.get('confirm_new_password')
         email = kwargs.get('email')
         next_pay_date = kwargs.get('next_pay_date')
         pay_recurrance_flag = kwargs.get('pay_recurrance_flag')
@@ -165,7 +162,7 @@ class FlaskrTestCase(unittest.TestCase):
              'next_pay_date': dump_date(next_pay_date)}), content_type='application/json')
 
     def createNewUser(self, **kwargs):
-        password = kwargs.get('password')
+        password = kwargs.get('new_password')
         email = kwargs.get('email')
         next_pay_date = kwargs.get('next_pay_date')
         pay_recurrance_flag = kwargs.get('pay_recurrance_flag')
@@ -229,42 +226,95 @@ class FlaskrTestCase(unittest.TestCase):
         data = json.loads(rv.data)
         assert data['error'] is None
 
+    def test_api_all_get_login_required(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
+
+        rv = self.app.get('/api/me')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/bill')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/feedback')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/recover_password')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/login_check')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.get('/api/login')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.get('/api/logout')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.get('/api/user')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST LOGGING IN
+        rv = self.login(self.get_default_test_username(), self.get_default_test_password())
+        rv = self.app.get('/api/me')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+
+        rv = self.logout()
+
+
     def test_api_me_post_success(self):
         email = random_email_generator()
-        rv = self.apiCreateNewUser(email=email, password=self.get_default_test_password())
+        rv = self.apiCreateNewUser(email=email, new_password=self.get_default_test_password())
         data = json.loads(rv.data)
         assert data['error'] is None
 
     def test_api_me_post_fail_password_compare(self):
         email = random_email_generator()
         wrongPassword = random_password_generator()
-        rv = self.app.post('api/me/', data=json.dumps(
-            {'email':email,
-             'confirm_email':email,
-             'new_password':self.get_default_test_password(),
-             'confirm_new_password':wrongPassword,
-             'first_name': self.get_default_test_name(),
-             'last_name': self.get_default_test_name(),
-             'pay_recurrance_flag': 'B',
-             'next_pay_date': datetime.utcnow().strftime("%Y-%m-%d")}), content_type='application/json')
+        rv = self.apiCreateNewUser(email=email, new_password=self.get_default_test_password(), confirm_new_password=wrongPassword)
         data = json.loads(rv.data)
         assert 'Passwords do not match' in data['error']
 
     def test_api_me_post_fail_duplicate_email(self):
-        rv = self.app.post('api/me/', data=json.dumps(
-            {'email':self.get_default_test_username(),
-             'confirm_email':self.get_default_test_username(),
-             'new_password':self.get_default_test_password(),
-             'confirm_new_password':self.get_default_test_password(),
-             'first_name': self.get_default_test_name(),
-             'last_name': self.get_default_test_name(),
-             'pay_recurrance_flag': 'B',
-             'next_pay_date': datetime.utcnow().strftime("%Y-%m-%d")}), content_type='application/json')
+        rv = self.apiCreateNewUser(email=self.get_default_test_username(), new_password=self.get_default_test_password())
         data = json.loads(rv.data)
         assert 'Username already exists' == data['error']
 
     def test_api_me_post_fail_required(self):
-
         #NO CONFIRM EMAIL
         rv = self.app.post('api/me/', data=json.dumps(
             {'email':self.get_default_test_username(),
@@ -325,7 +375,7 @@ class FlaskrTestCase(unittest.TestCase):
         data = json.loads(rv.data)
         assert 'Pay Recurrance and Next Pay Date is Required' == data['error']
 
-        #NO LAST NAME
+        #NO new_pay_date
         rv = self.app.post('api/me/', data=json.dumps(
             {'email':self.get_default_test_username(),
              'confirm_email':self.get_default_test_username(),
@@ -341,10 +391,11 @@ class FlaskrTestCase(unittest.TestCase):
         password = random_password_generator()
         wrongPassword = random_password_generator()
         username = random_email_generator()
-        rv = self.apiCreateNewUser(email = username, password = self.get_default_test_password())
+        rv = self.apiCreateNewUser(email = username, new_password = self.get_default_test_password())
 
         self.login(username, self.get_default_test_password())
 
+        #Using wrong current password
         rv = self.app.put('api/me/', data=json.dumps(
             {'email':username,
              'current_password': wrongPassword,
@@ -353,6 +404,7 @@ class FlaskrTestCase(unittest.TestCase):
         data = json.loads(rv.data)
         assert data['error'] is not None
 
+        #Using non-matching new passwords
         rv = self.app.put('api/me/', data=json.dumps(
             {'email':username,
              'current_password': self.get_default_test_password(),
@@ -361,6 +413,7 @@ class FlaskrTestCase(unittest.TestCase):
         data = json.loads(rv.data)
         assert data['error'] is not None
 
+        #should be good password
         rv = self.app.put('api/me/', data=json.dumps(
             {'email':username,
              'current_password': self.get_default_test_password(),
@@ -430,7 +483,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_confirm_email_post(self):
         username = random_email_generator()
-        rv = self.apiCreateNewUser(email = username, password = self.get_default_test_password())
+        rv = self.apiCreateNewUser(email = username, new_password = self.get_default_test_password())
         data = json.loads(rv.data)
         if data['error'] is not None:
             print data['error']
@@ -457,7 +510,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_confirm_email_put(self):
         username = random_email_generator()
-        self.apiCreateNewUser(email=username, password=self.get_default_test_password())
+        self.apiCreateNewUser(email=username, new_password=self.get_default_test_password())
         self.login(username, self.get_default_test_password())
         user = User.query.filter_by(username=username).first()
         assert user is not None
@@ -524,45 +577,15 @@ class FlaskrTestCase(unittest.TestCase):
         assert data['error'] is None
         assert data['data'] is not None
 
-        payee_id = None
-        name = None
-        description = None
-        due_date = None
-        billing_period = None
-        total_due = None
-        paid_flag = None
-        paid_date = None
-        check_number = None
-        payment_type = None
-        payment_type_ind = None
-        payment_processing_flag = None
-
-        data = json.loads(rv.data)
-        #print(data['data'][0])
-        for key,value in data['data'][0].iteritems():
-            #print(key+'-'+str(value))
-            if key == 'name':
-                name = value
-            if key == 'description':
-                description = value
-            elif key == 'due_date':
-                due_date = value
-            elif key == 'billing_period':
-                billing_period = value
-            elif key == 'total_due':
-                total_due = value
-            elif key == 'paid_flag':
-                paid_flag = value
-            elif key == 'paid_date':
-                paid_date = value
-            elif key == 'check_number':
-                check_number = value
-            elif key == 'payment_type':
-                payment_type = value
-            elif key == 'payment_type_ind':
-                payment_type = value
-            elif key == 'payment_processing_flag':
-                payment_processing_flag = value
+        name = data['data'][0].get('name')
+        description = data['data'][0].get('description')
+        due_date = data['data'][0].get('due_date')
+        billing_period = data['data'][0].get('billing_period')
+        total_due = data['data'][0].get('total_due')
+        paid_flag = data['data'][0].get('paid_flag')
+        paid_date = data['data'][0].get('paid_date')
+        check_number = data['data'][0].get('check_number')
+        payment_processing_flag = data['data'][0].get('payment_processing_flag')
 
         assert bill_name == name
         assert total_due == bill_total_due
@@ -597,43 +620,15 @@ class FlaskrTestCase(unittest.TestCase):
         assert len(datas['data']) == y
 
         for data in datas['data']:
-            payee_id = None
-            name = None
-            description = None
-            due_date = None
-            billing_period = None
-            total_due = None
-            paid_flag = None
-            paid_date = None
-            check_number = None
-            payment_type = None
-            payment_type_ind = None
-            payment_processing_flag = None
-
-            for key,value in data.iteritems():
-                #print(key+'-'+str(value))
-                if key == 'name':
-                    name = value
-                if key == 'description':
-                    description = value
-                elif key == 'due_date':
-                    due_date = value
-                elif key == 'billing_period':
-                    billing_period = value
-                elif key == 'total_due':
-                    total_due = value
-                elif key == 'paid_flag':
-                    paid_flag = value
-                elif key == 'paid_date':
-                    paid_date = value
-                elif key == 'check_number':
-                    check_number = value
-                elif key == 'payment_type':
-                    payment_type = value
-                elif key == 'payment_type_ind':
-                    payment_type = value
-                elif key == 'payment_processing_flag':
-                    payment_processing_flag = value
+            name = data.get('name')
+            description = data.get('description')
+            due_date = data.get('due_date')
+            billing_period = data.get('billing_period')
+            total_due = data.get('total_due')
+            paid_flag = data.get('paid_flag')
+            paid_date = data.get('paid_date')
+            check_number = data.get('check_number')
+            payment_processing_flag = data.get('payment_processing_flag')
 
             #assert bill_name == name
             #assert total_due == bill_total_due
