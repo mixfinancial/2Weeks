@@ -785,6 +785,12 @@ class ApiMe(Resource):
 
         #app.logger.info(confirm_token);
 
+
+        #print due_date
+        if next_pay_date is not None:
+            next_pay_date = datetime.strptime(next_pay_date, "%Y-%m-%d")
+
+
         newUser = User(username=email, password=new_password, email=email, first_name=first_name, last_name=last_name, next_pay_date = next_pay_date, pay_recurrance_flag = pay_recurrance_flag,  account_balance_amount=account_balance_amount,  confirm_token=confirm_token)
 
         db_session.add(newUser)
@@ -1083,6 +1089,9 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
 
+        #print due_date
+        if due_date is not None:
+            due_date = datetime.strptime(due_date, "%Y-%m-%d")
 
         if name is None or total_due is None:
             return {"meta":buildMeta(), "error":"Bills require a name and Total amount due", "data":None}
