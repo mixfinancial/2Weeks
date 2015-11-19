@@ -7,52 +7,7 @@ import twoweeks.config as config
 from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, Feedback
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
-
-
-DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
-DEFAULT_ALPHABET_NUMERIC = "0123456789"
-DEFAULT_ALPHABET_SPECIAL = "!#$%&'*+-/=?^_`{|}~@^%()<>.,"
-
-DEFAULT_ALPHABET_ALPHA = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER
-DEFAULT_ALPHABET_ALPHANUMERIC = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC
-DEFAULT_ALPHABET_ALL = DEFAULT_ALPHABET_UPPER+DEFAULT_ALPHABET_LOWER+DEFAULT_ALPHABET_NUMERIC+DEFAULT_ALPHABET_SPECIAL
-
-
-
-def random_string_generator(alphabet, string_length):
-    mypw = ""
-    for i in range(string_length):
-        next_index = random.randrange(len(alphabet))
-        mypw = mypw + alphabet[next_index]
-    return mypw
-
-def random_password_generator():
-    alphabet = DEFAULT_ALPHABET_ALL
-    return random_string_generator(alphabet, 16)
-
-def random_name_generator():
-    alphabet = DEFAULT_ALPHABET_ALPHA
-    return random_string_generator(alphabet, 12)
-
-def random_email_generator():
-    alphabet = DEFAULT_ALPHABET_ALPHANUMERIC+"!#$%&'*+-/=?^_`{|}~"
-    return random_string_generator(alphabet, 12)+str('@mixfin.com')
-
-def random_number_generator(max=None):
-    if max is None:
-        max = 1000
-    return random.randint(1,max)
-
-def dump_datetime(value):
-    if value is None:
-        return None
-    return value.strftime("%Y-%m-%d") + "T" + value.strftime("%H:%M:%S")
-
-def dump_date(value):
-    if value is None:
-        return None
-    return value.strftime("%Y-%m-%d")
+import testUtils
 
 class FlaskrTestCase(unittest.TestCase):
     default_user_id = None
@@ -92,9 +47,9 @@ class FlaskrTestCase(unittest.TestCase):
         return self.default_user_id
 
     def setUp(self):
-        self.set_default_test_password(random_password_generator())
-        self.set_default_test_name("~~~"+random_name_generator()+"~~~")
-        self.set_default_test_username(random_email_generator())
+        self.set_default_test_password(testUtils.random_password_generator())
+        self.set_default_test_name("~~~" + testUtils.random_name_generator() + "~~~")
+        self.set_default_test_username(testUtils.random_email_generator())
         self.set_default_test_date(datetime.utcnow())
 
         app.config['TESTING'] = True
@@ -121,10 +76,10 @@ class FlaskrTestCase(unittest.TestCase):
         confirmed_at = kwargs.get('confirmed_at')
 
         if email is None:
-            email = random_name_generator()
+            email = testUtils.random_name_generator()
 
         if password is None and confirm_password is None:
-            val = random_password_generator()
+            val = testUtils.random_password_generator()
             password = val
             confirm_password = val
 
@@ -157,9 +112,9 @@ class FlaskrTestCase(unittest.TestCase):
              'confirm_new_password':confirm_password,
              'first_name': self.get_default_test_name(),
              'last_name': self.get_default_test_name(),
-             'confirmed_at': dump_date(confirmed_at),
+             'confirmed_at': testUtils.dump_date(confirmed_at),
              'pay_recurrance_flag': pay_recurrance_flag,
-             'next_pay_date': dump_date(next_pay_date)}), content_type='application/json')
+             'next_pay_date': testUtils.dump_date(next_pay_date)}), content_type='application/json')
 
     def createNewUser(self, **kwargs):
         password = kwargs.get('new_password')
@@ -170,10 +125,10 @@ class FlaskrTestCase(unittest.TestCase):
         active = kwargs.get('active')
 
         if email is None:
-            email = random_email_generator()
+            email = testUtils.random_email_generator()
 
         if password is None:
-            password = random_password_generator()
+            password = testUtils.random_password_generator()
 
         if isinstance(next_pay_date, datetime):
             next_pay_date = next_pay_date
@@ -202,9 +157,9 @@ class FlaskrTestCase(unittest.TestCase):
         return newUser
 
     def apiCreateNewBill(self, name=None, total_due=None):
-        due_date = datetime.utcnow() + timedelta(days=random_number_generator(45))
+        due_date = datetime.utcnow() + timedelta(days=testUtils.random_number_generator(45))
         if total_due is None:
-            total_due = random_number_generator()
+            total_due = testUtils.random_number_generator()
         return self.app.post('api/bill/', data=json.dumps(
             {'name':name,
              'total_due': total_due,
@@ -548,7 +503,6 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.post('/api/recover_password')
         data = json.loads(rv.data)
-        print data['error']
         assert 'Unable to process, no content type was provided' == data['error']
         assert '202 ACCEPTED' == rv.status
 
@@ -631,14 +585,14 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
     def test_api_me_post_success(self):
-        email = random_email_generator()
+        email = testUtils.random_email_generator()
         rv = self.apiCreateNewUser(email=email, new_password=self.get_default_test_password())
         data = json.loads(rv.data)
         assert data['error'] is None
 
     def test_api_me_post_fail_password_compare(self):
-        email = random_email_generator()
-        wrongPassword = random_password_generator()
+        email = testUtils.random_email_generator()
+        wrongPassword = testUtils.random_password_generator()
         rv = self.apiCreateNewUser(email=email, new_password=self.get_default_test_password(), confirm_new_password=wrongPassword)
         data = json.loads(rv.data)
         assert 'Passwords do not match' in data['error']
@@ -722,9 +676,9 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'Pay Recurrance and Next Pay Date is Required' == data['error']
 
     def test_api_me_put_change_password(self):
-        password = random_password_generator()
-        wrongPassword = random_password_generator()
-        username = random_email_generator()
+        password = testUtils.random_password_generator()
+        wrongPassword = testUtils.random_password_generator()
+        username = testUtils.random_email_generator()
         rv = self.apiCreateNewUser(email = username, new_password = self.get_default_test_password())
 
         self.login(username, self.get_default_test_password())
@@ -810,13 +764,13 @@ class FlaskrTestCase(unittest.TestCase):
         assert username == self.get_default_test_username()
 
         #NOTE: Set to >= to account for lag
-        assert str(next_pay_date) >= dump_datetime(self.get_default_test_date())
+        assert str(next_pay_date) >= testUtils.dump_datetime(self.get_default_test_date())
 
         assert pay_recurrance_flag == 'B'
         self.logout()
 
     def test_api_confirm_email_post(self):
-        username = random_email_generator()
+        username = testUtils.random_email_generator()
         rv = self.apiCreateNewUser(email = username, new_password = self.get_default_test_password())
         data = json.loads(rv.data)
         if data['error'] is not None:
@@ -843,7 +797,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
     def test_api_confirm_email_put(self):
-        username = random_email_generator()
+        username = testUtils.random_email_generator()
         self.apiCreateNewUser(email=username, new_password=self.get_default_test_password())
         self.login(username, self.get_default_test_password())
         user = User.query.filter_by(username=username).first()
@@ -879,7 +833,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
     def test_api_bill_post_success(self):
-        bill_name = random_name_generator()
+        bill_name = testUtils.random_name_generator()
         self.login(self.get_default_test_username(), self.get_default_test_password())
 
         rv = self.apiCreateNewBill(bill_name)
@@ -899,8 +853,8 @@ class FlaskrTestCase(unittest.TestCase):
         self.logout()
 
     def test_api_bill_get_single(self):
-        bill_name = random_name_generator()
-        bill_total_due = random_number_generator()
+        bill_name = testUtils.random_name_generator()
+        bill_total_due = testUtils.random_number_generator()
         self.login(self.get_default_test_username(), self.get_default_test_password())
         self.apiCreateNewBill(bill_name, bill_total_due)
         bill = Bill.query.filter_by(name=bill_name, user_id=self.get_user_id()).first()
@@ -941,7 +895,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         #CREATING y BILLS
         for x in range(0, y):
-            self.apiCreateNewBill(random_name_generator(), random_number_generator())
+            self.apiCreateNewBill(testUtils.random_name_generator(), testUtils.random_number_generator())
 
         rv = self.app.get('/api/bill/')
         data = json.loads(rv.data)

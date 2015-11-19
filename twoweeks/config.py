@@ -7,11 +7,24 @@ import os
 ######################
 TRAP_BAD_REQUEST_ERRORS = True
 CSRF_ENABLED = True
+
+
 DEBUG = True
+if os.environ.get('DEBUG') is None:
+    DEBUG = False
+elif os.environ['DEBUG'] == "TRUE":
+    DEBUG = True
+elif os.environ['DEBUG'] == "FALSE":
+    DEBUG = False
+
+
 DEVELOPMENT = True
 HOST = os.environ['HOST']
 NEW_RELIC_CONFIG_FILE = os.environ['NEW_RELIC_CONFIG_FILE']
 DATABASE = 'MYSQL'
+
+
+
 
 SECRET_KEY = os.environ['FLASK_AUTH_SECRET_KEY']
 SECURITY_PASSWORD_SALT = os.environ['SECURITY_PASSWORD_SALT']

@@ -372,7 +372,7 @@ class ApiUser(Resource):
 
     @login_required
     def put(self, user_id=None):
-        app.logger.info('Accessing User.put')
+        app.logger.debug('Accessing User.put')
         id = ''
         username = ''
         new_password = ''
@@ -438,7 +438,7 @@ class ApiUser(Resource):
 
     @login_required
     def post(self, user_id=None):
-        app.logger.info('Accessing User.post')
+        app.logger.debug('Accessing User.post')
 
         username = ''
         password = ''
@@ -551,7 +551,7 @@ class ApiMe(Resource):
     ####################
     @login_required
     def put(self, user_id=None):
-        app.logger.info('Accessing User.put')
+        app.logger.debug('Accessing User.put')
         id = ''
         username = None
         new_password = None
@@ -683,7 +683,7 @@ class ApiMe(Resource):
     # REGISTER USER ACTION #
     ########################
     def post(self, user_id=None):
-        app.logger.info('Accessing Me.post (Registering New User)')
+        app.logger.debug('Accessing Me.post (Registering New User)')
 
         id = ''
         username = None
@@ -887,7 +887,7 @@ class ApiBill(Resource):
 
     @login_required
     def put(self, bill_id=None):
-        app.logger.info('Accessing Bill.put')
+        app.logger.debug('Accessing Bill.put')
 
         #TODO: Handle update
         user_id = None
@@ -1015,7 +1015,7 @@ class ApiBill(Resource):
 
     @login_required
     def post(self, bill_id=None):
-        app.logger.info('Accessing Bill.post')
+        app.logger.debug('Accessing Bill.post')
 
         user = None
 
@@ -1232,7 +1232,7 @@ class ApiPaymentPlan(Resource):
 
     @login_required
     def put(self, payment_plan_id=None):
-        app.logger.info('Accessing PaymentPlan.put')
+        app.logger.debug('Accessing PaymentPlan.put')
 
         #TODO: Handle update
         user_id = None
@@ -1510,7 +1510,7 @@ class ApiPaymentPlanItem(Resource):
 
     @login_required
     def delete(self, payment_plan_item_id=None):
-        app.logger.info('Accessing PaymentPlanItem.delete')
+        app.logger.debug('Accessing PaymentPlanItem.delete')
         bill_id = request.args.get('bill_id')
 
         if 'username' in session:
@@ -1589,7 +1589,7 @@ class ApiFeedback(Resource):
 
     @login_required
     def post(self, feedback_id=None):
-        app.logger.info('Accessing Feedback.post')
+        app.logger.debug('Accessing Feedback.post')
 
         user = None
         user_id = None
@@ -1678,7 +1678,7 @@ class ApiConfirmEmail(Resource):
     #The PUT method is used to actually confirm the login email
     @login_required
     def put(self, email_token=None):
-        app.logger.info('Accessing ConfirmEmail.put')
+        app.logger.debug('Accessing ConfirmEmail.put')
 
         user = None
         user_id = None
@@ -1724,7 +1724,7 @@ class ApiConfirmEmail(Resource):
     #it creates a new token and sends it to the user
     @login_required
     def post(self, user_id=None):
-        app.logger.info('Accessing ConfirmEmail.post')
+        app.logger.debug('Accessing ConfirmEmail.post')
 
         user = None
         user_id = None
@@ -1774,7 +1774,7 @@ class ApiPasswordRecovery(Resource):
 
     #The PUT method is used to actually change the password
     def put(self, email_address=None):
-        app.logger.info('Accessing ApiPasswordRecovery.put')
+        app.logger.debug('Accessing ApiPasswordRecovery.put')
 
         password_recovery_token = None
         new_password = None
@@ -1854,7 +1854,7 @@ class ApiPasswordRecovery(Resource):
     #The POST method is used to send the password recovery email
     #it creates a new token and sends it to the user
     def post(self, email_address=None):
-        app.logger.info('Accessing ApiPasswordRecovery.post')
+        app.logger.debug('Accessing ApiPasswordRecovery.post')
 
         email_address = None
 
