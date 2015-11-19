@@ -1,5 +1,5 @@
 import os
-import json, string, random, unittest, cProfile
+import json, string, random, unittest, time
 from twoweeks import app
 from twoweeks.database import init_db
 from twoweeks.database import db_session
@@ -8,7 +8,6 @@ from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, F
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 import testUtils
-from pstats import Stats
 
 class FlaskrTestCase(unittest.TestCase):
     default_user_id = None
@@ -176,24 +175,72 @@ class FlaskrTestCase(unittest.TestCase):
         return self.app.get('/api/logout', follow_redirects=True)
 
 
-    @unittest.skip("testing skipping")
-    def test_api_me_post_success(self):
+    def test_api_me_post(self):
         self.login(self.get_default_test_username(), self.get_default_test_password())
+        benchmark = 0.0121948369344
 
-        self.pr = cProfile.Profile()
-        self.pr.enable()
+        y = 100
 
-        #CREATING y BILLS
-        for x in range(0, 100):
-            self.apiCreateNewBill(testUtils.random_name_generator(), testUtils.random_number_generator())
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewUser(email=testUtils.random_email_generator(), new_password=self.get_default_test_password())
+        t1 = time.time()
+        total1 = t1-t0
 
-        p = Stats (self.pr)
-        p.strip_dirs()
-        p.sort_stats ('cumtime')
-        p.print_stats ()
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewUser(email=testUtils.random_email_generator(), new_password=self.get_default_test_password())
+        t1 = time.time()
+        total2 = t1-t0
+
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewUser(email=testUtils.random_email_generator(), new_password=self.get_default_test_password())
+        t1 = time.time()
+        total3 = t1-t0
+
+        average = ((total1/y)+(total2/y)+(total3/y))/3
+
+        print "User Average: " + str(average)
+        print "User Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%"
+
+        assert testUtils.percent_difference(benchmark,average) < 10
 
         self.logout()
 
+
+    def test_api_bill_post(self):
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+        benchmark = 0.0115210827192
+
+        y = 100
+
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewBill(testUtils.random_name_generator(), testUtils.random_number_generator())
+        t1 = time.time()
+        total1 = t1-t0
+
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewBill(testUtils.random_name_generator(), testUtils.random_number_generator())
+        t1 = time.time()
+        total2 = t1-t0
+
+        t0 = time.time()
+        for x in range(0, y):
+            self.apiCreateNewBill(testUtils.random_name_generator(), testUtils.random_number_generator())
+        t1 = time.time()
+        total3 = t1-t0
+
+        average = ((total1/y)+(total2/y)+(total3/y))/3
+
+        print "Bill Average: " + str(average)
+        print "Bill Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%"
+
+        assert testUtils.percent_difference(benchmark,average) < 10
+
+        self.logout()
 
 
 

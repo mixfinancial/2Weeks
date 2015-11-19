@@ -45,3 +45,5 @@ def dump_date(value):
 
 def percent_difference(baseValue, compareValue):
     return (float(compareValue - baseValue) / baseValue)*100
+
+
