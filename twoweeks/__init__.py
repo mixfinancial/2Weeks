@@ -422,11 +422,13 @@ class ApiUser(Resource):
                 user.first_name = requestData['first_name']
                 confirm_password = requestData['confirm_password']
                 password = requestData['password']
+            elif request.content_type is None:
+                return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}
 
         else:
-            return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
+            return {"meta":buildMeta(), "error":"Could not find user", "data": None}, 202
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
 
@@ -471,8 +473,10 @@ class ApiUser(Resource):
             last_name = requestData['last_name']
             first_name = requestData['first_name']
             confirm_password = requestData['confirm_password']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         #TODO: PASSWORD and CONFIRM_PASSWORD comparison
         if email is None or password is None:
@@ -489,13 +493,17 @@ class ApiUser(Resource):
         return {"meta":buildMeta()}
 
     @login_required
-    def delete(self, user_id):
+    def delete(self, user_id = None):
+
+        if user_id is None:
+            return {"meta":buildMeta(), "data": None, "error":"User ID is Required"}, 202
+
         app.logger.info("Deleting User #: " + user_id)
         user = User.query.filter_by(id=user_id).first()
         db_session.delete(user)
         db_session.commit()
 
-        return {"meta":buildMeta(), "data": None}
+        return {"meta":buildMeta(), "data":None, "error":None}, 200
 
 api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>', '/api/users/', '/api/users/<string:user_id>')
 
@@ -612,8 +620,10 @@ class ApiMe(Resource):
                 pay_recurrance_flag = requestData['pay_recurrance_flag']
                 average_paycheck_amount = requestData['average_paycheck_amount']
                 account_balance_amount = requestData['account_balance_amount']
+            elif request.content_type is None or not request.content_type:
+                return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
             else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         else:
             return {"meta":buildMeta(), "error":"Could not find user id #"+id, "data": None}
@@ -717,7 +727,7 @@ class ApiMe(Resource):
                     elif key == 'confirm_email':
                         confirm_email = value
             else:
-                return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
+                return {"meta":buildMeta(), "error":"No Data Sent", "data": None}, 202
         elif request_is_form_urlencode():
             # TODO: Handle nulls
             app.logger.info('Updating user '+username)
@@ -734,8 +744,10 @@ class ApiMe(Resource):
             average_paycheck_amount = requestData['average_paycheck_amount']
             account_balance_amount = requestData['account_balance_amount']
             confirm_email = requestData['confirm_email']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
 
 
@@ -786,13 +798,8 @@ class ApiMe(Resource):
         return {"meta":buildMeta(), "error":None, "data":None}
 
     @login_required
-    def delete(self, user_id):
-        app.logger.info("Deleting User #: " + user_id)
-        user = User.query.filter_by(id=user_id).first()
-        db_session.delete(user)
-        db_session.commit()
-
-        return {"meta":buildMeta(), "data": None}
+    def delete(self, user_id = None):
+        return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' an account! there are protocols!", "error": None}, 200
 
 api.add_resource(ApiMe, '/api/me', '/api/me/', '/api/me/<string:user_id>', '/api/me/', '/api/me/<string:user_id>')
 
@@ -897,64 +904,69 @@ class ApiBill(Resource):
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
+        if request_is_json():
+            app.logger.info('Updating bill based upon JSON Request')
+            app.logger.debug(json.dumps(request.get_json()))
+            data = request.get_json()
+            if data:
+                for key,value in data.iteritems():
+                    #app.logger.debug(key+'-'+str(value))
+                    if key == 'name':
+                        name = value
+                    if key == 'bill_id':
+                        bill_id = value
+                    if key == 'description':
+                        description = value
+                    elif key == 'due_date':
+                        due_date = value
+                    elif key == 'billing_period':
+                        billing_period = value
+                    elif key == 'total_due':
+                        total_due = value
+                    elif key == 'paid_flag':
+                        paid_flag = value
+                    elif key == 'paid_date':
+                        paid_date = value
+                    elif key == 'check_number':
+                        check_number = value
+                    elif key == 'payment_type':
+                        payment_type = value
+                    elif key == 'payment_type_ind':
+                        payment_type_ind = value
+                    elif key == 'payment_processing_flag':
+                        payment_processing_flag = value
+        elif request_is_form_urlencode():
+            app.logger.info('Updating bill #'+bill_id)
+            requestData = json.loads(request.form['data'])
+
+            name = requestData['name']
+            description = requestData['description']
+            due_date = requestData['due_date']
+            billing_period = requestData['billing_period']
+            total_due = requestData['total_due']
+            paid_flag = requestData['paid_flag']
+            paid_date = requestData['paid_date']
+            check_number = requestData['check_number']
+            payment_type = requestData['payment_type']
+            payment_type_ind = requestData['payment_type_ind']
+            payment_processing_flag = requestData['payment_processing_flag']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
+
+
         if bill_id is None:
             if request.args.get('bill_id') is not None:
                 bill_id = request.args.get('bill_id')
             else:
                 return {"meta":buildMeta(), "error":"No Bill ID Provided"}
 
-        bill = Bill.query.filter_by(id=bill_id).first()
-        bill.user_id = user.id
+        bill = Bill.query.filter_by(id=bill_id, user_id=user.id).first()
 
-        if bill is not None:
-            if request_is_json():
-                app.logger.info('Updating bill based upon JSON Request')
-                app.logger.debug(json.dumps(request.get_json()))
-                data = request.get_json()
-                if data:
-                    for key,value in data.iteritems():
-                        #app.logger.debug(key+'-'+str(value))
-                        if key == 'name':
-                            name = value
-                        if key == 'description':
-                            description = value
-                        elif key == 'due_date':
-                            due_date = value
-                        elif key == 'billing_period':
-                            billing_period = value
-                        elif key == 'total_due':
-                            total_due = value
-                        elif key == 'paid_flag':
-                            paid_flag = value
-                        elif key == 'paid_date':
-                            paid_date = value
-                        elif key == 'check_number':
-                            check_number = value
-                        elif key == 'payment_type':
-                            payment_type = value
-                        elif key == 'payment_type_ind':
-                            payment_type_ind = value
-                        elif key == 'payment_processing_flag':
-                            payment_processing_flag = value
-            elif request_is_form_urlencode():
-                app.logger.info('Updating bill #'+bill_id)
-                requestData = json.loads(request.form['data'])
+        if bill is None:
+            return {"meta":buildMeta(), "error":"Could not find bill", "data":None}
 
-                name = requestData['name']
-                description = requestData['description']
-                due_date = requestData['due_date']
-                billing_period = requestData['billing_period']
-                total_due = requestData['total_due']
-                paid_flag = requestData['paid_flag']
-                paid_date = requestData['paid_date']
-                check_number = requestData['check_number']
-                payment_type = requestData['payment_type']
-                payment_type_ind = requestData['payment_type_ind']
-                payment_processing_flag = requestData['payment_processing_flag']
-            else:
-                return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
-        else:
-            return {"meta":buildMeta(), "error":"Could not find bill id #"+id, "data":None}
 
         if name:
             bill.name = name
@@ -1065,8 +1077,10 @@ class ApiBill(Resource):
             payment_type = requestData['payment_type']
             payment_type_ind = requestData['payment_type_ind']
             payment_processing_flag = requestData['payment_processing_flag']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
 
 
@@ -1087,12 +1101,18 @@ class ApiBill(Resource):
         return {"meta":buildMeta(), 'data':newBill.serialize, "error":None}, 201
 
     @login_required
-    def delete(self, bill_id):
+    def delete(self, bill_id = None):
+
 
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
+
+
+        #TODO: LOOK FOR CONTENT_TYPE
+        if bill_id is None:
+            return {"meta":buildMeta(), "error":"Could not find bill"}, 202
 
 
         app.logger.info("Deleting Bill #: " + bill_id)
@@ -1135,7 +1155,7 @@ class ApiPaymentPlan(Resource):
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
 
         #TODO: BIND payment_plan with User ID based upon session
         if payment_plan_id is not None:
@@ -1161,7 +1181,7 @@ class ApiPaymentPlan(Resource):
             app.logger.info(payment_plan)
 
             if payment_plan is None:
-                return {"meta":buildMeta(), 'data':[]}
+                return {"meta":buildMeta(), 'data':[], "error":None}, 200
             else:
                 return jsonify(meta=buildMeta(), data=[payment_plan.serialize])
         else:
@@ -1176,9 +1196,9 @@ class ApiPaymentPlan(Resource):
                         db_session.add(newPaymentPlan)
                         db_session.commit()
                         payment_plan = newPaymentPlan.serialize
-                        return {"meta":buildMeta(), "data":payment_plan}
+                        return {"meta":buildMeta(), "data":payment_plan, "error":None}, 200
                     else:
-                        return {"meta":buildMeta(), "data":payment_plan.serialize}
+                        return {"meta":buildMeta(), "data":payment_plan.serialize, "error":None}, 200
                 #Get existing payment plans
                 else:
                     if bill_id is not None:
@@ -1194,9 +1214,12 @@ class ApiPaymentPlan(Resource):
             else:
                 payment_plans = [i.serialize for i in Payment_Plan.query.filter_by(user_id=user.id)]
 
-            return {"meta":buildMeta(), "data":payment_plans}
+            return {"meta":buildMeta(), "data":payment_plans, "error":None}, 200
 
-
+    @login_required
+    def post(self, payment_plan_id=None):
+        #TODO: MAKE A POST
+        return {"meta":buildMeta(), "data":None, "error":None}, 202
 
     @login_required
     def put(self, payment_plan_id=None):
@@ -1219,19 +1242,6 @@ class ApiPaymentPlan(Resource):
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
-        if payment_plan_id is None:
-            if request.args.get('payment_plan_id') is not None:
-                payment_plan_id = request.args.get('payment_plan_id')
-            else:
-                return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}
-
-        payment_plan = Payment_Plan.query.filter_by(id=payment_plan_id, user_id=user.id).first()
-        app.logger.info(payment_plan)
-
-        if payment_plan is None:
-            return {"meta":buildMeta(), 'error':'Could not find Payment Plan', 'data':[]}
-
-
         if request_is_json():
             app.logger.info('Updating Payment Plan based upon JSON Request')
             app.logger.debug(json.dumps(request.get_json()))
@@ -1241,6 +1251,8 @@ class ApiPaymentPlan(Resource):
                     #app.logger.debug(key+'-'+str(value))
                     if key == 'transfer_date':
                         transfer_date = value
+                    elif key == 'payment_plan_id':
+                        payment_plan_id = value
                     elif key == 'accepted_flag':
                         accepted_flag = value
                     elif key == 'payment_plan_items':
@@ -1253,15 +1265,28 @@ class ApiPaymentPlan(Resource):
             app.logger.info('Updating Payment Plan based upon form Request')
             requestData = json.loads(request.form['data'])
             if requestData is not None:
+                payment_plan_id = requestData['payment_plan_id']
                 transfer_date = requestData['transfer_date']
                 accepted_flag = requestData['accepted_flag']
                 payment_plan_items = requestData['payment_plan_items']
                 amount = requestData['amount']
             else:
                 return {"meta":buildMeta(), "error":"No form Data Sent"}
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
+        if payment_plan_id is None:
+            if request.args.get('payment_plan_id') is not None:
+                payment_plan_id = request.args.get('payment_plan_id')
+            else:
+                return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}, 202
+
+        payment_plan = Payment_Plan.query.filter_by(id=payment_plan_id, user_id=user.id).first()
+
+        if payment_plan is None:
+            return {"meta":buildMeta(), 'error':'Could not find Payment Plan', 'data':[]}, 200
 
         if amount is not None:
             payment_plan.amount = amount
@@ -1331,6 +1356,28 @@ class ApiPaymentPlan(Resource):
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan.serialize}
 
+
+    @login_required
+    def delete(self, payment_plan_id = None):
+
+        if 'username' in session:
+            user = User.query.filter_by(username=session['username']).first()
+        if user is None:
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+
+        #TODO: LOOK FOR CONTENT_TYPE
+        if payment_plan_id is None:
+            return {"meta":buildMeta(), "error":"Could not find payment plan"}, 202
+
+        app.logger.info("Deleting Payment Plan #: " + payment_plan_id)
+        bill = Payment_Plan.query.filter_by(id=payment_plan_id, user_id=user.id).first()
+        if bill is not None:
+            db_session.delete(bill)
+            db_session.commit()
+            return {"meta":buildMeta(), "data" : None}
+        else:
+            return {"meta":buildMeta(), "error":"Payment Plan #"+payment_plan_id+" Could not be found", "data" : None}
+
 api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/api/payment_plan/<string:payment_plan_id>')
 
 
@@ -1385,12 +1432,17 @@ class ApiPaymentPlanItem(Resource):
             else:
                 payment_plan_items = [i.serialize for i in Payment_Plan_Item.query.filter_by(user_id=user.id)]
 
-            return {"meta":buildMeta(), "data":payment_plan_items}
+            return {"meta":buildMeta(), "data":payment_plan_items, "error":None}, 200
 
+    @login_required
+    def post(self, payment_plan_item_id=None):
+        app.logger.debug('Accessing PaymentPlanItem.post')
+        #TODO: Build POST
+        return {"meta":buildMeta(), "data":None, "error":None}, 202
 
     @login_required
     def put(self, payment_plan_item_id=None):
-        app.logger.info('Accessing PaymentPlanItem.put')
+        app.logger.debug('Accessing PaymentPlanItem.put')
 
         #TODO: Handle update
         user_id = None
@@ -1402,6 +1454,31 @@ class ApiPaymentPlanItem(Resource):
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
+        if request_is_json():
+            app.logger.info('Updating Payment Plan Item based upon JSON Request')
+            app.logger.debug(json.dumps(request.get_json()))
+            data = request.get_json()
+            if data is not None:
+                for key,value in data.iteritems():
+                    #app.logger.debug(key+'-'+str(value))
+                    if key == 'amount':
+                        amount = value
+                    elif key == 'payment_plan_item_id':
+                        payment_plan_item_id = value
+            else:
+                return {"meta":buildMeta(), "error":"No JSON Data Sent"}
+        elif request_is_form_urlencode():
+            app.logger.info('Updating Payment Plan Item based upon form Request')
+            requestData = json.loads(request.form['data'])
+            if requestData is not None:
+                payment_plan_item_id = requestData['payment_plan_item_id']
+                amount = requestData['amount']
+            else:
+                return {"meta":buildMeta(), "error":"No form Data Sent"}
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
+        else:
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         if payment_plan_item_id is None:
             if request.args.get('payment_plan_item_id') is not None:
@@ -1414,30 +1491,6 @@ class ApiPaymentPlanItem(Resource):
 
         if payment_plan_item is None:
             return {"meta":buildMeta(), 'error':'Could not find Payment Plan Item', 'data':[]}
-
-
-
-
-        if request_is_json():
-            app.logger.info('Updating Payment Plan Item based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
-            data = request.get_json()
-            if data is not None:
-                for key,value in data.iteritems():
-                    #app.logger.debug(key+'-'+str(value))
-                    if key == 'amount':
-                        amount = value
-            else:
-                return {"meta":buildMeta(), "error":"No JSON Data Sent"}
-        elif request_is_form_urlencode():
-            app.logger.info('Updating Payment Plan Item based upon form Request')
-            requestData = json.loads(request.form['data'])
-            if requestData is not None:
-                amount = requestData['amount']
-            else:
-                return {"meta":buildMeta(), "error":"No form Data Sent"}
-        else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
 
         if amount is not None:
             payment_plan_item.amount = amount
@@ -1454,7 +1507,7 @@ class ApiPaymentPlanItem(Resource):
         if 'username' in session:
             user = User.query.filter_by(username=session['username']).first()
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
 
         if payment_plan_item_id is None:
             if bill_id is not None:
@@ -1465,16 +1518,18 @@ class ApiPaymentPlanItem(Resource):
                     bill.payment_processing_flag = False;
                     Payment_Plan_Item.query.filter_by(bill_id=bill_id).delete()
                     db_session.commit()
-                    return {"meta":buildMeta(), "data" : None}
+                    return {"meta":buildMeta(), "data" : None,  "error":None}, 200
                 else:
-                    return {"meta":buildMeta(), "error":"Bill #" + str(bill_id) + " Could not be found", "data" : None}
+                    return {"meta":buildMeta(), "error":"Bill #" + str(bill_id) + " Could not be found", "data" : None}, 202
+            else:
+                return {"meta":buildMeta(), "error":"Could not find payment plan item", "data": None}, 202
         else:
             payment_plan_item = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
             if payment_plan_item is not None:
                 app.logger.info("Deleting Payment_plan_item #" + str(payment_plan_item_id))
                 db_session.delete(payment_plan_item)
                 db_session.commit()
-                return {"meta":buildMeta(), "data" : None}
+                return {"meta":buildMeta(), "data" : None, "error":None}, 200
             else:
                 return {"meta":buildMeta(), "error":"Payment Plan Item #" + str(payment_plan_item_id) + " Could not be found", "data" : None}
 
@@ -1514,15 +1569,14 @@ class ApiFeedback(Resource):
         if feedbackId is not None:
             app.logger.info("looking for feedback:" + feedbackId)
             feedback = Feedback.query.filter_by(id=feedbackId).first()
-            app.logger.info(feedback)
+            app.logger.debug(feedback)
 
             if feedback is None:
-                return {"meta":buildMeta(), 'data':[]}
+                return {"meta":buildMeta(), 'data':[], "error":None}, 200
             else:
-                return jsonify(meta=buildMeta(), data=[feedback.serialize])
+                return {"meta":buildMeta(), 'data':[feedback.serialize], "error":None}, 200
         else:
-            feedbacks = [i.serialize for i in Bill.query.all()]
-            return {"meta":buildMeta(), "data":feedbacks}
+            return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.all()], "error":None}, 202
 
     @login_required
     def post(self, feedback_id=None):
@@ -1558,8 +1612,10 @@ class ApiFeedback(Resource):
             requestData = json.loads(request.form['data'])
             rating = requestData['rating']
             feedback = requestData['feedback']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         if rating is not None and feedback is not None:
             newFeedback = Feedback(user_id=user_id, rating=int(rating), feedback=feedback)
@@ -1575,6 +1631,20 @@ class ApiFeedback(Resource):
             return {"meta":buildMeta(), 'data':newFeedback.serialize}, 201
         else:
             return {"meta":buildMeta(), 'error':'No feedback was provided'}, 201
+
+    @login_required
+    def put(self, payment_plan_item_id=None):
+        app.logger.debug('Accessing Feedback.put')
+        #TODO: Build PUT
+        return {"meta":buildMeta(), "data":None, "error":None}, 202
+
+    @login_required
+    def delete(self, payment_plan_item_id=None):
+        app.logger.debug('Accessing Feedback.delete')
+        #TODO: Build PUT
+        return {"meta":buildMeta(), "data":None, "error":None}, 202
+
+
 
 api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/<string:feedback_id>')
 
@@ -1594,7 +1664,7 @@ class ApiConfirmEmail(Resource):
 
     @login_required
     def get(self):
-        return {"meta":buildMeta(), "error":None, "data":None}
+        return {"meta":buildMeta(), "error":None, "data":None}, 202
 
     #The PUT method is used to actually confirm the login email
     @login_required
@@ -1608,7 +1678,7 @@ class ApiConfirmEmail(Resource):
             user = User.query.filter_by(username=session['username']).first()
 
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}
+            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
         else:
             user_id = user.id;
 
@@ -1625,8 +1695,10 @@ class ApiConfirmEmail(Resource):
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             email_token = requestData['email_token']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         if email_token is not None and email_token == user.confirm_token:
             app.logger.info('correct token provided, activating account')
@@ -1665,7 +1737,12 @@ class ApiConfirmEmail(Resource):
             send_email_confirmation_email(user.first_name, user.last_name, user.email, confirm_token)
             return {"meta":buildMeta(), 'data':[user.serialize], 'error':None}, 201
         else:
-            return {"meta":buildMeta(), "error":"User has already confirmed email"}
+            return {"meta":buildMeta(), "error":"User has already confirmed email"}, 200
+
+    @login_required
+    def delete(self, user_id = None):
+        return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a confirmaion email! there are protocols!", "error": None}, 200
+
 
 api.add_resource(ApiConfirmEmail, '/api/confirm_email', '/api/confirm_email/', '/api/confirm_email/<string:token>')
 
@@ -1683,9 +1760,8 @@ api.add_resource(ApiConfirmEmail, '/api/confirm_email', '/api/confirm_email/', '
 
 class ApiPasswordRecovery(Resource):
 
-    @login_required
     def get(self):
-        return {"meta":buildMeta(), "error":None, "data":None}
+        return {"meta":buildMeta(), "error":None, "data":None}, 200
 
     #The PUT method is used to actually change the password
     def put(self, email_address=None):
@@ -1717,8 +1793,10 @@ class ApiPasswordRecovery(Resource):
             new_password = requestData['new_password']
             confirm_new_password = requestData['confirm_new_password']
             data_email_address = requestData['email_address']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
 
 
@@ -1783,8 +1861,10 @@ class ApiPasswordRecovery(Resource):
             app.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             data_email_address = requestData['email_address']
+        elif request.content_type is None or not request.content_type:
+            return {"meta":buildMeta(), "error":"Unable to process, no content type was provided", "data":None}, 202
         else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
+            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
 
 
@@ -1811,7 +1891,12 @@ class ApiPasswordRecovery(Resource):
         send_password_recovery_email(user)
         return {"meta":buildMeta(), 'data':None}, 201
 
-api.add_resource(ApiPasswordRecovery, '/api/recover_password', '/api/recover_password/<string:email_address>')
+    @login_required
+    def delete(self, user_id = None):
+        return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a password confirmation! there are protocols!", "error": None}, 200
+
+
+api.add_resource(ApiPasswordRecovery, '/api/recover_password', '/api/recover_password/', '/api/recover_password/<string:email_address>')
 
 
 

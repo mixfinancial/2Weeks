@@ -226,75 +226,409 @@ class FlaskrTestCase(unittest.TestCase):
         data = json.loads(rv.data)
         assert data['error'] is None
 
-    def test_api_all_get_login_required(self):
+    def test_api_me_endpoints(self):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
-
         rv = self.app.get('/api/me')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        #THIS SHOULD BE ACCESSIBLE AS IT IS THE REGISTER ACTION
+        rv = self.app.post('/api/me')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/me')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/me')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/me')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/me')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/me')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/me')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        self.logout()
+
+    def test_api_bill_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/bill')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        rv = self.app.post('/api/bill')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.put('/api/bill')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/bill')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/bill')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/bill')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/bill')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/bill')
+        data = json.loads(rv.data)
+        assert 'Could not find bill' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        self.logout()
+
+    def test_api_payment_plan_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/payment_plan')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        rv = self.app.post('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.put('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/payment_plan')
+        data = json.loads(rv.data)
+        assert 'Could not find payment plan' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        self.logout()
+
+    def test_api_payment_plan_item_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/payment_plan_item')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        rv = self.app.post('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.put('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/payment_plan_item')
+        data = json.loads(rv.data)
+        assert 'Could not find payment plan item' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        self.logout()
+
+    def test_api_feedback_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/feedback')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        rv = self.app.post('/api/feedback')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.put('/api/feedback')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/feedback')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/feedback')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.post('/api/feedback')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/feedback')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/feedback')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        self.logout()
+
+    def test_api_confirm_email_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/confirm_email')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
-        rv = self.app.get('/api/recover_password')
+        rv = self.app.post('/api/confirm_email')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        rv = self.app.put('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.post('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert 'User has already confirmed email' == data['error']
+        assert '200 OK' == rv.status
+
+        rv = self.app.put('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/confirm_email')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        self.logout()
+
+    def test_api_recover_password_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
+        rv = self.app.get('/api/recover_password')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/recover_password')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/recover_password')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/recover_password')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/recover_password')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        rv = self.app.post('/api/recover_password')
+        data = json.loads(rv.data)
+        print data['error']
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.put('/api/recover_password')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        rv = self.app.delete('/api/recover_password')
+        data = json.loads(rv.data)
+        assert data['error'] is None
+        assert '200 OK' == rv.status
+
+        self.logout()
+
+    def test_api_login_check_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/login_check')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
-        rv = self.app.get('/api/login')
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/login_check')
         data = json.loads(rv.data)
         assert data['error'] is None
         assert '200 OK' == rv.status
 
-        rv = self.app.get('/api/logout')
-        data = json.loads(rv.data)
-        assert data['error'] is None
-        assert '200 OK' == rv.status
+        self.logout()
 
+    def test_api_me_endpoints(self):
+        #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/user')
         data = json.loads(rv.data)
         assert 'User is not authenticated, please login' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
+        #THIS SHOULD BE ACCESSIBLE AS IT IS THE REGISTER ACTION
+        rv = self.app.post('/api/user')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
 
-        #NOW WE TEST LOGGING IN
-        rv = self.login(self.get_default_test_username(), self.get_default_test_password())
-        rv = self.app.get('/api/me')
+        rv = self.app.put('/api/user')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+        rv = self.app.delete('/api/user')
+        data = json.loads(rv.data)
+        assert 'User is not authenticated, please login' == data['error']
+        assert '401 UNAUTHORIZED' == rv.status
+
+
+        #NOW WE TEST WHEN LOGGED IN
+        self.login(self.get_default_test_username(), self.get_default_test_password())
+
+        rv = self.app.get('/api/user')
         data = json.loads(rv.data)
         assert data['error'] is None
         assert '200 OK' == rv.status
 
+        rv = self.app.post('/api/user')
+        data = json.loads(rv.data)
+        assert 'Unable to process, no content type was provided' == data['error']
+        assert '202 ACCEPTED' == rv.status
 
-        rv = self.logout()
+        rv = self.app.put('/api/user')
+        data = json.loads(rv.data)
+        assert 'Could not find user' == data['error']
+        assert '202 ACCEPTED' == rv.status
 
+        rv = self.app.delete('/api/user')
+        data = json.loads(rv.data)
+        assert 'User ID is Required' == data['error']
+        assert '202 ACCEPTED' == rv.status
+
+        self.logout()
 
     def test_api_me_post_success(self):
         email = random_email_generator()
