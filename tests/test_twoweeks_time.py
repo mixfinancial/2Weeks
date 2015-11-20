@@ -177,7 +177,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_me_post(self):
         self.login(self.get_default_test_username(), self.get_default_test_password())
-        benchmark = 0.0121948369344
+        benchmark = 0.012
 
         y = 100
 
@@ -211,7 +211,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_api_bill_post(self):
         self.login(self.get_default_test_username(), self.get_default_test_password())
-        benchmark = 0.0115210827192
+        benchmark = 0.015
 
         y = 100
 

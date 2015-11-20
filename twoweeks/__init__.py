@@ -832,7 +832,7 @@ class ApiBill(Resource):
         billId = None
         paid_flag = None
         funded_flag = None
-
+        newDict = {}
 
         if 'username' in session:
             user=User.query.filter_by(username=session['username']).first()
@@ -851,17 +851,21 @@ class ApiBill(Resource):
             if request.args.get('paid_flag').upper() == 'TRUE':
                 app.logger.info('paid flag is TRUE')
                 paid_flag = True
+                newDict['paid_flag'] = True
             elif request.args.get('paid_flag').upper() == 'FALSE':
                 app.logger.info('paid flag is FALSE')
                 paid_flag = False
+                newDict['paid_flag'] = False
 
         if request.args.get('funded_flag') is not None:
             if request.args.get('funded_flag').upper() == 'TRUE':
                 app.logger.info('funded flag is TRUE')
                 funded_flag = True
+                newDict['funded_flag'] = True
             elif request.args.get('funded_flag').upper() == 'FALSE':
                 app.logger.info('funded flag is FALSE')
                 funded_flag = False
+                newDict['funded_flag'] = False
 
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
@@ -873,15 +877,9 @@ class ApiBill(Resource):
             else:
                 return jsonify(meta=buildMeta(), data=[bill.serialize], error=None)
         else:
-            if paid_flag is not None and funded_flag is not None:
-                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag, funded_flag=funded_flag)]
-            elif paid_flag is not None:
-                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, paid_flag=paid_flag)]
-            elif funded_flag is not None:
-                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id, funded_flag=funded_flag)]
-            else:
-                bills = [i.serialize for i in Bill.query.filter_by(user_id=user.id)]
-            return {"meta":buildMeta(), "data":bills, "error":None}
+
+            print request.args
+            return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.filter_by(**newDict).all()], "error":None}
 
 
 
@@ -1696,6 +1694,7 @@ class ApiConfirmEmail(Resource):
             app.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
+
                 for key,value in data.iteritems():
                     #app.logger.debug(key+'-'+str(value))
                     if key == 'email_token':
@@ -1942,9 +1941,6 @@ def request_is_form_urlencode():
         return True;
     else:
         return False
-
-
-
 
 
 

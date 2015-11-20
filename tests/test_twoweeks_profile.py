@@ -176,7 +176,7 @@ class FlaskrTestCase(unittest.TestCase):
         return self.app.get('/api/logout', follow_redirects=True)
 
 
-    @unittest.skip("testing skipping")
+    #@unittest.skip("testing skipping")
     def test_api_me_post_success(self):
         self.login(self.get_default_test_username(), self.get_default_test_password())
 
@@ -193,9 +193,6 @@ class FlaskrTestCase(unittest.TestCase):
         p.print_stats ()
 
         self.logout()
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

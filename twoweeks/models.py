@@ -136,7 +136,6 @@ class User(Base, UserMixin):
     #NOTE: THIS IS ACTUALLY THE EXPIRATION DATE
     password_recovery_date = Column(DateTime())
 
-
     role_id = Column(Integer, ForeignKey('role.id'))
     account_balance_amount = Column(Float(2), default=0);
     next_pay_date = Column(DateTime(120), default=datetime.utcnow)
