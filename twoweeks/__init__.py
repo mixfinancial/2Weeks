@@ -93,109 +93,24 @@ def send_email(subject, recipients, text_body=None, html_body=None):
 app.permanent_session_lifetime = timedelta(minutes=config.PERMANENT_SESSION_LIFETIME)
 from werkzeug.security import generate_password_hash
 
-from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user, login_required
 import base64
-from flask_httpauth import HTTPBasicAuth
 
+from flask_jwt import JWT, jwt_required, current_identity
+from werkzeug.security import safe_str_cmp
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-auth = HTTPBasicAuth()
+def authenticate(username, password):
+    app.logger.debug("Attempting to authenticate "+username+":"+password)
+    user = User.query.filter_by(username = username).first()
+    if user is None:
+        app.logger.debug("Could not find user")
+    if user.verify_password(password):
+        return user
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.filter_by(id = user_id).first()
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.get(user_id)
 
-
-@app.route('/login')
-def login():
-    return '''
-        <form action="/login/check" method="post">
-            <p>Username: <input name="username" type="text"></p>
-            <p>Password: <input name="password" type="password"></p>
-            <input type="submit">
-        </form>
-    '''
-
-
-
-class ApiLoginCheck(Resource):
-    @auth.login_required
-    def get(self):
-        user = None
-        if 'username' in session and session['username'] is not '':
-            user=User.query.filter_by(username=session['username']).first()
-            if user:
-                return {"meta":buildMeta(), "error": None, "data":[user.serialize]}, 200
-            else:
-                return {"meta":buildMeta(), "error":"No Session Found for '"+session['username']+"'", "data":None}, 401
-        else:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
-
-api.add_resource(ApiLoginCheck, '/api/login_check', '/api/login_check/')
-
-
-@auth.hash_password
-def hash_pw(password):
-    return generate_password_hash(password)
-
-
-@auth.verify_password
-def verify_password(username_or_token, password):
-    app.logger.debug("Starting verify_password")
-    # first try to authenticate by token
-    user = User.verify_auth_token(username_or_token)
-    if not user:
-        app.logger.debug("Could not find token: "+username_or_token+"")
-        # try to authenticate with username/password
-        user = User.query.filter_by(username = username_or_token).first()
-        if user is None or not user:
-            app.logger.debug("Could not find user: "+username_or_token+"")
-            return False
-        if not user.verify_password(password):
-            app.logger.debug("Could not verify password "+password+" for : "+username_or_token+"")
-            return False
-    app.logger.debug("User found. setting g.user to '"+user.username+"'")
-    g.user = user
-    return True
-
-@auth.error_handler
-def unauthorized():
-    response = jsonify({'meta':buildMeta(), 'status': 401, 'error': 'User is not authenticated, please login', 'message': 'Please authenticate to access this API.', 'data':None})
-    response.status_code = 401
-    return response
-
-class get_auth_token(Resource):
-    @auth.login_required
-    def get(self):
-        app.logger.debug("Starting get_auth_token")
-        token = g.user.generate_auth_token()
-        app.logger.debug(token)
-        return {"meta":buildMeta(), 'data': {'token': token.decode('ascii')}, 'error':None}, 200
-api.add_resource(get_auth_token, '/api/token', '/api/token/')
-
-
-# Unauthorized_handler is the action that is performed if user is not authenticated
-@login_manager.unauthorized_handler
-def unauthorized_callback():
-    app.logger.debug("Starting unauthorized_callback")
-    if '/api' in str(request):
-        return {"meta":buildMeta(), "error":"User is not authenticated, please login", "data":None}
-    elif '/admin' in str(request):
-        return redirect('/admin/#/login')
-    else:
-        theURL = str(request.url)
-        app.logger.info('theURL: ' + theURL)
-        if "?" in theURL:
-            urlParams = theURL[theURL.index('?'):len(theURL)]
-            if urlParams is not None:
-                app.logger.info('urlParams: ' + urlParams)
-                return redirect('/#/'+urlParams+'&auth_check=true')
-            else:
-                return redirect('/#/login/')
-        else:
-            return redirect('/#/login/')
-
+jwt = JWT(app, authenticate, identity)
 
 
 
@@ -209,7 +124,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/home/')
-@auth.login_required
+@jwt_required()
 def home():
     return render_template('home.html')
 
@@ -219,22 +134,19 @@ def adminLogin():
 
 
 @app.route('/admin/home/')
-@auth.login_required
+@jwt_required()
 def adminHome():
     return render_template('admin.html')
-
 
 @app.route( '/logout')
 def logout():
     session['username']= ''
     session['token']= ''
-    logout_user()
     return redirect(url_for('/'))
 
 @app.route('/adminLogout')
 def adminLogout():
     session['username']= ''
-    logout_user()
     return redirect(url_for('/admin/'))
 
 
@@ -247,7 +159,7 @@ def adminLogout():
 
 #USERS
 class ApiUser(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, user_id=None):
         userID = None;
 
@@ -268,7 +180,7 @@ class ApiUser(Resource):
         else:
             return {"meta":buildMeta(), "data":[i.serialize for i in User.query.all()], "error":None}, 200
 
-    @auth.login_required
+    @jwt_required()
     def put(self, user_id=None):
         app.logger.debug('Accessing User.put')
         id = ''
@@ -334,7 +246,7 @@ class ApiUser(Resource):
         return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id, "data": None}
 
 
-    @auth.login_required
+    @jwt_required()
     def post(self, user_id=None):
         app.logger.debug('Accessing User.post')
 
@@ -390,7 +302,7 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta()}
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, user_id = None):
 
         if user_id is None:
@@ -428,7 +340,7 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 
 # the ME API covers the logged in user.
 class ApiMe(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, user_id=None):
         user = None
 
@@ -447,7 +359,7 @@ class ApiMe(Resource):
     ####################
     # EDIT USER ACTION #
     ####################
-    @auth.login_required
+    @jwt_required()
     def put(self, user_id=None):
         app.logger.debug('Accessing User.put')
         id = ''
@@ -695,12 +607,11 @@ class ApiMe(Resource):
 
         send_email_confirmation_email(first_name, last_name, email, confirm_token)
 
-        login_user(newUser)
         session['username']=email
 
         return {"meta":buildMeta(), "error":None, "data":None}
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' an account! there are protocols!", "error": None}, 200
 
@@ -724,7 +635,7 @@ api.add_resource(ApiMe, '/api/me', '/api/me/', '/api/me/<string:user_id>', '/api
 ############
 
 class ApiBill(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, bill_id=None):
         billId = None
         paid_flag = None
@@ -782,7 +693,7 @@ class ApiBill(Resource):
 
 
 
-    @auth.login_required
+    @jwt_required()
     def put(self, bill_id=None):
         app.logger.debug('Accessing Bill.put')
 
@@ -910,7 +821,7 @@ class ApiBill(Resource):
 
 
 
-    @auth.login_required
+    @jwt_required()
     def post(self, bill_id=None):
         app.logger.debug('Accessing Bill.post')
 
@@ -1004,7 +915,7 @@ class ApiBill(Resource):
 
         return {"meta":buildMeta(), 'data':newBill.serialize, "error":None}, 201
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, bill_id = None):
 
         if g.user is not None:
@@ -1048,7 +959,7 @@ api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>
 ####################
 
 class ApiPaymentPlan(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, payment_plan_id=None):
         paymentPlanId = None
         accepted_flag = None
@@ -1118,12 +1029,12 @@ class ApiPaymentPlan(Resource):
 
             return {"meta":buildMeta(), "data":payment_plans, "error":None}, 200
 
-    @auth.login_required
+    @jwt_required()
     def post(self, payment_plan_id=None):
         #TODO: MAKE A POST
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @auth.login_required
+    @jwt_required()
     def put(self, payment_plan_id=None):
         app.logger.debug('Accessing PaymentPlan.put')
 
@@ -1259,7 +1170,7 @@ class ApiPaymentPlan(Resource):
         return {"meta":buildMeta(), "data":payment_plan.serialize}
 
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, payment_plan_id = None):
 
         if g.user is not None:
@@ -1302,7 +1213,7 @@ api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/ap
 #########################
 
 class ApiPaymentPlanItem(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, payment_plan_item_id=None):
         payment_plan_item_id = None
         payment_plan_id = None
@@ -1336,13 +1247,13 @@ class ApiPaymentPlanItem(Resource):
 
             return {"meta":buildMeta(), "data":payment_plan_items, "error":None}, 200
 
-    @auth.login_required
+    @jwt_required()
     def post(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.post')
         #TODO: Build POST
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @auth.login_required
+    @jwt_required()
     def put(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.put')
 
@@ -1401,7 +1312,7 @@ class ApiPaymentPlanItem(Resource):
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan_item.serialize}
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.delete')
         bill_id = request.args.get('bill_id')
@@ -1459,7 +1370,7 @@ api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_pla
 ################
 
 class ApiFeedback(Resource):
-    @auth.login_required
+    @jwt_required()
     def get(self, feedback_id=None):
         feedbackId = None;
 
@@ -1480,7 +1391,7 @@ class ApiFeedback(Resource):
         else:
             return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.all()], "error":None}, 202
 
-    @auth.login_required
+    @jwt_required()
     def post(self, feedback_id=None):
         app.logger.debug('Accessing Feedback.post')
 
@@ -1533,13 +1444,13 @@ class ApiFeedback(Resource):
         else:
             return {"meta":buildMeta(), 'error':'No feedback was provided'}, 201
 
-    @auth.login_required
+    @jwt_required()
     def put(self, payment_plan_item_id=None):
         app.logger.debug('Accessing Feedback.put')
         #TODO: Build PUT
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, payment_plan_item_id=None):
         app.logger.debug('Accessing Feedback.delete')
         #TODO: Build PUT
@@ -1563,12 +1474,12 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 
 class ApiConfirmEmail(Resource):
 
-    @auth.login_required
+    @jwt_required()
     def get(self):
         return {"meta":buildMeta(), "error":None, "data":None}, 202
 
     #The PUT method is used to actually confirm the login email
-    @auth.login_required
+    @jwt_required()
     def put(self, email_token=None):
         app.logger.debug('Accessing ConfirmEmail.put')
 
@@ -1614,7 +1525,7 @@ class ApiConfirmEmail(Resource):
 
     #The POST method is used to send new confirmation emails
     #it creates a new token and sends it to the user
-    @auth.login_required
+    @jwt_required()
     def post(self, user_id=None):
         app.logger.debug('Accessing ConfirmEmail.post')
 
@@ -1639,7 +1550,7 @@ class ApiConfirmEmail(Resource):
         else:
             return {"meta":buildMeta(), "error":"User has already confirmed email"}, 200
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a confirmaion email! there are protocols!", "error": None}, 200
 
@@ -1791,7 +1702,7 @@ class ApiPasswordRecovery(Resource):
         send_password_recovery_email(user)
         return {"meta":buildMeta(), 'data':None}, 201
 
-    @auth.login_required
+    @jwt_required()
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a password confirmation! there are protocols!", "error": None}, 200
 

@@ -8,6 +8,7 @@ Flask-login
 Flask-Mail
 Flask-RESTful
 Flask-Testing
+Flask-JWT
 pylint
 selenium
 werkzeug
