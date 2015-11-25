@@ -1,4 +1,6 @@
 import json, string, random, unittest
+from datetime import datetime, timedelta
+import base64
 
 DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
@@ -25,7 +27,7 @@ def random_name_generator():
     return random_string_generator(alphabet, 12)
 
 def random_email_generator():
-    alphabet = DEFAULT_ALPHABET_ALPHANUMERIC+"!#$%&'*+-/=?^_`{|}~"
+    alphabet = DEFAULT_ALPHABET_ALPHANUMERIC+"#$&*+-/^_{|}~"
     return random_string_generator(alphabet, 12)+str('@mixfin.com')
 
 def random_number_generator(max=None):
@@ -46,4 +48,20 @@ def dump_date(value):
 def percent_difference(baseValue, compareValue):
     return (float(compareValue - baseValue) / baseValue)*100
 
+def buildHeaders(username, password = None):
+    if password is None:
+        password = 'unknown'
+    return {'authorization': "Basic "+base64.encodestring('%s:%s' % (username, password)).replace('\n', '')}
 
+class testSupport:
+    default_user_id = None
+    default_test_password = None
+    default_test_name = None
+    default_test_username = None
+    default_test_date = None
+
+    def __init__(self):
+        self.default_test_password = random_password_generator()
+        self.default_test_name = "~~~" + random_name_generator() + "~~~"
+        self.default_test_username = random_email_generator()
+        self.default_test_date = datetime.utcnow()

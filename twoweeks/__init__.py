@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify, abort, g , flash, ur
 import twoweeks.config as config
 from datetime import timedelta
 from twoweeks.token import generate_confirmation_token, confirm_token
-
+from flask.views import MethodView
 
 ######################
 # BASE CONFIGURATION #
@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.debug = config.DEBUG
 app.config["SECRET_KEY"] = config.SECRET_KEY
 app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
-
+app.config['WTF_CSRF_ENABLED'] = False
 
 # API CONFIG
 from flask_restful import Resource, Api
@@ -95,10 +95,12 @@ from werkzeug.security import generate_password_hash
 
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user, login_required
 import base64
+from flask_httpauth import HTTPBasicAuth
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
+auth = HTTPBasicAuth()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -116,27 +118,9 @@ def login():
     '''
 
 
-@app.route('/login/check', methods=['post'])
-def login_check():
-    app.logger.info('User:' + request.form['username'] + ' attempting to login')
-    # validate username and password
-    if (request.form['username'] is not None and request.form['password'] is not None):
-        user = User.query.filter_by(username = request.form['username']).first()
-        app.logger.info(user.id);
-        if (user is not None and user.verify_password(request.form['password'])):
-            app.logger.info('User '+user.username+' is already logged in')
-            login_user(user)
-        else:
-            app.logger.info('Username or password incorrect')
-    else:
-        app.logger.info('Please provide a username and password')
 
-    return redirect(url_for('home'))
-
-
-#APILOGIN
 class ApiLoginCheck(Resource):
-    @login_required
+    @auth.login_required
     def get(self):
         user = None
         if 'username' in session and session['username'] is not '':
@@ -151,139 +135,52 @@ class ApiLoginCheck(Resource):
 api.add_resource(ApiLoginCheck, '/api/login_check', '/api/login_check/')
 
 
+@auth.hash_password
+def hash_pw(password):
+    return generate_password_hash(password)
 
 
+@auth.verify_password
+def verify_password(username_or_token, password):
+    app.logger.debug("Starting verify_password")
+    # first try to authenticate by token
+    user = User.verify_auth_token(username_or_token)
+    if not user:
+        app.logger.debug("Could not find token: "+username_or_token+"")
+        # try to authenticate with username/password
+        user = User.query.filter_by(username = username_or_token).first()
+        if user is None or not user:
+            app.logger.debug("Could not find user: "+username_or_token+"")
+            return False
+        if not user.verify_password(password):
+            app.logger.debug("Could not verify password "+password+" for : "+username_or_token+"")
+            return False
+    app.logger.debug("User found. setting g.user to '"+user.username+"'")
+    g.user = user
+    return True
 
+@auth.error_handler
+def unauthorized():
+    response = jsonify({'meta':buildMeta(), 'status': 401, 'error': 'User is not authenticated, please login', 'message': 'Please authenticate to access this API.', 'data':None})
+    response.status_code = 401
+    return response
 
-
-
-@app.route('/logout')
-def logout():
-    session['username']= ''
-    logout_user()
-    return redirect(url_for('/'))
-
-
-@app.route('/adminLogout')
-def adminLogout():
-    session['username']= ''
-    logout_user()
-    return redirect(url_for('/admin/'))
-
-
-
-
-#APILOGIN
-class ApiLogin(Resource):
+class get_auth_token(Resource):
+    @auth.login_required
     def get(self):
-        return {"meta":buildMeta(), "error":None, "data":None}, 200
-
-    def post(self):
-        #app.logger.info('Attempting to login user')
-        username = None
-        password = None
-        #app.logger.info(str(request.content_type))
-        if request_is_json():
-            data = request.get_json()
-            #app.logger.debug(request.data)
-            for key,value in data.iteritems():
-                #app.logger.debug(key+'-'+value)
-                if key == 'username':
-                    username = value
-                if key == 'password':
-                    password = value
-        elif request_is_form_urlencode():
-            requestData = json.loads(request.form['data'])
-            username = requestData['email']
-            password = requestData['password']
-        else:
-            return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type)}
-
-
-        # validate username and password
-        if (username is not None and password is not None):
-            user = User.query.filter_by(username = username).first()
-            if user is None:
-                app.logger.debug('User Not Found')
-            if (user is not None and user.verify_password(password)):
-                app.logger.info('Successfully logged in as '+username)
-                login_user(user)
-                session['username']=username
-                return {"meta":buildMeta(), "data": None, "error":None}, 200
-            elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
-                app.logger.info('Attempting to login as root user')
-                user = User.query.filter_by(username = username).first()
-                if (user is None):
-                    app.logger.info('No root user found, creating '+ config.ADMIN_USERNAME)
-                    newUser = User(username=config.ADMIN_USERNAME, password=config.ADMIN_PASSWORD, email=config.ADMIN_EMAIL, first_name='Admin', last_name='Admin')
-                    db_session.add(newUser)
-                    db_session.commit()
-                    login_user(newUser)
-                    session['username']=username
-                    return {"meta":buildMeta(), "data": None, "error":None}, 200
-                else:
-                    app.logger.info('Successfully logged in as '+username)
-                    login_user(user)
-                    session['username']=username
-                    return {"meta":buildMeta(), "data": None, "error":None}, 200
-            else:
-                app.logger.info('User is None or Password did not verify')
-                return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}, 403
-        else:
-            app.logger.info('Please provide a username and password')
-            return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}, 403
-
-
-        return {"meta":buildMeta(), "error":None, "data":None}, 201
-
-api.add_resource(ApiLogin, '/api/login')
-
-
-
-
-#APILOGOUT
-class ApiLogout(Resource):
-    def get(self):
-        logout_user()
-        session['username']= ''
-        return {"meta":buildMeta(), "error":None, "data": None}, 200
-api.add_resource(ApiLogout, '/api/logout', '/api/logout/')
-
-
-
-@login_manager.request_loader
-def load_user_from_request(request):
-    # first, try to login using the api_key url arg
-    api_key = request.args.get('api_key')
-    if api_key:
-        user = User.query.filter_by(api_key=api_key).first()
-        if user:
-            return user
-
-    # next, try to login using Basic Auth
-    api_key = request.headers.get('Authorization')
-    if api_key:
-        api_key = api_key.replace('Basic ', '', 1)
-        try:
-            api_key = base64.b64decode(api_key)
-        except TypeError:
-            pass
-        user = User.query.filter_by(api_key=api_key).first()
-        if user:
-            return user
-
-    # finally, return None if both methods did not login the user
-    return None
-
-
+        app.logger.debug("Starting get_auth_token")
+        token = g.user.generate_auth_token()
+        app.logger.debug(token)
+        return {"meta":buildMeta(), 'data': {'token': token.decode('ascii')}, 'error':None}, 200
+api.add_resource(get_auth_token, '/api/token', '/api/token/')
 
 
 # Unauthorized_handler is the action that is performed if user is not authenticated
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    app.logger.info(request)
+    app.logger.debug("Starting unauthorized_callback")
     if '/api' in str(request):
-        return {"meta":buildMeta(), "error":"User is not authenticated, please login", "data":None}, 401
+        return {"meta":buildMeta(), "error":"User is not authenticated, please login", "data":None}
     elif '/admin' in str(request):
         return redirect('/admin/#/login')
     else:
@@ -302,17 +199,6 @@ def unauthorized_callback():
 
 
 
-@app.route('/api/token')
-@login_required
-def get_auth_token():
-    token = g.user.generate_auth_token()
-    return jsonify({ 'token': token.decode('ascii') })
-
-
-
-
-
-
 ###############
 # Base Routes #
 ###############
@@ -323,7 +209,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/home/')
-@login_required
+@auth.login_required
 def home():
     return render_template('home.html')
 
@@ -333,11 +219,23 @@ def adminLogin():
 
 
 @app.route('/admin/home/')
-@login_required
+@auth.login_required
 def adminHome():
     return render_template('admin.html')
 
 
+@app.route( '/logout')
+def logout():
+    session['username']= ''
+    session['token']= ''
+    logout_user()
+    return redirect(url_for('/'))
+
+@app.route('/adminLogout')
+def adminLogout():
+    session['username']= ''
+    logout_user()
+    return redirect(url_for('/admin/'))
 
 
 
@@ -349,7 +247,7 @@ def adminHome():
 
 #USERS
 class ApiUser(Resource):
-    @login_required
+    @auth.login_required
     def get(self, user_id=None):
         userID = None;
 
@@ -370,7 +268,7 @@ class ApiUser(Resource):
         else:
             return {"meta":buildMeta(), "data":[i.serialize for i in User.query.all()], "error":None}, 200
 
-    @login_required
+    @auth.login_required
     def put(self, user_id=None):
         app.logger.debug('Accessing User.put')
         id = ''
@@ -436,7 +334,7 @@ class ApiUser(Resource):
         return {"meta":buildMeta(), "data": "Updated Record with ID " + user_id, "data": None}
 
 
-    @login_required
+    @auth.login_required
     def post(self, user_id=None):
         app.logger.debug('Accessing User.post')
 
@@ -492,7 +390,7 @@ class ApiUser(Resource):
 
         return {"meta":buildMeta()}
 
-    @login_required
+    @auth.login_required
     def delete(self, user_id = None):
 
         if user_id is None:
@@ -530,12 +428,12 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 
 # the ME API covers the logged in user.
 class ApiMe(Resource):
-    @login_required
+    @auth.login_required
     def get(self, user_id=None):
         user = None
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -549,7 +447,7 @@ class ApiMe(Resource):
     ####################
     # EDIT USER ACTION #
     ####################
-    @login_required
+    @auth.login_required
     def put(self, user_id=None):
         app.logger.debug('Accessing User.put')
         id = ''
@@ -567,9 +465,8 @@ class ApiMe(Resource):
         next_pay_date = None
         pay_recurrance_flag = None
 
-
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -648,7 +545,7 @@ class ApiMe(Resource):
         if current_password and new_password and confirm_new_password:
             app.logger.info('Current Password:'+user.password+', Proposed Password:'+generate_password_hash(new_password))
             if new_password == confirm_new_password and user.verify_password(current_password) and current_password != new_password:
-                app.logger.info("Everything checks out, creating new password")
+                app.logger.info("Everything checks out, setting new password")
                 user.password = generate_password_hash(new_password)
             elif current_password == new_password:
                 app.logger.info("Your new password must be different than your own password")
@@ -777,7 +674,7 @@ class ApiMe(Resource):
         if email != confirm_email:
             return {"meta":buildMeta(), "error":"Email and confirmation email do not match", "data": None}
 
-
+        app.logger.debug("Creating account for user "+ str(username))
         if User.query.filter_by(username = username).first() is not None:
             return {"meta":buildMeta(), "error":"Username already exists", "data": None}
 
@@ -803,7 +700,7 @@ class ApiMe(Resource):
 
         return {"meta":buildMeta(), "error":None, "data":None}
 
-    @login_required
+    @auth.login_required
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' an account! there are protocols!", "error": None}, 200
 
@@ -827,15 +724,15 @@ api.add_resource(ApiMe, '/api/me', '/api/me/', '/api/me/<string:user_id>', '/api
 ############
 
 class ApiBill(Resource):
-    @login_required
+    @auth.login_required
     def get(self, bill_id=None):
         billId = None
         paid_flag = None
         funded_flag = None
         newDict = {}
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -867,6 +764,8 @@ class ApiBill(Resource):
                 funded_flag = False
                 newDict['funded_flag'] = False
 
+        newDict['user_id'] = user.id
+
         if billId is not None:
             app.logger.info("looking for bill:" + billId)
             bill = Bill.query.filter_by(id=billId, user_id=user.id).first()
@@ -883,7 +782,7 @@ class ApiBill(Resource):
 
 
 
-    @login_required
+    @auth.login_required
     def put(self, bill_id=None):
         app.logger.debug('Accessing Bill.put')
 
@@ -903,8 +802,8 @@ class ApiBill(Resource):
         payment_processing_flag = None
         user = None
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1011,7 +910,7 @@ class ApiBill(Resource):
 
 
 
-    @login_required
+    @auth.login_required
     def post(self, bill_id=None):
         app.logger.debug('Accessing Bill.post')
 
@@ -1032,10 +931,8 @@ class ApiBill(Resource):
         payment_processing_flag = None
 
 
-
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
-
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1107,15 +1004,13 @@ class ApiBill(Resource):
 
         return {"meta":buildMeta(), 'data':newBill.serialize, "error":None}, 201
 
-    @login_required
+    @auth.login_required
     def delete(self, bill_id = None):
 
-
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
-
 
         #TODO: LOOK FOR CONTENT_TYPE
         if bill_id is None:
@@ -1153,16 +1048,16 @@ api.add_resource(ApiBill, '/api/bill', '/api/bill/', '/api/bill/<string:bill_id>
 ####################
 
 class ApiPaymentPlan(Resource):
-    @login_required
+    @auth.login_required
     def get(self, payment_plan_id=None):
         paymentPlanId = None
         accepted_flag = None
         bill_id = None
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         #TODO: BIND payment_plan with User ID based upon session
         if payment_plan_id is not None:
@@ -1223,12 +1118,12 @@ class ApiPaymentPlan(Resource):
 
             return {"meta":buildMeta(), "data":payment_plans, "error":None}, 200
 
-    @login_required
+    @auth.login_required
     def post(self, payment_plan_id=None):
         #TODO: MAKE A POST
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @login_required
+    @auth.login_required
     def put(self, payment_plan_id=None):
         app.logger.debug('Accessing PaymentPlan.put')
 
@@ -1244,8 +1139,8 @@ class ApiPaymentPlan(Resource):
         payment_plan_items = None
 
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1364,11 +1259,11 @@ class ApiPaymentPlan(Resource):
         return {"meta":buildMeta(), "data":payment_plan.serialize}
 
 
-    @login_required
+    @auth.login_required
     def delete(self, payment_plan_id = None):
 
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1407,13 +1302,13 @@ api.add_resource(ApiPaymentPlan, '/api/payment_plan', '/api/payment_plan/', '/ap
 #########################
 
 class ApiPaymentPlanItem(Resource):
-    @login_required
+    @auth.login_required
     def get(self, payment_plan_item_id=None):
         payment_plan_item_id = None
         payment_plan_id = None
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1441,13 +1336,13 @@ class ApiPaymentPlanItem(Resource):
 
             return {"meta":buildMeta(), "data":payment_plan_items, "error":None}, 200
 
-    @login_required
+    @auth.login_required
     def post(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.post')
         #TODO: Build POST
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @login_required
+    @auth.login_required
     def put(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.put')
 
@@ -1456,8 +1351,8 @@ class ApiPaymentPlanItem(Resource):
         user = None
         amount = None
 
-        if 'username' in session:
-            user=User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
@@ -1506,15 +1401,15 @@ class ApiPaymentPlanItem(Resource):
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan_item.serialize}
 
-    @login_required
+    @auth.login_required
     def delete(self, payment_plan_item_id=None):
         app.logger.debug('Accessing PaymentPlanItem.delete')
         bill_id = request.args.get('bill_id')
 
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if payment_plan_item_id is None:
             if bill_id is not None:
@@ -1564,7 +1459,7 @@ api.add_resource(ApiPaymentPlanItem, '/api/payment_plan_item', '/api/payment_pla
 ################
 
 class ApiFeedback(Resource):
-    @login_required
+    @auth.login_required
     def get(self, feedback_id=None):
         feedbackId = None;
 
@@ -1585,7 +1480,7 @@ class ApiFeedback(Resource):
         else:
             return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.all()], "error":None}, 202
 
-    @login_required
+    @auth.login_required
     def post(self, feedback_id=None):
         app.logger.debug('Accessing Feedback.post')
 
@@ -1595,9 +1490,8 @@ class ApiFeedback(Resource):
         feedback = None
 
 
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
-
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
         else:
@@ -1639,13 +1533,13 @@ class ApiFeedback(Resource):
         else:
             return {"meta":buildMeta(), 'error':'No feedback was provided'}, 201
 
-    @login_required
+    @auth.login_required
     def put(self, payment_plan_item_id=None):
         app.logger.debug('Accessing Feedback.put')
         #TODO: Build PUT
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
-    @login_required
+    @auth.login_required
     def delete(self, payment_plan_item_id=None):
         app.logger.debug('Accessing Feedback.delete')
         #TODO: Build PUT
@@ -1669,23 +1563,22 @@ api.add_resource(ApiFeedback, '/api/feedback', '/api/feedback/', '/api/feedback/
 
 class ApiConfirmEmail(Resource):
 
-    @login_required
+    @auth.login_required
     def get(self):
         return {"meta":buildMeta(), "error":None, "data":None}, 202
 
     #The PUT method is used to actually confirm the login email
-    @login_required
+    @auth.login_required
     def put(self, email_token=None):
         app.logger.debug('Accessing ConfirmEmail.put')
 
         user = None
         user_id = None
 
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
-
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found", "data":None}, 401
+            return {"meta":buildMeta(), "error":"No Session Found"}, 403
         else:
             user_id = user.id;
 
@@ -1721,16 +1614,15 @@ class ApiConfirmEmail(Resource):
 
     #The POST method is used to send new confirmation emails
     #it creates a new token and sends it to the user
-    @login_required
+    @auth.login_required
     def post(self, user_id=None):
         app.logger.debug('Accessing ConfirmEmail.post')
 
         user = None
         user_id = None
 
-        if 'username' in session:
-            user = User.query.filter_by(username=session['username']).first()
-
+        if g.user is not None:
+            user=User.query.get(g.user.id)
         if user is None:
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
         else:
@@ -1747,7 +1639,7 @@ class ApiConfirmEmail(Resource):
         else:
             return {"meta":buildMeta(), "error":"User has already confirmed email"}, 200
 
-    @login_required
+    @auth.login_required
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a confirmaion email! there are protocols!", "error": None}, 200
 
@@ -1899,7 +1791,7 @@ class ApiPasswordRecovery(Resource):
         send_password_recovery_email(user)
         return {"meta":buildMeta(), 'data':None}, 201
 
-    @login_required
+    @auth.login_required
     def delete(self, user_id = None):
         return {"meta":buildMeta(), "data": "Tisk, tisk. You cannot just simply 'DELETE' a password confirmation! there are protocols!", "error": None}, 200
 

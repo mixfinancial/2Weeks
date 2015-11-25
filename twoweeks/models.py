@@ -145,8 +145,6 @@ class User(Base, UserMixin):
     payment_plan_items = relationship("Payment_Plan_Item",  cascade="all, delete-orphan")
     payees = relationship("Payee",  cascade="all, delete-orphan")
 
-
-
     #TODO: This needs to be changed to an Indicator...
     #W: Weekly
     #B: Bi-Weekly
@@ -155,9 +153,6 @@ class User(Base, UserMixin):
     pay_recurrance_flag = Column(String(1), default="B");
 
     average_paycheck_amount = Column(Float(2), default="0");
-
-
-
 
     def __init__(self, **kwargs):
         # Setting Defaults
