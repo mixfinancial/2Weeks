@@ -1,6 +1,7 @@
 import json, string, random, unittest
 from datetime import datetime, timedelta
 import base64
+import jwt
 
 DEFAULT_ALPHABET_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 DEFAULT_ALPHABET_LOWER = "abcdefghijklmnopqrstuvwxyz"
@@ -48,10 +49,8 @@ def dump_date(value):
 def percent_difference(baseValue, compareValue):
     return (float(compareValue - baseValue) / baseValue)*100
 
-def buildHeaders(username, password = None):
-    if password is None:
-        password = 'unknown'
-    return {'authorization': "Basic "+base64.encodestring('%s:%s' % (username, password)).replace('\n', '')}
+def buildHeaders(token):
+    return {'authorization': "JWT "+str(token)}
 
 class testSupport:
     default_user_id = None

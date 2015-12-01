@@ -104,6 +104,7 @@ def authenticate(username, password):
     if user is None:
         app.logger.debug("Could not find user")
     if user.verify_password(password):
+        app.logger.debug("Found user "+ str(user.username))
         return user
 
 def identity(payload):
@@ -342,15 +343,9 @@ api.add_resource(ApiUser, '/api/user', '/api/user/', '/api/user/<string:user_id>
 class ApiMe(Resource):
     @jwt_required()
     def get(self, user_id=None):
-        user = None
-
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
-
-        if user is None:
-            return {"meta":buildMeta(),"error": "No results returned for "+ session['username'], "data": None}
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
         else:
             return {"meta":buildMeta(),"error": None, "data":[user.serialize]}, 200
 
@@ -377,10 +372,9 @@ class ApiMe(Resource):
         next_pay_date = None
         pay_recurrance_flag = None
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if user is not None:
             if request_is_json():
@@ -642,10 +636,9 @@ class ApiBill(Resource):
         funded_flag = None
         newDict = {}
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
 
 
@@ -713,10 +706,9 @@ class ApiBill(Resource):
         payment_processing_flag = None
         user = None
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if request_is_json():
             app.logger.info('Updating bill based upon JSON Request')
@@ -842,10 +834,9 @@ class ApiBill(Resource):
         payment_processing_flag = None
 
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if request_is_json():
             app.logger.info('Creating new user based upon JSON Request')
@@ -918,10 +909,9 @@ class ApiBill(Resource):
     @jwt_required()
     def delete(self, bill_id = None):
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         #TODO: LOOK FOR CONTENT_TYPE
         if bill_id is None:
@@ -965,10 +955,9 @@ class ApiPaymentPlan(Resource):
         accepted_flag = None
         bill_id = None
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         #TODO: BIND payment_plan with User ID based upon session
         if payment_plan_id is not None:
@@ -1040,7 +1029,6 @@ class ApiPaymentPlan(Resource):
 
         #TODO: Handle update
         user_id = None
-        user = None
         amount = None
         base_flag = None
         transfer_date = None
@@ -1050,10 +1038,9 @@ class ApiPaymentPlan(Resource):
         payment_plan_items = None
 
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if request_is_json():
             app.logger.info('Updating Payment Plan based upon JSON Request')
@@ -1173,10 +1160,9 @@ class ApiPaymentPlan(Resource):
     @jwt_required()
     def delete(self, payment_plan_id = None):
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         #TODO: LOOK FOR CONTENT_TYPE
         if payment_plan_id is None:
@@ -1218,10 +1204,9 @@ class ApiPaymentPlanItem(Resource):
         payment_plan_item_id = None
         payment_plan_id = None
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if payment_plan_item_id is not None:
             paymentPlanId = payment_plan_item_id
@@ -1262,10 +1247,9 @@ class ApiPaymentPlanItem(Resource):
         user = None
         amount = None
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if request_is_json():
             app.logger.info('Updating Payment Plan Item based upon JSON Request')
@@ -1317,10 +1301,9 @@ class ApiPaymentPlanItem(Resource):
         app.logger.debug('Accessing PaymentPlanItem.delete')
         bill_id = request.args.get('bill_id')
 
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if payment_plan_item_id is None:
             if bill_id is not None:
@@ -1395,18 +1378,14 @@ class ApiFeedback(Resource):
     def post(self, feedback_id=None):
         app.logger.debug('Accessing Feedback.post')
 
-        user = None
         user_id = None
         rating = None
         feedback = None
 
-
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
-        else:
-            user_id = user.id;
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
+
 
         if request_is_json():
             app.logger.info('Creating new feedback based upon JSON Request')
@@ -1483,15 +1462,9 @@ class ApiConfirmEmail(Resource):
     def put(self, email_token=None):
         app.logger.debug('Accessing ConfirmEmail.put')
 
-        user = None
-        user_id = None
-
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
-        else:
-            user_id = user.id;
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if request_is_json():
             app.logger.info('Creating new feedback based upon JSON Request')
@@ -1529,15 +1502,9 @@ class ApiConfirmEmail(Resource):
     def post(self, user_id=None):
         app.logger.debug('Accessing ConfirmEmail.post')
 
-        user = None
-        user_id = None
-
-        if g.user is not None:
-            user=User.query.get(g.user.id)
+        user = current_identity
         if user is None:
-            return {"meta":buildMeta(), "error":"No Session Found"}, 403
-        else:
-            user_id = user.id;
+            return {"meta":buildMeta(),"error": "No results returned for "+ current_identity, "data": None}
 
         if user.confirmed_at is None:
             confirm_token = generate_confirmation_token(user.email+str(datetime.utcnow()))

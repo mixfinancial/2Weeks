@@ -1,5 +1,5 @@
 import os
-import json, string, random, unittest
+import json, string, random, unittest, testUtils, base64, jwt
 from twoweeks import app
 from twoweeks.database import init_db
 from twoweeks.database import db_session
@@ -7,8 +7,6 @@ import twoweeks.config as config
 from twoweeks.models import User, Bill, Role, Payment_Plan, Payment_Plan_Item, Feedback
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
-import testUtils
-import base64
 
 class FlaskrTestCase(unittest.TestCase):
     default_user_id = None
@@ -31,12 +29,12 @@ class FlaskrTestCase(unittest.TestCase):
         self.user_id = newUser.id
         self.default_test_token = self.getAUthToken(self.default_test_username, self.default_test_password)
 
-        print "TEST USER ID: "+ str(newUser.id)
-        print "TEST USERNAME: "+ str(self.default_test_username)
-        print "TEST NAME"+ str(self.default_test_name)
-        print "TEST PASSWORD: " + str(self.default_test_password)
-        print "TEST DATE: " + testUtils.dump_date(self.default_test_date)
-        print "TEST TOKEN: " + str(self.default_test_token)
+        #print "TEST USER ID: "+ str(newUser.id)
+        #print "TEST USERNAME: "+ str(self.default_test_username)
+        #print "TEST NAME"+ str(self.default_test_name)
+        #print "TEST PASSWORD: " + str(self.default_test_password)
+        #print "TEST DATE: " + testUtils.dump_date(self.default_test_date)
+        #print "TEST TOKEN: " + str(self.default_test_token)
 
     def tearDown(self):
         #Bill.query.filter(models.User.first_name=self.default_test_name).delete()
@@ -153,29 +151,28 @@ class FlaskrTestCase(unittest.TestCase):
 
     def getAUthToken(self, username, password):
         #print "ATTEMPTING TO LOGIN"
-        rv =  self.app.get('/api/token/',headers=testUtils.buildHeaders(username,password), content_type='application/json')
+        rv =  self.app.post('/auth',data=json.dumps({"username":username,"password":password}), content_type='application/json')
         responseData = json.loads(rv.data)
-        data = responseData.get('data')
-        if data is None:
+        access_token = responseData.get('access_token')
+        if access_token is None:
             return None
         else:
-            return data.get('token')
+            return access_token
 
     def logout(self):
         return self.app.get('/api/logout', follow_redirects=True)
 
     def test_api_login(self):
-        rv =  self.app.get('/api/token/',headers=testUtils.buildHeaders(self.default_test_username, self.default_test_password), content_type='application/json')
+        rv =  self.app.post('/auth',data=json.dumps({"username":self.default_test_username,"password":self.default_test_password}), content_type='application/json')
         responseData = json.loads(rv.data)
-        data = responseData.get('data')
+        data = responseData.get('access_token')
         assert data is not None
-        assert data.get('token') is not None
 
     def test_api_me_endpoints(self):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/me')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         #THIS SHOULD BE ACCESSIBLE AS IT IS THE REGISTER ACTION
@@ -186,12 +183,12 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.put('/api/me')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/me')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -222,27 +219,28 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/bill')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.post('/api/bill')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/bill')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/bill')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
         #NOW WE TEST WHEN LOGGED IN
         rv = self.app.get('/api/bill', headers=testUtils.buildHeaders(self.default_test_token))
+        print data
         data = json.loads(rv.data)
         assert data['error'] is None
         assert '200 OK' == rv.status
@@ -268,22 +266,22 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/payment_plan')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.post('/api/payment_plan')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/payment_plan')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/payment_plan')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -314,22 +312,22 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/payment_plan_item')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.post('/api/payment_plan_item')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/payment_plan_item')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/payment_plan_item')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -360,22 +358,22 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/feedback')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.post('/api/feedback')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/feedback')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/feedback')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -406,22 +404,22 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/confirm_email')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.post('/api/confirm_email')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/confirm_email')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/confirm_email')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -467,7 +465,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.delete('/api/recover_password')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -498,23 +496,23 @@ class FlaskrTestCase(unittest.TestCase):
         #FIRST WE TEST THAT THINGS ARE WORKING WHEN UNAUTHENTICATED
         rv = self.app.get('/api/user')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         #THIS SHOULD BE ACCESSIBLE AS IT IS THE REGISTER ACTION
         rv = self.app.post('/api/user')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.put('/api/user')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
         rv = self.app.delete('/api/user')
         data = json.loads(rv.data)
-        assert 'User is not authenticated, please login' == data['error']
+        assert 'Authorization Required' == data['error']
         assert '401 UNAUTHORIZED' == rv.status
 
 
@@ -858,6 +856,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/api/bill/', headers=testUtils.buildHeaders(self.default_test_token))
 
         datas = json.loads(rv.data)
+        print datas
         assert datas['error'] is None
         assert datas['data'] is not None
 

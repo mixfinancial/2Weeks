@@ -9,13 +9,13 @@
 
 
 
-#user2='{"email": "blarrimore6@gmail.com", "first_name": "Ronald", "last_name": "Larrimore", "password": "null", "username": "blarrimore5@gmail.com"}'
+#user2='{"username": "davidlarrimore@gmail.com", "password": "may1098"}'
 
 #curl http://localhost:5000/api/user/ -d "data=$user2" -X POST
 
 #curl http://localhost:5000/api/user/1 -X DELETE
 auth='{"username":"xxxx", "password":"xxxx"}'
-curl http://localhost:5000/api/login -d "$auth" -X POST -H "Content-Type: application/json"
+curl http://localhost:5000/auth -d '{"username": "davidlarrimore@gmail.com", "password": "may1098"}' -X POST -H "Content-Type: application/json"
 
 
 bill1='{"user_id": "4", "name": "Test"}'
