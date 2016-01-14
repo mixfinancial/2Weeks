@@ -878,7 +878,7 @@ class ApiBill(Resource):
                 return jsonify(meta=buildMeta(), data=[bill.serialize], error=None)
         else:
 
-            print request.args
+            app.logger.debug(request.args)
             return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.filter_by(**newDict).all()], "error":None}
 
 

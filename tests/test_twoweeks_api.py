@@ -774,7 +774,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apiCreateNewUser(email = username, new_password = self.get_default_test_password())
         data = json.loads(rv.data)
         if data['error'] is not None:
-            print data['error']
+            print(data['error'])
         assert data['error'] is None
 
         self.login(username, self.get_default_test_password())
@@ -787,7 +787,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('api/confirm_email')
         data = json.loads(rv.data)
         if data['error'] is not None:
-            print data['error']
+            print(data['error'])
         assert data['error'] is None
 
         user = User.query.filter_by(username=username).first()
@@ -822,7 +822,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         data = json.loads(rv.data)
         if data['error'] is not None:
-            print data['error']
+            print(data['error'])
         assert data['error'] is None
 
         user = User.query.filter_by(username=username).first()

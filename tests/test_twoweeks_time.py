@@ -201,8 +201,8 @@ class FlaskrTestCase(unittest.TestCase):
 
         average = ((total1/y)+(total2/y)+(total3/y))/3
 
-        print "User Average: " + str(average)
-        print "User Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%"
+        print("User Average: " + str(average))
+        print("User Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%")
 
         assert testUtils.percent_difference(benchmark,average) < 10
 
@@ -235,8 +235,8 @@ class FlaskrTestCase(unittest.TestCase):
 
         average = ((total1/y)+(total2/y)+(total3/y))/3
 
-        print "Bill Average: " + str(average)
-        print "Bill Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%"
+        print("Bill Average: " + str(average))
+        print("Bill Percent Variance: "+ str(testUtils.percent_difference(benchmark,average))+"%")
 
         assert testUtils.percent_difference(benchmark,average) < 10
 
