@@ -1,4 +1,3 @@
-2Weeks
 pymysql
 Flask
 Flask-SQLAlchemy
