@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session, make_response
-import twoweeks.config as config
+from twoweeks import config
 from datetime import timedelta
 from twoweeks.token import generate_confirmation_token, confirm_token
 
