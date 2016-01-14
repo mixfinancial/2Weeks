@@ -9,5 +9,3 @@ pylint
 selenium
 werkzeug
 newrelic
-uwsgi
-MySQL-Python
