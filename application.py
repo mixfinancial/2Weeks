@@ -5,4 +5,4 @@ import twoweeks.config as config
 # main #
 ########
 if __name__ == "__main__":
-    application.run(debug=config.DEBUG, host=config.HOST)
+    application.run(debug=config.DEBUG)
