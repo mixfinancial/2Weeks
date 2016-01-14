@@ -9,3 +9,6 @@ pylint
 selenium
 werkzeug
 newrelic
+MySQL
+SQLAlchemy
+MySQL-python
