@@ -1,0 +1,49 @@
+<section class="usersFormPage" ng-controller="billTrackController">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <table id="bill-prep-table" class="table table-hover table-condensed bill-prep-table" ng-table="$scope.tableParams">
+                    <thead>
+                        <tr class="panel-heading">
+                            <th class="centered col-xs-1">Status</th>
+                            <th class="centered col-xs-2">Month</th>
+                            <th class="centered">Name</th>
+                            <th class="centered col-xs-1">Amount</th>
+                            <th class="centered col-xs-1">Chk#</th>
+                            <th class="centered col-xs-2">Paid Date</th>
+                            <th class="col-xs-2 col-sm-2">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="bill in bills | orderBy: ['-status','due_date'] track by bill.id" ng-class="{'success': bill.status == 5, 'info': bill.status == 4, 'warning': bill.status == 3 ||  bill.status == 2}">
+                            <td class="centered"><span class="badge" ng-class="{'badge-success': bill.status == 5, 'badge-info': bill.status == 4, 'badge-warning': bill.status == 3 ||  bill.status == 2}" tooltip-placement="top" uib-tooltip="{{bill.status_text}}"><span class="glyphicon glyphicon-{{bill.status_icon}}" aria-hidden="true"></span></span></td>
+                            <td>
+                                {{bill.due_date | date : 'MMM-y'}}
+                            </td>
+                            <td class="">
+                                <span class="pull-left">
+                                    {{bill.name}}
+                                </span>
+                            </td>
+                            <td>
+                               <span style="color:darkblue;" class="pull-right">${{bill.total_due | number:2}}</span>
+                            </td>
+                            <td class="centered">
+                                {{bill.check_number}}
+                            </td>
+                            <td>
+                                {{bill.paid_date | date : 'MMM d'}}
+                            </td>
+                            <td class="centered">
+                                <p class="list-group-item-text centered">
+                                    <button class="btn btn-warning btn-xs" ng-click="editBill(bill)"><span class="glyphicon glyphicon-edit"></span></button>
+                                    <button class="btn btn-danger btn-xs" ng-really-message="Are you sure you want to Unfund this bill?" ng-really-click="deletePaymentPlanItem(bill)" tooltip-placement="top" uib-tooltip="Unfund bill"><span class="glyphicon glyphicon-remove"></span></button>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> <!-- END BILL PREP TABLE -->
+    </div>
+</section>
