@@ -1,6 +1,6 @@
 import os
 import json, string, random, unittest, cProfile
-from twoweeks import app
+from twoweeks import application
 from twoweeks.database import init_db
 from twoweeks.database import db_session
 import twoweeks.config as config
@@ -53,9 +53,9 @@ class FlaskrTestCase(unittest.TestCase):
         self.set_default_test_username(testUtils.random_email_generator())
         self.set_default_test_date(datetime.utcnow())
 
-        app.debug = False
-        app.config['TESTING'] = True
-        self.app = app.test_client()
+        application.debug = False
+        application.config['TESTING'] = True
+        self.app = application.test_client()
         init_db()
         newUser = self.createNewUser(email=self.get_default_test_username(), new_password=self.get_default_test_password(), first_name=self.get_default_test_name(), last_name=self.get_default_test_name(), active=True, confirmed_at=True, next_pay_date=True)
         self.set_user_id(newUser.id)

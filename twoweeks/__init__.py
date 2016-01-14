@@ -13,16 +13,16 @@ from twoweeks.token import generate_confirmation_token, confirm_token
 # BASE CONFIGURATION #
 ######################
 
-app = Flask(__name__)
+application = Flask(__name__)
 
-app.debug = config.DEBUG
-app.config["SECRET_KEY"] = config.SECRET_KEY
-app.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
+application.debug = config.DEBUG
+application.config["SECRET_KEY"] = config.SECRET_KEY
+application.config['TRAP_BAD_REQUEST_ERRORS'] = config.TRAP_BAD_REQUEST_ERRORS
 
 
 # API CONFIG
 from flask_restful import Resource, Api
-api = Api(app)
+api = Api(application)
 
 
 
@@ -37,7 +37,7 @@ from sqlalchemy.sql import func
 
 init_db()
 
-@app.teardown_appcontext
+@application.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
 
@@ -50,14 +50,14 @@ from threading import Thread
 from flask.ext.mail import Mail, Message
 from .decorators import async
 
-app.config['MAIL_SERVER'] = config.MAIL_SERVER
-app.config['MAIL_PORT'] = config.MAIL_PORT
-app.config['MAIL_USE_TLS'] = config.MAIL_USE_TLS
-app.config['MAIL_USERNAME'] = config.MAIL_USERNAME
-app.config['MAIL_PASSWORD'] = config.MAIL_PASSWORD
-app.config['MAIL_DEFAULT_SENDER'] = config.MAIL_DEFAULT_SENDER
+application.config['MAIL_SERVER'] = config.MAIL_SERVER
+application.config['MAIL_PORT'] = config.MAIL_PORT
+application.config['MAIL_USE_TLS'] = config.MAIL_USE_TLS
+application.config['MAIL_USERNAME'] = config.MAIL_USERNAME
+application.config['MAIL_PASSWORD'] = config.MAIL_PASSWORD
+application.config['MAIL_DEFAULT_SENDER'] = config.MAIL_DEFAULT_SENDER
 
-mail = Mail(app)
+mail = Mail(application)
 
 @async
 def send_async_email(app, msg):
@@ -65,7 +65,7 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(subject, recipients, text_body=None, html_body=None):
-    if app.config['TESTING'] is not True:
+    if application.config['TESTING'] is not True:
         msg = Message(subject, recipients=recipients)
         if text_body is not None:
             msg.body = text_body
@@ -73,12 +73,12 @@ def send_email(subject, recipients, text_body=None, html_body=None):
             msg.html = html_body
 
         if text_body is not None and html_body is not None:
-            thr = Thread(target=send_async_email, args=[app, msg])
+            thr = Thread(target=send_async_email, args=[application, msg])
             thr.start()
 
-        app.logger.info("Sent Email")
+        application.logger.info("Sent Email")
     else:
-        app.logger.debug("In Test mode. not sending email")
+        application.logger.debug("In Test mode. not sending email")
 
 
 
@@ -90,14 +90,14 @@ def send_email(subject, recipients, text_body=None, html_body=None):
 ##################
 # AUTHENTICATION #
 ##################
-app.permanent_session_lifetime = timedelta(minutes=config.PERMANENT_SESSION_LIFETIME)
+application.permanent_session_lifetime = timedelta(minutes=config.PERMANENT_SESSION_LIFETIME)
 from werkzeug.security import generate_password_hash
 
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user, login_required
 import base64
 
 login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(application)
 
 
 @login_manager.user_loader
@@ -105,7 +105,7 @@ def load_user(user_id):
     return User.query.filter_by(id = user_id).first()
 
 
-@app.route('/login')
+@application.route('/login')
 def login():
     return '''
         <form action="/login/check" method="post">
@@ -116,20 +116,20 @@ def login():
     '''
 
 
-@app.route('/login/check', methods=['post'])
+@application.route('/login/check', methods=['post'])
 def login_check():
-    app.logger.info('User:' + request.form['username'] + ' attempting to login')
+    application.logger.info('User:' + request.form['username'] + ' attempting to login')
     # validate username and password
     if (request.form['username'] is not None and request.form['password'] is not None):
         user = User.query.filter_by(username = request.form['username']).first()
-        app.logger.info(user.id);
+        application.logger.info(user.id);
         if (user is not None and user.verify_password(request.form['password'])):
-            app.logger.info('User '+user.username+' is already logged in')
+            application.logger.info('User ' + user.username + ' is already logged in')
             login_user(user)
         else:
-            app.logger.info('Username or password incorrect')
+            application.logger.info('Username or password incorrect')
     else:
-        app.logger.info('Please provide a username and password')
+        application.logger.info('Please provide a username and password')
 
     return redirect(url_for('home'))
 
@@ -157,14 +157,14 @@ api.add_resource(ApiLoginCheck, '/api/login_check', '/api/login_check/')
 
 
 
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     session['username']= ''
     logout_user()
     return redirect(url_for('/'))
 
 
-@app.route('/adminLogout')
+@application.route('/adminLogout')
 def adminLogout():
     session['username']= ''
     logout_user()
@@ -204,17 +204,17 @@ class ApiLogin(Resource):
         if (username is not None and password is not None):
             user = User.query.filter_by(username = username).first()
             if user is None:
-                app.logger.debug('User Not Found')
+                application.logger.debug('User Not Found')
             if (user is not None and user.verify_password(password)):
-                app.logger.info('Successfully logged in as '+username)
+                application.logger.info('Successfully logged in as ' + username)
                 login_user(user)
                 session['username']=username
                 return {"meta":buildMeta(), "data": None, "error":None}, 200
             elif (config.DEBUG == True and username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD):
-                app.logger.info('Attempting to login as root user')
+                application.logger.info('Attempting to login as root user')
                 user = User.query.filter_by(username = username).first()
                 if (user is None):
-                    app.logger.info('No root user found, creating '+ config.ADMIN_USERNAME)
+                    application.logger.info('No root user found, creating ' + config.ADMIN_USERNAME)
                     newUser = User(username=config.ADMIN_USERNAME, password=config.ADMIN_PASSWORD, email=config.ADMIN_EMAIL, first_name='Admin', last_name='Admin')
                     db_session.add(newUser)
                     db_session.commit()
@@ -222,15 +222,15 @@ class ApiLogin(Resource):
                     session['username']=username
                     return {"meta":buildMeta(), "data": None, "error":None}, 200
                 else:
-                    app.logger.info('Successfully logged in as '+username)
+                    application.logger.info('Successfully logged in as ' + username)
                     login_user(user)
                     session['username']=username
                     return {"meta":buildMeta(), "data": None, "error":None}, 200
             else:
-                app.logger.info('User is None or Password did not verify')
+                application.logger.info('User is None or Password did not verify')
                 return {"meta":buildMeta(), "error":"Username or password incorrect", "data": None}, 403
         else:
-            app.logger.info('Please provide a username and password')
+            application.logger.info('Please provide a username and password')
             return {"meta":buildMeta(), "error":"Please provide a username and password", "data": None}, 403
 
 
@@ -281,18 +281,18 @@ def load_user_from_request(request):
 # Unauthorized_handler is the action that is performed if user is not authenticated
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    app.logger.info(request)
+    application.logger.info(request)
     if '/api' in str(request):
         return {"meta":buildMeta(), "error":"User is not authenticated, please login", "data":None}, 401
     elif '/admin' in str(request):
         return redirect('/admin/#/login')
     else:
         theURL = str(request.url)
-        app.logger.info('theURL: ' + theURL)
+        application.logger.info('theURL: ' + theURL)
         if "?" in theURL:
             urlParams = theURL[theURL.index('?'):len(theURL)]
             if urlParams is not None:
-                app.logger.info('urlParams: ' + urlParams)
+                application.logger.info('urlParams: ' + urlParams)
                 return redirect('/#/'+urlParams+'&auth_check=true')
             else:
                 return redirect('/#/login/')
@@ -302,7 +302,7 @@ def unauthorized_callback():
 
 
 
-@app.route('/api/token')
+@application.route('/api/token')
 @login_required
 def get_auth_token():
     token = g.user.generate_auth_token()
@@ -317,22 +317,22 @@ def get_auth_token():
 # Base Routes #
 ###############
 
-@app.route('/')
+@application.route('/')
 def index():
     #send_email('Test', ['david.larrimore@mixfin.com'], 'Test Flask Email', 'Test Flask Email')
     return render_template('index.html')
 
-@app.route('/home/')
+@application.route('/home/')
 @login_required
 def home():
     return render_template('home.html')
 
-@app.route('/admin/')
+@application.route('/admin/')
 def adminLogin():
     return render_template('index.html')
 
 
-@app.route('/admin/home/')
+@application.route('/admin/home/')
 @login_required
 def adminHome():
     return render_template('admin.html')
@@ -359,9 +359,9 @@ class ApiUser(Resource):
             userID = request.args.get('user_id')
 
         if userID is not None:
-            app.logger.info("looking for user:" + userID)
+            application.logger.info("looking for user:" + userID)
             user = User.query.filter_by(id=userID).first()
-            app.logger.info(user)
+            application.logger.info(user)
 
             if user is None:
                 return {"meta":buildMeta(),"error": "No results returned for user id #"+ userID, "data":None}, 200
@@ -372,7 +372,7 @@ class ApiUser(Resource):
 
     @login_required
     def put(self, user_id=None):
-        app.logger.debug('Accessing User.put')
+        application.logger.debug('Accessing User.put')
         id = ''
         username = ''
         new_password = ''
@@ -392,8 +392,8 @@ class ApiUser(Resource):
 
         if user is not None:
             if request_is_json():
-                app.logger.info('Updating user based upon JSON Request')
-                app.logger.debug(json.dumps(request.get_json()))
+                application.logger.info('Updating user based upon JSON Request')
+                application.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 for key,value in data.iteritems():
                     #app.logger.debug(key+'-'+str(value))
@@ -414,7 +414,7 @@ class ApiUser(Resource):
                         user.last_name = value
             elif request_is_form_urlencode():
                 # TODO: Handle nulls
-                app.logger.info('Updating user '+username)
+                application.logger.info('Updating user ' + username)
                 requestData = json.loads(request.form['data'])
                 user.username = requestData['email']
                 user.email = requestData['email']
@@ -438,7 +438,7 @@ class ApiUser(Resource):
 
     @login_required
     def post(self, user_id=None):
-        app.logger.debug('Accessing User.post')
+        application.logger.debug('Accessing User.post')
 
         username = ''
         password = ''
@@ -449,8 +449,8 @@ class ApiUser(Resource):
         role_id = ''
 
         if request_is_json():
-            app.logger.info('Creating new user based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Creating new user based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
                 #app.logger.debug(key+'-'+str(value))
@@ -466,7 +466,7 @@ class ApiUser(Resource):
                 elif key == 'last_name':
                     last_name = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             username = requestData['email']
             email = requestData['email']
@@ -498,7 +498,7 @@ class ApiUser(Resource):
         if user_id is None:
             return {"meta":buildMeta(), "data": None, "error":"User ID is Required"}, 202
 
-        app.logger.info("Deleting User #: " + user_id)
+        application.logger.info("Deleting User #: " + user_id)
         user = User.query.filter_by(id=user_id).first()
         db_session.delete(user)
         db_session.commit()
@@ -551,7 +551,7 @@ class ApiMe(Resource):
     ####################
     @login_required
     def put(self, user_id=None):
-        app.logger.debug('Accessing User.put')
+        application.logger.debug('Accessing User.put')
         id = ''
         username = None
         new_password = None
@@ -575,8 +575,8 @@ class ApiMe(Resource):
 
         if user is not None:
             if request_is_json():
-                app.logger.info('Updating user based upon JSON Request')
-                app.logger.debug(json.dumps(request.get_json()))
+                application.logger.info('Updating user based upon JSON Request')
+                application.logger.debug(json.dumps(request.get_json()))
                 data = request.get_json()
                 if data:
                     for key,value in data.iteritems():
@@ -606,7 +606,7 @@ class ApiMe(Resource):
                     return {"meta":buildMeta(), "error":"No Data Sent", "data": None}
             elif request_is_form_urlencode():
                 # TODO: Handle nulls
-                app.logger.info('Updating user '+username)
+                application.logger.info('Updating user ' + username)
                 requestData = json.loads(request.form['data'])
                 username = requestData['email']
                 email = requestData['email']
@@ -646,15 +646,15 @@ class ApiMe(Resource):
 
         #Password Change Logic
         if current_password and new_password and confirm_new_password:
-            app.logger.info('Current Password:'+user.password+', Proposed Password:'+generate_password_hash(new_password))
+            application.logger.info('Current Password:' + user.password + ', Proposed Password:' + generate_password_hash(new_password))
             if new_password == confirm_new_password and user.verify_password(current_password) and current_password != new_password:
-                app.logger.info("Everything checks out, creating new password")
+                application.logger.info("Everything checks out, creating new password")
                 user.password = generate_password_hash(new_password)
             elif current_password == new_password:
-                app.logger.info("Your new password must be different than your own password")
+                application.logger.info("Your new password must be different than your own password")
                 return {"meta":buildMeta(), "error":"Your new password must be different than your own password"}
             elif user.verify_password(current_password) == False:
-                app.logger.info("Current password does not match our records. Please try again")
+                application.logger.info("Current password does not match our records. Please try again")
                 return {"meta":buildMeta(), "error":"Current password does not match our records. Please try again"}
             elif new_password != confirm_new_password:
                 return {"meta":buildMeta(), "error":"New passwords do not match"}
@@ -683,7 +683,7 @@ class ApiMe(Resource):
     # REGISTER USER ACTION #
     ########################
     def post(self, user_id=None):
-        app.logger.debug('Accessing Me.post (Registering New User)')
+        application.logger.debug('Accessing Me.post (Registering New User)')
 
         id = ''
         username = None
@@ -730,7 +730,7 @@ class ApiMe(Resource):
                 return {"meta":buildMeta(), "error":"No Data Sent", "data": None}, 202
         elif request_is_form_urlencode():
             # TODO: Handle nulls
-            app.logger.info('Updating user '+username)
+            application.logger.info('Updating user ' + username)
             requestData = json.loads(request.form['data'])
             username = requestData['email']
             email = requestData['email']
@@ -755,23 +755,23 @@ class ApiMe(Resource):
         #TODO: CONFIRM EMAIL IS VALID EMAIL ADDRESS
         # REQUIRED FIELD CHECKS
         if email is None or confirm_email is None:
-            app.logger.debug("Registration Failed, email was not provied")
+            application.logger.debug("Registration Failed, email was not provied")
             return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
         if email is None or confirm_email is None:
-            app.logger.debug("User '"+email+"' Registration failed, Confirm password was not provided")
+            application.logger.debug("User '" + email + "' Registration failed, Confirm password was not provided")
             return {"meta":buildMeta(), "error":"Email and confirmation email is required", "data": None}
         if new_password is None:
-            app.logger.debug("User '"+email+"' Registration failed, password was not provided")
+            application.logger.debug("User '" + email + "' Registration failed, password was not provided")
             return {"meta":buildMeta(), "error":"Password is required", "data": None}
         if new_password != confirm_new_password:
-            app.logger.debug("User '"+email+"' Registration failed, new_password does not match confirm_new_password")
+            application.logger.debug("User '" + email + "' Registration failed, new_password does not match confirm_new_password")
             return {"meta":buildMeta(), "error":"Passwords do not match", "data": None}
         if first_name is None or last_name is None:
-            app.logger.debug("User '"+email+"' Registration failed, First and Last name is required")
+            application.logger.debug("User '" + email + "' Registration failed, First and Last name is required")
             return {"meta":buildMeta(), "error":"First and last name is required", "data": None}
         if  pay_recurrance_flag is None or next_pay_date is None:
             #TODO: Verify pay_recurrance_flag is in list
-            app.logger.debug("User '"+email+"' Registration failed, Pay Recurrance and Next Pay Date is Required")
+            application.logger.debug("User '" + email + "' Registration failed, Pay Recurrance and Next Pay Date is Required")
             return {"meta":buildMeta(), "error":"Pay Recurrance and Next Pay Date is Required", "data": None}
 
         if email != confirm_email:
@@ -849,26 +849,26 @@ class ApiBill(Resource):
 
         if request.args.get('paid_flag') is not None:
             if request.args.get('paid_flag').upper() == 'TRUE':
-                app.logger.info('paid flag is TRUE')
+                application.logger.info('paid flag is TRUE')
                 paid_flag = True
                 newDict['paid_flag'] = True
             elif request.args.get('paid_flag').upper() == 'FALSE':
-                app.logger.info('paid flag is FALSE')
+                application.logger.info('paid flag is FALSE')
                 paid_flag = False
                 newDict['paid_flag'] = False
 
         if request.args.get('funded_flag') is not None:
             if request.args.get('funded_flag').upper() == 'TRUE':
-                app.logger.info('funded flag is TRUE')
+                application.logger.info('funded flag is TRUE')
                 funded_flag = True
                 newDict['funded_flag'] = True
             elif request.args.get('funded_flag').upper() == 'FALSE':
-                app.logger.info('funded flag is FALSE')
+                application.logger.info('funded flag is FALSE')
                 funded_flag = False
                 newDict['funded_flag'] = False
 
         if billId is not None:
-            app.logger.info("looking for bill:" + billId)
+            application.logger.info("looking for bill:" + billId)
             bill = Bill.query.filter_by(id=billId, user_id=user.id).first()
             #app.logger.debug(bill)
 
@@ -878,14 +878,14 @@ class ApiBill(Resource):
                 return jsonify(meta=buildMeta(), data=[bill.serialize], error=None)
         else:
 
-            app.logger.debug(request.args)
+            application.logger.debug(request.args)
             return {"meta":buildMeta(), "data":[i.serialize for i in Bill.query.filter_by(**newDict).all()], "error":None}
 
 
 
     @login_required
     def put(self, bill_id=None):
-        app.logger.debug('Accessing Bill.put')
+        application.logger.debug('Accessing Bill.put')
 
         #TODO: Handle update
         user_id = None
@@ -909,8 +909,8 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if request_is_json():
-            app.logger.info('Updating bill based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Updating bill based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data:
                 for key,value in data.iteritems():
@@ -940,7 +940,7 @@ class ApiBill(Resource):
                     elif key == 'payment_processing_flag':
                         payment_processing_flag = value
         elif request_is_form_urlencode():
-            app.logger.info('Updating bill #'+bill_id)
+            application.logger.info('Updating bill #' + bill_id)
             requestData = json.loads(request.form['data'])
 
             name = requestData['name']
@@ -1013,7 +1013,7 @@ class ApiBill(Resource):
 
     @login_required
     def post(self, bill_id=None):
-        app.logger.debug('Accessing Bill.post')
+        application.logger.debug('Accessing Bill.post')
 
         user = None
 
@@ -1040,8 +1040,8 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if request_is_json():
-            app.logger.info('Creating new user based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Creating new user based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             for key,value in data.iteritems():
                 #app.logger.debug(key+'-'+str(value))
@@ -1068,7 +1068,7 @@ class ApiBill(Resource):
                 elif key == 'payment_processing_flag':
                     payment_processing_flag = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             name = requestData['name']
             description = requestData['description']
@@ -1122,7 +1122,7 @@ class ApiBill(Resource):
             return {"meta":buildMeta(), "error":"Could not find bill"}, 202
 
 
-        app.logger.info("Deleting Bill #: " + bill_id)
+        application.logger.info("Deleting Bill #: " + bill_id)
         bill = Bill.query.filter_by(id=bill_id, user_id=user.id).first()
         if bill is not None:
             db_session.delete(bill)
@@ -1172,10 +1172,10 @@ class ApiPaymentPlan(Resource):
 
         if request.args.get('accepted_flag') is not None:
             if request.args.get('accepted_flag').upper() == 'TRUE':
-                app.logger.info('accepted_flag is true')
+                application.logger.info('accepted_flag is true')
                 accepted_flag = True
             elif request.args.get('accepted_flag').upper() == 'FALSE':
-                app.logger.info('accepted_flag is false')
+                application.logger.info('accepted_flag is false')
                 accepted_flag = False
 
         if request.args.get('bill_id') is not None:
@@ -1183,9 +1183,9 @@ class ApiPaymentPlan(Resource):
 
         #TODO: Add some logic for "Base_flag" filtering
         if paymentPlanId is not None:
-            app.logger.info("looking for payment plan:" + paymentPlanId)
+            application.logger.info("looking for payment plan:" + paymentPlanId)
             payment_plan = Payment_Plan.query.filter_by(id=paymentPlanId, user_id=user.id).first()
-            app.logger.info(payment_plan)
+            application.logger.info(payment_plan)
 
             if payment_plan is None:
                 return {"meta":buildMeta(), 'data':[], "error":None}, 200
@@ -1198,7 +1198,7 @@ class ApiPaymentPlan(Resource):
                     payment_plan = Payment_Plan.query.filter_by(user_id=user.id, accepted_flag=accepted_flag).first()
                     if payment_plan is None:
                         #User does not have a working payment plan...creating new one
-                        app.logger.info('User does not have a working payment plan...creating new one')
+                        application.logger.info('User does not have a working payment plan...creating new one')
                         newPaymentPlan = Payment_Plan(user_id=user.id, accepted_flag=False, base_flag=False, amount=0)
                         db_session.add(newPaymentPlan)
                         db_session.commit()
@@ -1230,7 +1230,7 @@ class ApiPaymentPlan(Resource):
 
     @login_required
     def put(self, payment_plan_id=None):
-        app.logger.debug('Accessing PaymentPlan.put')
+        application.logger.debug('Accessing PaymentPlan.put')
 
         #TODO: Handle update
         user_id = None
@@ -1250,8 +1250,8 @@ class ApiPaymentPlan(Resource):
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if request_is_json():
-            app.logger.info('Updating Payment Plan based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Updating Payment Plan based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
@@ -1269,7 +1269,7 @@ class ApiPaymentPlan(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No JSON Data Sent"}
         elif request_is_form_urlencode():
-            app.logger.info('Updating Payment Plan based upon form Request')
+            application.logger.info('Updating Payment Plan based upon form Request')
             requestData = json.loads(request.form['data'])
             if requestData is not None:
                 payment_plan_id = requestData['payment_plan_id']
@@ -1345,21 +1345,21 @@ class ApiPaymentPlan(Resource):
                     if total_paid is not None:
                         if total_paid.sum_amount is not None:
                             paid_amount = float(total_paid.sum_amount)
-                    app.logger.info("Bill Amount = $" + str(bill.total_due))
-                    app.logger.info("total_paid = $" + str(round(paid_amount,2)))
+                    application.logger.info("Bill Amount = $" + str(bill.total_due))
+                    application.logger.info("total_paid = $" + str(round(paid_amount, 2)))
                     if round(paid_amount,2) == float(bill.total_due):
-                        app.logger.info("Bill '" +bill.name+ "' is fully paid!")
+                        application.logger.info("Bill '" + bill.name + "' is fully paid!")
                         bill.funded_flag = True
                         db_session.commit()
                     else:
-                        app.logger.info("Bill '" +bill.name+ "' is not fully paid")
+                        application.logger.info("Bill '" + bill.name + "' is not fully paid")
 
 
             elif accepted_flag is False:
                 payment_plan.accepted_flag = False
 
         payment_plan.last_updated = datetime.utcnow()
-        app.logger.info('Saving Payment Plan')
+        application.logger.info('Saving Payment Plan')
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan.serialize}
 
@@ -1376,7 +1376,7 @@ class ApiPaymentPlan(Resource):
         if payment_plan_id is None:
             return {"meta":buildMeta(), "error":"Could not find payment plan"}, 202
 
-        app.logger.info("Deleting Payment Plan #: " + payment_plan_id)
+        application.logger.info("Deleting Payment Plan #: " + payment_plan_id)
         bill = Payment_Plan.query.filter_by(id=payment_plan_id, user_id=user.id).first()
         if bill is not None:
             db_session.delete(bill)
@@ -1426,7 +1426,7 @@ class ApiPaymentPlanItem(Resource):
             payment_plan_id = request.args.get('payment_plan_id')
 
         if payment_plan_item_id is not None:
-            app.logger.info("looking for Payment Plan Item:" + payment_plan_item_id)
+            application.logger.info("looking for Payment Plan Item:" + payment_plan_item_id)
             payment_plan_items = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
 
             if payment_plan_items is None:
@@ -1443,13 +1443,13 @@ class ApiPaymentPlanItem(Resource):
 
     @login_required
     def post(self, payment_plan_item_id=None):
-        app.logger.debug('Accessing PaymentPlanItem.post')
+        application.logger.debug('Accessing PaymentPlanItem.post')
         #TODO: Build POST
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
     @login_required
     def put(self, payment_plan_item_id=None):
-        app.logger.debug('Accessing PaymentPlanItem.put')
+        application.logger.debug('Accessing PaymentPlanItem.put')
 
         #TODO: Handle update
         user_id = None
@@ -1462,8 +1462,8 @@ class ApiPaymentPlanItem(Resource):
             return {"meta":buildMeta(), "error":"No Session Found"}, 403
 
         if request_is_json():
-            app.logger.info('Updating Payment Plan Item based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Updating Payment Plan Item based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
@@ -1475,7 +1475,7 @@ class ApiPaymentPlanItem(Resource):
             else:
                 return {"meta":buildMeta(), "error":"No JSON Data Sent"}
         elif request_is_form_urlencode():
-            app.logger.info('Updating Payment Plan Item based upon form Request')
+            application.logger.info('Updating Payment Plan Item based upon form Request')
             requestData = json.loads(request.form['data'])
             if requestData is not None:
                 payment_plan_item_id = requestData['payment_plan_item_id']
@@ -1494,7 +1494,7 @@ class ApiPaymentPlanItem(Resource):
                 return {"meta":buildMeta(), "error":"No Payment Plan ID Provided"}
 
         payment_plan_item = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
-        app.logger.info(payment_plan_item)
+        application.logger.info(payment_plan_item)
 
         if payment_plan_item is None:
             return {"meta":buildMeta(), 'error':'Could not find Payment Plan Item', 'data':[]}
@@ -1502,13 +1502,13 @@ class ApiPaymentPlanItem(Resource):
         if amount is not None:
             payment_plan_item.amount = amount
 
-        app.logger.info('Saving Payment Plan Item')
+        application.logger.info('Saving Payment Plan Item')
         db_session.commit()
         return {"meta":buildMeta(), "data":payment_plan_item.serialize}
 
     @login_required
     def delete(self, payment_plan_item_id=None):
-        app.logger.debug('Accessing PaymentPlanItem.delete')
+        application.logger.debug('Accessing PaymentPlanItem.delete')
         bill_id = request.args.get('bill_id')
 
         if 'username' in session:
@@ -1520,7 +1520,7 @@ class ApiPaymentPlanItem(Resource):
             if bill_id is not None:
                 bill = Bill.query.filter_by(id=bill_id, user_id=user.id).first()
                 if bill is not None:
-                    app.logger.info("Deleting all Payment_plan_items from bill #" + str(bill_id))
+                    application.logger.info("Deleting all Payment_plan_items from bill #" + str(bill_id))
                     bill.funded_flag = False;
                     bill.payment_processing_flag = False;
                     Payment_Plan_Item.query.filter_by(bill_id=bill_id).delete()
@@ -1533,7 +1533,7 @@ class ApiPaymentPlanItem(Resource):
         else:
             payment_plan_item = Payment_Plan_Item.query.filter_by(id=payment_plan_item_id, user_id=user.id).first()
             if payment_plan_item is not None:
-                app.logger.info("Deleting Payment_plan_item #" + str(payment_plan_item_id))
+                application.logger.info("Deleting Payment_plan_item #" + str(payment_plan_item_id))
                 db_session.delete(payment_plan_item)
                 db_session.commit()
                 return {"meta":buildMeta(), "data" : None, "error":None}, 200
@@ -1574,9 +1574,9 @@ class ApiFeedback(Resource):
             feedbackId = request.args.get('feedback_id')
 
         if feedbackId is not None:
-            app.logger.info("looking for feedback:" + feedbackId)
+            application.logger.info("looking for feedback:" + feedbackId)
             feedback = Feedback.query.filter_by(id=feedbackId).first()
-            app.logger.debug(feedback)
+            application.logger.debug(feedback)
 
             if feedback is None:
                 return {"meta":buildMeta(), 'data':[], "error":None}, 200
@@ -1587,7 +1587,7 @@ class ApiFeedback(Resource):
 
     @login_required
     def post(self, feedback_id=None):
-        app.logger.debug('Accessing Feedback.post')
+        application.logger.debug('Accessing Feedback.post')
 
         user = None
         user_id = None
@@ -1604,8 +1604,8 @@ class ApiFeedback(Resource):
             user_id = user.id;
 
         if request_is_json():
-            app.logger.info('Creating new feedback based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Creating new feedback based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
@@ -1615,7 +1615,7 @@ class ApiFeedback(Resource):
                     if key == 'feedback':
                         feedback = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             rating = requestData['rating']
             feedback = requestData['feedback']
@@ -1641,13 +1641,13 @@ class ApiFeedback(Resource):
 
     @login_required
     def put(self, payment_plan_item_id=None):
-        app.logger.debug('Accessing Feedback.put')
+        application.logger.debug('Accessing Feedback.put')
         #TODO: Build PUT
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
     @login_required
     def delete(self, payment_plan_item_id=None):
-        app.logger.debug('Accessing Feedback.delete')
+        application.logger.debug('Accessing Feedback.delete')
         #TODO: Build PUT
         return {"meta":buildMeta(), "data":None, "error":None}, 202
 
@@ -1676,7 +1676,7 @@ class ApiConfirmEmail(Resource):
     #The PUT method is used to actually confirm the login email
     @login_required
     def put(self, email_token=None):
-        app.logger.debug('Accessing ConfirmEmail.put')
+        application.logger.debug('Accessing ConfirmEmail.put')
 
         user = None
         user_id = None
@@ -1690,8 +1690,8 @@ class ApiConfirmEmail(Resource):
             user_id = user.id;
 
         if request_is_json():
-            app.logger.info('Creating new feedback based upon JSON Request')
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.info('Creating new feedback based upon JSON Request')
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
 
@@ -1700,7 +1700,7 @@ class ApiConfirmEmail(Resource):
                     if key == 'email_token':
                         email_token = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             email_token = requestData['email_token']
         elif request.content_type is None or not request.content_type:
@@ -1709,7 +1709,7 @@ class ApiConfirmEmail(Resource):
             return {"meta":buildMeta(), "error":"Unable to process "+ str(request.content_type), "data":None}, 202
 
         if email_token is not None and email_token == user.confirm_token:
-            app.logger.info('correct token provided, activating account')
+            application.logger.info('correct token provided, activating account')
             user.active = True
             user.confirm_token = None
             user.confirmed_at = datetime.utcnow()
@@ -1723,7 +1723,7 @@ class ApiConfirmEmail(Resource):
     #it creates a new token and sends it to the user
     @login_required
     def post(self, user_id=None):
-        app.logger.debug('Accessing ConfirmEmail.post')
+        application.logger.debug('Accessing ConfirmEmail.post')
 
         user = None
         user_id = None
@@ -1738,7 +1738,7 @@ class ApiConfirmEmail(Resource):
 
         if user.confirmed_at is None:
             confirm_token = generate_confirmation_token(user.email+str(datetime.utcnow()))
-            app.logger.debug('created new confirmation token '+confirm_token+' for '+user.email);
+            application.logger.debug('created new confirmation token ' + confirm_token + ' for ' + user.email);
             user.confirm_token = confirm_token;
             db_session.commit()
 
@@ -1773,7 +1773,7 @@ class ApiPasswordRecovery(Resource):
 
     #The PUT method is used to actually change the password
     def put(self, email_address=None):
-        app.logger.debug('Accessing ApiPasswordRecovery.put')
+        application.logger.debug('Accessing ApiPasswordRecovery.put')
 
         password_recovery_token = None
         new_password = None
@@ -1781,7 +1781,7 @@ class ApiPasswordRecovery(Resource):
 
 
         if request_is_json():
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
@@ -1795,7 +1795,7 @@ class ApiPasswordRecovery(Resource):
                     elif key == 'email_address':
                         data_email_address = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             password_recovery_token = requestData['password_token']
             new_password = requestData['new_password']
@@ -1830,7 +1830,7 @@ class ApiPasswordRecovery(Resource):
         if password_recovery_token is not None and password_recovery_token == user.confirm_token:
             if new_password and confirm_new_password:
                 if new_password == confirm_new_password:
-                    app.logger.info("Everything checks out, setting new password")
+                    application.logger.info("Everything checks out, setting new password")
                     user.password = generate_password_hash(new_password)
                     user.confirm_token = None
                     user.password_recovery_date = None
@@ -1853,12 +1853,12 @@ class ApiPasswordRecovery(Resource):
     #The POST method is used to send the password recovery email
     #it creates a new token and sends it to the user
     def post(self, email_address=None):
-        app.logger.debug('Accessing ApiPasswordRecovery.post')
+        application.logger.debug('Accessing ApiPasswordRecovery.post')
 
         email_address = None
 
         if request_is_json():
-            app.logger.debug(json.dumps(request.get_json()))
+            application.logger.debug(json.dumps(request.get_json()))
             data = request.get_json()
             if data is not None:
                 for key,value in data.iteritems():
@@ -1866,7 +1866,7 @@ class ApiPasswordRecovery(Resource):
                     if key == 'email_address':
                         data_email_address = value
         elif request_is_form_urlencode():
-            app.logger.info('Creating new user based upon other Request')
+            application.logger.info('Creating new user based upon other Request')
             requestData = json.loads(request.form['data'])
             data_email_address = requestData['email_address']
         elif request.content_type is None or not request.content_type:
@@ -1888,7 +1888,7 @@ class ApiPasswordRecovery(Resource):
             return {"meta":buildMeta(), "error":"No account found with that email address"}
 
         confirm_token = generate_confirmation_token(user.email+str(datetime.utcnow()))
-        app.logger.debug('created new confirmation token '+confirm_token+' for '+user.email);
+        application.logger.debug('created new confirmation token ' + confirm_token + ' for ' + user.email);
         #app.logger.info(confirm_token);
 
         #SETTING EXPIRATION DATE
@@ -1956,7 +1956,7 @@ def buildMeta():
 
 def send_email_confirmation_email(first_name, last_name, email, confirm_token):
 
-    app.logger.info("Sending Welcome Email")
+    application.logger.info("Sending Welcome Email")
     html_message = '''
     <p>Hello '''+first_name+''',</p>
     <p>Thank you for registering with 2Weeks. In order to fully activate your account, you need to click the link below:</p>
@@ -1975,7 +1975,7 @@ def send_email_confirmation_email(first_name, last_name, email, confirm_token):
 
 def send_password_recovery_email(user):
 
-    app.logger.info("Sending Password Recovery Email")
+    application.logger.info("Sending Password Recovery Email")
     html_message = '''
     <p>Hello '''+user.first_name+''',</p>
     <p>We have received a request to recover the password for your account. In order to complete this action, you need to click the link below:</p>
@@ -2005,4 +2005,4 @@ def send_password_recovery_email(user):
 # main #
 ########
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    application.run(debug=config.DEBUG, host=config.HOST)

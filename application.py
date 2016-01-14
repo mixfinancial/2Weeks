@@ -1,5 +1,8 @@
-from twoweeks import app as application
+from twoweeks import application as application
 import twoweeks.config as config
 
-#application.run(debug=config.DEBUG, host=config.HOST)
-application.run(debug=config.DEBUG)
+########
+# main #
+########
+if __name__ == "__main__":
+    application.run(debug=config.DEBUG, host=config.HOST)

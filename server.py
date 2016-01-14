@@ -5,7 +5,7 @@ __author__ = 'game'
 # from app import application
 # Example:
 
-from twoweeks import app
+from twoweeks import application
 
 from flask import Flask
 application = Flask(__name__)
