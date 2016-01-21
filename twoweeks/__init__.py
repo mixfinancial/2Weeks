@@ -1,11 +1,10 @@
 __author__ = 'davidlarrimore'
 
 import json
-from datetime import datetime
-
+from datetime import datetime, timedelta
+import dateutil.parser
 from flask import Flask, render_template, request, jsonify, abort, g , flash, url_for, redirect, session, make_response
 import config as config
-from datetime import timedelta
 from twoweeks.token import generate_confirmation_token, confirm_token
 
 
@@ -788,7 +787,7 @@ class ApiMe(Resource):
 
         #print due_date
         if next_pay_date is not None:
-            next_pay_date = datetime.strptime(next_pay_date, "%Y-%m-%d")
+            next_pay_date = dateutil.parser.parse(next_pay_date)
 
 
         newUser = User(username=email, password=new_password, email=email, first_name=first_name, last_name=last_name, next_pay_date = next_pay_date, pay_recurrance_flag = pay_recurrance_flag,  account_balance_amount=account_balance_amount,  confirm_token=confirm_token)
@@ -1089,7 +1088,7 @@ class ApiBill(Resource):
 
         #print due_date
         if due_date is not None:
-            due_date = datetime.strptime(due_date, "%Y-%m-%d")
+            due_date = dateutil.parser.parse(due_date)
 
         if name is None or total_due is None:
             return {"meta":buildMeta(), "error":"Bills require a name and Total amount due", "data":None}
