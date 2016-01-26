@@ -212,7 +212,10 @@ loginAppControllers.controller("loginAppLoginController",['$scope', '$location',
                         ngToast.danger(data.error);
                         console.log(data.error);
                     }
-                });
+                }, function(error){
+                    console.log(error);
+                    ngToast.danger(error.data.error)
+            });
             }
         }else if($scope.sectionFlag == 'register'){
         //REGISTERING NEW USER
